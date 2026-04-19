@@ -194,6 +194,57 @@
       font-size: 0.75rem;
       color: var(--muted);
     }
+
+    .gate-panel {
+      margin-bottom: 1rem;
+      padding: 0.75rem 0.85rem;
+      border-radius: var(--radius);
+      background: #1a2230;
+      border: 1px solid var(--border);
+      font-size: 0.8rem;
+    }
+
+    .gate-panel strong {
+      color: var(--accent);
+      font-weight: 600;
+    }
+
+    .gate-rows {
+      margin-top: 0.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+    }
+
+    .gate-row {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: var(--muted);
+      font-size: 0.78rem;
+    }
+
+    .gate-row span.n {
+      min-width: 2.5rem;
+      color: var(--text);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .gate-bar {
+      flex: 1;
+      height: 6px;
+      border-radius: 999px;
+      background: var(--border);
+      overflow: hidden;
+    }
+
+    .gate-bar i {
+      display: block;
+      height: 100%;
+      border-radius: 999px;
+      background: var(--accent);
+      max-width: 100%;
+    }
   </style>
 </head>
 <body>
@@ -212,10 +263,14 @@
     (function () {
       const DATA_URL = "data/cards.json";
       const STORAGE_KEY = "english-random-card-session";
-      const STORAGE_VERSION = 2;
+      const STORAGE_VERSION = 3;
+      const PROGRESS_KEY = "english-random-card-study-progress";
+      const PROGRESS_VERSION = 1;
+      /** studyDate 기준: 오늘 6회 → 어제 4회 → 그제 2회 순차 게이트 후, 날짜 구간별 6:4:2 가중 */
+      const SEQ_GOALS = { today: 6, yesterday: 4, dayBefore: 2 };
       /** 같은 날 같은 카드가 두 번 나오지 않도록 고정 */
       const ALLOW_SAME_CARD_TWICE_SAME_DAY = false;
-      const WEIGHTS = { latest: 10, prev: 6, older: 3 };
+      const WEIGHTS = { latest: 6, prev: 4, older: 2 };
       const DAILY_COUNT = 3;
       const MAX_SAMPLE_TRIES = 200;
 
@@ -227,9 +282,18 @@
         return `${y}-${m}-${day}`;
       }
 
+      function addCalendarDays(ymd, deltaDays) {
+        const [y, m, d] = ymd.split("-").map(Number);
+        const dt = new Date(y, m - 1, d);
+        dt.setDate(dt.getDate() + deltaDays);
+        const yy = dt.getFullYear();
+        const mm = String(dt.getMonth() + 1).padStart(2, "0");
+        const dd = String(dt.getDate()).padStart(2, "0");
+        return `${yy}-${mm}-${dd}`;
+      }
+
       function deckFingerprint(cards) {
-        const R = maxRound(cards);
-        return `${cards.length}|${R}|${cards.map((c) => c.id).sort().join(",")}`;
+        return `${cards.length}|${cards.map((c) => `${c.id}:${c.studyDate}`).sort().join(",")}`;
       }
 
       function maxRound(cards) {
@@ -244,6 +308,7 @@
           const situation = row.situation;
           const answer = row.answer;
           const round = row.round;
+          const studyDate = row.studyDate;
           if (typeof situation !== "string" || !situation.trim()) {
             throw new Error(`항목 ${i}: situation은 비어 있지 않은 문자열이어야 합니다.`);
           }
@@ -253,21 +318,82 @@
           if (!Number.isInteger(round)) {
             throw new Error(`항목 ${i}: round는 정수여야 합니다.`);
           }
+          if (typeof studyDate !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(studyDate.trim())) {
+            throw new Error(
+              `항목 ${i}: studyDate는 YYYY-MM-DD 형식 문자열이어야 합니다. (예: "2026-04-19")`
+            );
+          }
           const id =
             typeof row.id === "string" && row.id.trim()
               ? row.id
               : `idx-${i}`;
-          out.push({ id, round, situation: situation.trim(), answer: answer.trim() });
+          out.push({
+            id,
+            round,
+            studyDate: studyDate.trim(),
+            situation: situation.trim(),
+            answer: answer.trim(),
+          });
         });
         if (out.length === 0) throw new Error("카드가 한 장도 없습니다.");
         return out;
       }
 
-      function partitionByRound(cards, R) {
-        const latest = cards.filter((c) => c.round === R);
-        const prev = cards.filter((c) => c.round === R - 1);
-        const older = cards.filter((c) => c.round <= R - 2);
+      function allMeetGoal(pool, counts, goal) {
+        if (!pool.length) return true;
+        return pool.every((c) => (counts[c.id] || 0) >= goal);
+      }
+
+      /** 오늘 → 어제 → 그제 순으로, 해당 날짜 카드가 목표 회수에 도달했는지 검사 */
+      function getSequentialGate(cards, todayStr, counts) {
+        const steps = [
+          { day: todayStr, goal: SEQ_GOALS.today },
+          { day: addCalendarDays(todayStr, -1), goal: SEQ_GOALS.yesterday },
+          { day: addCalendarDays(todayStr, -2), goal: SEQ_GOALS.dayBefore },
+        ];
+        for (const { day, goal } of steps) {
+          const pool = cards.filter((c) => c.studyDate === day);
+          if (!pool.length) continue;
+          if (!allMeetGoal(pool, counts, goal)) return { pool, goal, day };
+        }
+        return null;
+      }
+
+      function partitionByRelativeStudyDate(cards, todayStr) {
+        const y1 = addCalendarDays(todayStr, -1);
+        const latest = cards.filter((c) => c.studyDate === todayStr);
+        const prev = cards.filter((c) => c.studyDate === y1);
+        const older = cards.filter((c) => c.studyDate < y1);
         return { latest, prev, older };
+      }
+
+      function loadProgress(cards) {
+        try {
+          const raw = localStorage.getItem(PROGRESS_KEY);
+          if (!raw) return { counts: {} };
+          const o = JSON.parse(raw);
+          if (o.version !== PROGRESS_VERSION) return { counts: {} };
+          const counts = {};
+          for (const c of cards) {
+            const v = o.counts && o.counts[c.id];
+            counts[c.id] =
+              typeof v === "number" && Number.isFinite(v) ? Math.max(0, Math.floor(v)) : 0;
+          }
+          return { counts };
+        } catch {
+          return { counts: {} };
+        }
+      }
+
+      function saveProgress(cards, counts) {
+        const o = {};
+        for (const c of cards) {
+          o[c.id] = counts[c.id] || 0;
+        }
+        localStorage.setItem(
+          PROGRESS_KEY,
+          JSON.stringify({ version: PROGRESS_VERSION, counts: o })
+        );
       }
 
       function pickWeightedTier(tiers, weights) {
@@ -302,13 +428,23 @@
       }
 
       /**
-       * README: R = max(round). 가중치 10:6:3. 구간 비면 건너뜀.
-       * 같은 날 카드 중복 없음 (ALLOW_SAME_CARD_TWICE_SAME_DAY가 false일 때).
-       * 선정된 멤버는 shuffle로 표시 순서만 무작위(같은 round 안도 랜덤 순).
+       * studyDate 기준 달력 오늘/어제/그제 순차 게이트(6·4·2회) 통과 전에는 해당 구간 카드만 출제.
+       * 통과 후에는 오늘/어제/그 이전 날짜 묶음에 가중치 6:4:2.
        */
-      function pickDailyCards(cards) {
-        const R = maxRound(cards);
-        const tiers = partitionByRound(cards, R);
+      function pickDailyCards(cards, completionCounts) {
+        const todayStr = todayKey();
+        const counts = completionCounts || {};
+        const gate = getSequentialGate(cards, todayStr, counts);
+
+        if (gate) {
+          const pool = gate.pool.slice();
+          shuffleInPlace(pool);
+          const n = Math.min(DAILY_COUNT, pool.length);
+          const chosen = pool.slice(0, n);
+          return { picks: chosen, gated: true };
+        }
+
+        const tiers = partitionByRelativeStudyDate(cards, todayStr);
         const mutable = {
           latest: tiers.latest.slice(),
           prev: tiers.prev.slice(),
@@ -350,7 +486,7 @@
         }
 
         shuffleInPlace(chosen);
-        return { picks: chosen, R };
+        return { picks: chosen, gated: false };
       }
 
       function loadSession() {
@@ -383,6 +519,10 @@
         localStorage.removeItem(STORAGE_KEY);
       }
 
+      function clearProgress() {
+        localStorage.removeItem(PROGRESS_KEY);
+      }
+
       function resolvePicksFromSession(cards, session) {
         const map = new Map(cards.map((c) => [c.id, c]));
         const picks = session.pickIds.map((id) => map.get(id)).filter(Boolean);
@@ -390,7 +530,7 @@
         return picks;
       }
 
-      function getOrCreateDailyState(cards) {
+      function getOrCreateDailyState(cards, progress) {
         const date = todayKey();
         const fp = deckFingerprint(cards);
         const session = loadSession();
@@ -414,7 +554,7 @@
             };
           }
         }
-        const { picks } = pickDailyCards(cards);
+        const { picks } = pickDailyCards(cards, progress.counts);
         const st = {
           date,
           fingerprint: fp,
@@ -445,7 +585,32 @@
       const app = document.getElementById("app");
       const dateLine = document.getElementById("dateLine");
 
-      function render(state) {
+      function gatePanelHtml(cards, progress) {
+        const todayStr = todayKey();
+        const gate = getSequentialGate(cards, todayStr, progress.counts);
+        if (!gate) return "";
+        const rows = gate.pool
+          .map((c) => {
+            const n = progress.counts[c.id] || 0;
+            const pct = Math.min(100, (n / gate.goal) * 100);
+            const short =
+              c.situation.length > 36 ? `${escapeHtml(c.situation.slice(0, 36))}…` : escapeHtml(c.situation);
+            return `<div class="gate-row"><span class="n">${n}/${gate.goal}</span><div class="gate-bar"><i style="width:${pct}%"></i></div><span>${short}</span></div>`;
+          })
+          .join("");
+        const phase =
+          gate.day === todayStr
+            ? "오늘 날짜"
+            : gate.day === addCalendarDays(todayStr, -1)
+              ? "어제 날짜"
+              : "그제 날짜";
+        return `<div class="gate-panel">
+          <strong>${phase} (${escapeHtml(gate.day)})</strong> 카드만 나옵니다. 각 카드마다 답 확인 후 「다음/완료」를 <strong>${gate.goal}회</strong> 채우면 다음 단계로 넘어갑니다. 전 단계를 마치면 일일 추첨에 <strong>6 : 4 : 2</strong>(오늘·어제·그 이전 날짜) 비율이 적용됩니다.
+          <div class="gate-rows">${rows}</div>
+        </div>`;
+      }
+
+      function render(state, cards, progress) {
         const { picks, index, revealed } = state;
         dateLine.textContent = todayKey();
 
@@ -471,12 +636,13 @@
         }
 
         const card = picks[index];
-        const roundLabel = `Round ${card.round}`;
+        const roundLabel = `Round ${card.round} · ${escapeHtml(card.studyDate)}`;
         const bars = picks
           .map((_, i) => `<span class="${i <= index ? "on" : ""}"></span>`)
           .join("");
 
         app.innerHTML = `
+          ${gatePanelHtml(cards, progress)}
           <div class="progress">${bars}</div>
           <div class="pill" style="margin-bottom:0.75rem;">${roundLabel} · ${index + 1} / ${picks.length}</div>
           <div class="card-shell" id="cardTap" tabindex="0" role="button" aria-label="카드 뒤집기 또는 답 보기">
@@ -508,7 +674,7 @@
           if (state.revealed) return;
           state.revealed = true;
           persistProgress(state);
-          render(state);
+          render(state, cards, progress);
         };
         shell.addEventListener("click", (e) => {
           if (e.target.closest("button")) return;
@@ -524,14 +690,19 @@
         const btnNext = document.getElementById("btnNext");
         if (btnNext) {
           btnNext.onclick = () => {
+            const current = picks[index];
+            if (state.revealed && current) {
+              progress.counts[current.id] = (progress.counts[current.id] || 0) + 1;
+              saveProgress(cards, progress.counts);
+            }
             state.index += 1;
             state.revealed = false;
             persistProgress(state);
-            render(state);
+            render(state, cards, progress);
           };
         }
         document.getElementById("btnReset").onclick = () => {
-          if (confirm("오늘 뽑은 카드를 버리고 다시 뽑을까요?")) {
+          if (confirm("오늘 뽑은 카드를 버리고 다시 뽑을까요? (날짜별 6·4·2 진도는 유지됩니다)")) {
             clearSession();
             location.reload();
           }
@@ -564,8 +735,9 @@
           return;
         }
 
-        const state = getOrCreateDailyState(cards);
-        render(state);
+        const progress = loadProgress(cards);
+        const state = getOrCreateDailyState(cards, progress);
+        render(state, cards, progress);
       }
 
       main();
