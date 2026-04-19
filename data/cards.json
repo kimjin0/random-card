@@ -2,64 +2,64 @@
   {
     "id": "r1-1",
     "round": 1,
-    "studyDate": "2026-04-17",
-    "situation": "팀장한테 배포해도 되냐고 물어볼 때",
-    "answer": "Is it okay if I push this to production?"
+    "studyDate": "2026-04-16",
+    "situation": "누군가 '다 됐어요?'라고 물어볼 때",
+    "answer": "I'm working on it."
   },
   {
     "id": "r1-2",
     "round": 1,
-    "studyDate": "2026-04-17",
-    "situation": "친구들이랑 저녁 약속에 늦게 도착해서 인사할 때",
+    "studyDate": "2026-04-16",
+    "situation": "'어떤 서버가 더 나아요?' 물어볼 때",
     "answer": "Hey everyone, sorry I'm late — traffic was rough. Thanks for waiting. What did I miss?"
   },
   {
     "id": "r1-3",
     "round": 1,
-    "studyDate": "2026-04-17",
-    "situation": "카페에서 직원이 매장에서 드실지 포장인지 물어볼 때",
-    "answer": "To go, please. Could I also get a little room for milk?"
+    "studyDate": "2026-04-16",
+    "situation": "모르는 게 있을 때 확인하러 갈때",
+    "answer": "Let me check."
   },
   {
     "id": "r2-1",
     "round": 2,
-    "studyDate": "2026-04-18",
-    "situation": "매니저가 일 막힌 거 간단히 상황 설명해 달라고 할 때",
-    "answer": "We're blocked on API access from the vendor. I emailed them this morning and I'm chasing a response by EOD. If it slips, I'll escalate with a timeline."
+    "studyDate": "2026-04-17",
+    "situation": "~ 할까 생각 중이야 \n서버 업그레이드 할까 고민될 때",
+    "answer": " I'm thinking about upgrading the server."
   },
   {
     "id": "r2-2",
     "round": 2,
-    "studyDate": "2026-04-18",
-    "situation": "밤에 옆집 개 짖는 소리 때문에 정중하게 말해야 할 때",
-    "answer": "Hi, I hope you're doing well. I wanted to mention I've been hearing barking late at night. I know dogs can be sensitive — is there anything I can do on my side to help?"
+    "studyDate": "2026-04-17",
+    "situation": "~ 하기로 결정했어\n버그부터 고치기로 결심했을 때",
+    "answer": "I decided to fix the bug first."
   },
   {
     "id": "r2-3",
     "round": 2,
-    "studyDate": "2026-04-18",
-    "situation": "화상회의에서 상대 말이 잘 안 들려서 다시 물어볼 때",
-    "answer": "Sorry, I didn't catch that — could you repeat the last part? I had a slight audio glitch."
+    "studyDate": "2026-04-17",
+    "situation": "~ 없이 \n누군가 개발 서버에서 테스트도 없이 리얼 배포 했을때",
+    "answer": "Why did you deployed without testing on the dev server?"
   },
   {
     "id": "r3-1",
     "round": 3,
-    "studyDate": "2026-04-19",
-    "situation": "공항 줄 서 있는데 누가 새치기했을 때 차분하게 말할 때",
-    "answer": "Excuse me, I think the line starts back there. We're all trying to make the same flight — mind joining the queue?"
+    "studyDate": "2026-04-18",
+    "situation": "팀장한테 배포해도 되냐고 물어볼 때",
+    "answer": "Is it okay if I push this to production?"
   },
   {
     "id": "r3-2",
     "round": 3,
-    "studyDate": "2026-04-19",
-    "situation": "클라이언트가 견적이 너무 비싸다고 할 때 전문적으로 답할 때",
-    "answer": "I hear you. The estimate reflects risk buffers for integrations and QA. If scope shifts, we can revisit. Happy to walk through line items so it's transparent."
+    "studyDate": "2026-04-18",
+    "situation": "팀원들한테 쉬자고 제안할 때",
+    "answer": "Why don't we take a break?"
   },
   {
     "id": "r3-3",
     "round": 3,
-    "studyDate": "2026-04-19",
-    "situation": "알레르기 때문에 못 먹는 음식을 권할 때 정중하게 거절할 때",
-    "answer": "That's so kind of you — I have a food allergy, so I'll pass. I really appreciate you offering, though."
+    "studyDate": "2026-04-18",
+    "situation": "새 팀원한테 어떤 언어 쓰냐고 물어볼 때",
+    "answer": "What kind of framework do you use?"
   }
 ]
