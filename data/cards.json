@@ -1,0 +1,56 @@
+[
+  {
+    "id": "r1-1",
+    "round": 1,
+    "situation": "A coworker says, \"I'm swamped this week. Could you cover the stand-up tomorrow?\"",
+    "answer": "Sure, I can run stand-up tomorrow. I'll send you the notes after. Let me know if you need anything else covered."
+  },
+  {
+    "id": "r1-2",
+    "round": 1,
+    "situation": "You arrive late to a casual dinner with friends. How do you open?",
+    "answer": "Hey everyone, sorry I'm late — traffic was rough. Thanks for waiting. What did I miss?"
+  },
+  {
+    "id": "r1-3",
+    "round": 1,
+    "situation": "At a coffee shop, the barista asks, \"For here or to go?\"",
+    "answer": "To go, please. Could I also get a little room for milk?"
+  },
+  {
+    "id": "r2-1",
+    "round": 2,
+    "situation": "Your manager asks, \"Can you give me a quick update on the blocker?\"",
+    "answer": "We're blocked on API access from the vendor. I emailed them this morning and I'm chasing a response by EOD. If it slips, I'll escalate with a timeline."
+  },
+  {
+    "id": "r2-2",
+    "round": 2,
+    "situation": "A neighbor's dog won't stop barking at night. You want to address it politely.",
+    "answer": "Hi, I hope you're doing well. I wanted to mention I've been hearing barking late at night. I know dogs can be sensitive — is there anything I can do on my side to help?"
+  },
+  {
+    "id": "r2-3",
+    "round": 2,
+    "situation": "You're on a call and didn't catch the last sentence. What do you say?",
+    "answer": "Sorry, I didn't catch that — could you repeat the last part? I had a slight audio glitch."
+  },
+  {
+    "id": "r3-1",
+    "round": 3,
+    "situation": "Someone cuts in line at the airport. You want to speak up calmly.",
+    "answer": "Excuse me, I think the line starts back there. We're all trying to make the same flight — mind joining the queue?"
+  },
+  {
+    "id": "r3-2",
+    "round": 3,
+    "situation": "A client says your estimate feels too high. You respond professionally.",
+    "answer": "I hear you. The estimate reflects risk buffers for integrations and QA. If scope shifts, we can revisit. Happy to walk through line items so it's transparent."
+  },
+  {
+    "id": "r3-3",
+    "round": 3,
+    "situation": "You're offered food you can't eat (allergy). How do you decline graciously?",
+    "answer": "That's so kind of you — I have a food allergy, so I'll pass. I really appreciate you offering, though."
+  }
+]

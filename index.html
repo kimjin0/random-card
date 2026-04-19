@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>English Random Card</title>
+  <style>
+    :root {
+      --bg: #0f1218;
+      --surface: #171c26;
+      --border: #2a3344;
+      --text: #e8ecf4;
+      --muted: #8b95a8;
+      --accent: #6c9eff;
+      --accent-dim: #4a74c4;
+      --success: #5ecf8a;
+      --radius: 14px;
+      --font: "Segoe UI", system-ui, -apple-system, sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100dvh;
+      font-family: var(--font);
+      background: radial-gradient(1200px 800px at 50% -10%, #1a2436 0%, var(--bg) 55%);
+      color: var(--text);
+      line-height: 1.55;
+    }
+
+    .wrap {
+      max-width: 520px;
+      margin: 0 auto;
+      padding: 1.25rem 1rem 2rem;
+    }
+
+    header {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 0.75rem;
+      margin-bottom: 1.25rem;
+    }
+
+    h1 {
+      font-size: 1.15rem;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      margin: 0;
+    }
+
+    .meta {
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+
+    .pill {
+      display: inline-block;
+      font-size: 0.72rem;
+      padding: 0.2rem 0.5rem;
+      border-radius: 999px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--muted);
+    }
+
+    .progress {
+      display: flex;
+      gap: 0.35rem;
+      margin-bottom: 1rem;
+    }
+
+    .progress span {
+      flex: 1;
+      height: 3px;
+      border-radius: 999px;
+      background: var(--border);
+    }
+
+    .progress span.on {
+      background: var(--accent);
+    }
+
+    .card-shell {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.35rem 1.25rem 1.15rem;
+      min-height: 220px;
+      cursor: pointer;
+      transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .card-shell:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+    }
+
+    .card-shell:hover {
+      border-color: #3d4a63;
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.25);
+    }
+
+    .label {
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--muted);
+      margin-bottom: 0.5rem;
+    }
+
+    .situation {
+      font-size: 1.05rem;
+      font-weight: 500;
+    }
+
+    .hint {
+      margin-top: 1.25rem;
+      font-size: 0.85rem;
+      color: var(--muted);
+    }
+
+    .answer-block {
+      margin-top: 1rem;
+      padding-top: 1rem;
+      border-top: 1px solid var(--border);
+    }
+
+    .answer {
+      font-size: 0.98rem;
+      color: #dbe4f5;
+    }
+
+    .actions {
+      margin-top: 1.1rem;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      align-items: center;
+    }
+
+    button {
+      font: inherit;
+      cursor: pointer;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: #222a38;
+      color: var(--text);
+      padding: 0.55rem 0.9rem;
+      font-size: 0.88rem;
+    }
+
+    button.primary {
+      background: linear-gradient(180deg, var(--accent) 0%, var(--accent-dim) 100%);
+      border-color: transparent;
+      color: #0b1020;
+      font-weight: 600;
+    }
+
+    button.ghost {
+      background: transparent;
+      color: var(--muted);
+      font-size: 0.8rem;
+    }
+
+    .done {
+      text-align: center;
+      padding: 2rem 1rem;
+    }
+
+    .done h2 {
+      margin: 0 0 0.5rem;
+      font-size: 1.1rem;
+    }
+
+    .error {
+      background: #2a1518;
+      border: 1px solid #5c2a32;
+      color: #f0c4c8;
+      padding: 0.85rem 1rem;
+      border-radius: var(--radius);
+      font-size: 0.9rem;
+    }
+
+    .error code {
+      font-size: 0.82em;
+    }
+
+    footer.note {
+      margin-top: 1.5rem;
+      font-size: 0.75rem;
+      color: var(--muted);
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <h1>English Random Card</h1>
+      <span class="meta" id="dateLine"></span>
+    </header>
+    <div id="app"></div>
+    <footer class="note">
+      데이터: <code>data/cards.json</code> · 로컬에서 열 때는 <code>python3 -m http.server</code> 등으로 같은 폴더를 서빙한 뒤 접속하세요.
+    </footer>
+  </div>
+
+  <script>
+    (function () {
+      const DATA_URL = "data/cards.json";
+      const STORAGE_KEY = "english-random-card-session";
+      const STORAGE_VERSION = 1;
+      /** 같은 날 같은 카드가 두 번 나오지 않도록 고정 */
+      const ALLOW_SAME_CARD_TWICE_SAME_DAY = false;
+      const WEIGHTS = { latest: 10, prev: 6, older: 3 };
+      const DAILY_COUNT = 3;
+      const MAX_SAMPLE_TRIES = 200;
+
+      function todayKey() {
+        const d = new Date();
+        const y = d.getFullYear();
+        const m = String(d.getMonth() + 1).padStart(2, "0");
+        const day = String(d.getDate()).padStart(2, "0");
+        return `${y}-${m}-${day}`;
+      }
+
+      function deckFingerprint(cards) {
+        const R = maxRound(cards);
+        return `${cards.length}|${R}|${cards.map((c) => c.id).sort().join(",")}`;
+      }
+
+      function maxRound(cards) {
+        return cards.reduce((m, c) => Math.max(m, c.round), -Infinity);
+      }
+
+      function validateCards(raw) {
+        if (!Array.isArray(raw)) throw new Error("JSON 최상위는 배열이어야 합니다.");
+        const out = [];
+        raw.forEach((row, i) => {
+          if (!row || typeof row !== "object") throw new Error(`항목 ${i}: 객체가 아닙니다.`);
+          const situation = row.situation;
+          const answer = row.answer;
+          const round = row.round;
+          if (typeof situation !== "string" || !situation.trim()) {
+            throw new Error(`항목 ${i}: situation은 비어 있지 않은 문자열이어야 합니다.`);
+          }
+          if (typeof answer !== "string" || !answer.trim()) {
+            throw new Error(`항목 ${i}: answer은 비어 있지 않은 문자열이어야 합니다.`);
+          }
+          if (!Number.isInteger(round)) {
+            throw new Error(`항목 ${i}: round는 정수여야 합니다.`);
+          }
+          const id =
+            typeof row.id === "string" && row.id.trim()
+              ? row.id
+              : `idx-${i}`;
+          out.push({ id, round, situation: situation.trim(), answer: answer.trim() });
+        });
+        if (out.length === 0) throw new Error("카드가 한 장도 없습니다.");
+        return out;
+      }
+
+      function partitionByRound(cards, R) {
+        const latest = cards.filter((c) => c.round === R);
+        const prev = cards.filter((c) => c.round === R - 1);
+        const older = cards.filter((c) => c.round <= R - 2);
+        return { latest, prev, older };
+      }
+
+      function pickWeightedTier(tiers, weights) {
+        const entries = [
+          { key: "latest", cards: tiers.latest, w: weights.latest },
+          { key: "prev", cards: tiers.prev, w: weights.prev },
+          { key: "older", cards: tiers.older, w: weights.older },
+        ].filter((e) => e.cards.length > 0);
+        if (entries.length === 0) return null;
+        const total = entries.reduce((s, e) => s + e.w, 0);
+        let r = Math.random() * total;
+        for (const e of entries) {
+          r -= e.w;
+          if (r <= 0) return e;
+        }
+        return entries[entries.length - 1];
+      }
+
+      function pickRandomFrom(arr) {
+        return arr[Math.floor(Math.random() * arr.length)];
+      }
+
+      /**
+       * README: R = max(round). 가중치 10:6:3. 구간 비면 건너뜀.
+       * 같은 날 카드 중복 없음 (ALLOW_SAME_CARD_TWICE_SAME_DAY가 false일 때).
+       */
+      function pickDailyCards(cards) {
+        const R = maxRound(cards);
+        const tiers = partitionByRound(cards, R);
+        const mutable = {
+          latest: tiers.latest.slice(),
+          prev: tiers.prev.slice(),
+          older: tiers.older.slice(),
+        };
+        const chosen = [];
+        const used = new Set();
+
+        const totalAvailable = cards.length;
+        const target = Math.min(DAILY_COUNT, totalAvailable);
+
+        let tries = 0;
+        while (chosen.length < target && tries < MAX_SAMPLE_TRIES) {
+          tries++;
+          const entry = pickWeightedTier(mutable, WEIGHTS);
+          if (!entry) break;
+          const poolKey = entry.key;
+          const pool =
+            poolKey === "latest" ? mutable.latest : poolKey === "prev" ? mutable.prev : mutable.older;
+          if (pool.length === 0) continue;
+          const card = pickRandomFrom(pool);
+          if (!ALLOW_SAME_CARD_TWICE_SAME_DAY && used.has(card.id)) continue;
+          used.add(card.id);
+          chosen.push(card);
+          const idx = pool.findIndex((c) => c.id === card.id);
+          if (idx !== -1) pool.splice(idx, 1);
+        }
+
+        if (chosen.length < target) {
+          const rest = cards.filter((c) => !used.has(c.id));
+          while (chosen.length < target && rest.length > 0) {
+            const c = pickRandomFrom(rest);
+            const i = rest.findIndex((x) => x.id === c.id);
+            rest.splice(i, 1);
+            if (!ALLOW_SAME_CARD_TWICE_SAME_DAY && used.has(c.id)) continue;
+            used.add(c.id);
+            chosen.push(c);
+          }
+        }
+
+        return { picks: chosen, R };
+      }
+
+      function loadSession() {
+        try {
+          const raw = localStorage.getItem(STORAGE_KEY);
+          if (!raw) return null;
+          const o = JSON.parse(raw);
+          if (o.version !== STORAGE_VERSION || !o.date || !Array.isArray(o.pickIds)) return null;
+          return o;
+        } catch {
+          return null;
+        }
+      }
+
+      function saveSession(state) {
+        localStorage.setItem(
+          STORAGE_KEY,
+          JSON.stringify({
+            version: STORAGE_VERSION,
+            date: state.date,
+            pickIds: state.pickIds,
+            index: state.index,
+            revealed: state.revealed,
+            fingerprint: state.fingerprint,
+          })
+        );
+      }
+
+      function clearSession() {
+        localStorage.removeItem(STORAGE_KEY);
+      }
+
+      function resolvePicksFromSession(cards, session) {
+        const map = new Map(cards.map((c) => [c.id, c]));
+        const picks = session.pickIds.map((id) => map.get(id)).filter(Boolean);
+        if (picks.length !== session.pickIds.length) return null;
+        return picks;
+      }
+
+      function getOrCreateDailyState(cards) {
+        const date = todayKey();
+        const fp = deckFingerprint(cards);
+        const session = loadSession();
+        if (
+          session &&
+          session.date === date &&
+          session.fingerprint === fp &&
+          session.pickIds &&
+          session.pickIds.length > 0
+        ) {
+          const picks = resolvePicksFromSession(cards, session);
+          if (picks && picks.length === session.pickIds.length) {
+            const rawIdx = session.index ?? 0;
+            const done = rawIdx >= picks.length;
+            return {
+              date,
+              fingerprint: fp,
+              picks,
+              index: done ? picks.length : Math.max(0, Math.min(rawIdx, picks.length - 1)),
+              revealed: done ? false : !!session.revealed,
+            };
+          }
+        }
+        const { picks } = pickDailyCards(cards);
+        const st = {
+          date,
+          fingerprint: fp,
+          picks,
+          index: 0,
+          revealed: false,
+        };
+        saveSession({
+          date: st.date,
+          pickIds: st.picks.map((c) => c.id),
+          index: st.index,
+          revealed: st.revealed,
+          fingerprint: st.fingerprint,
+        });
+        return st;
+      }
+
+      function persistProgress(state) {
+        saveSession({
+          date: state.date,
+          pickIds: state.picks.map((c) => c.id),
+          index: state.index,
+          revealed: state.revealed,
+          fingerprint: state.fingerprint,
+        });
+      }
+
+      const app = document.getElementById("app");
+      const dateLine = document.getElementById("dateLine");
+
+      function render(state) {
+        const { picks, index, revealed } = state;
+        dateLine.textContent = todayKey();
+
+        if (picks.length === 0) {
+          app.innerHTML = `<div class="error">표시할 카드가 없습니다.</div>`;
+          return;
+        }
+
+        if (index >= picks.length) {
+          app.innerHTML = `
+            <div class="done">
+              <h2>오늘 3장 완료</h2>
+              <p class="meta">내일 다시 만나요.</p>
+              <div class="actions" style="justify-content:center;margin-top:1rem;">
+                <button type="button" class="ghost" id="btnReset">오늘 다시 뽑기 (테스트)</button>
+              </div>
+            </div>`;
+          document.getElementById("btnReset").onclick = () => {
+            clearSession();
+            location.reload();
+          };
+          return;
+        }
+
+        const card = picks[index];
+        const roundLabel = `Round ${card.round}`;
+        const bars = picks
+          .map((_, i) => `<span class="${i <= index ? "on" : ""}"></span>`)
+          .join("");
+
+        app.innerHTML = `
+          <div class="progress">${bars}</div>
+          <div class="pill" style="margin-bottom:0.75rem;">${roundLabel} · ${index + 1} / ${picks.length}</div>
+          <div class="card-shell" id="cardTap" tabindex="0" role="button" aria-label="카드 뒤집기 또는 답 보기">
+            <div class="label">Situation</div>
+            <div class="situation">${escapeHtml(card.situation)}</div>
+            ${
+              revealed
+                ? `<div class="answer-block">
+                    <div class="label">Model answer</div>
+                    <div class="answer">${escapeHtml(card.answer)}</div>
+                  </div>`
+                : `<p class="hint">말해 본 뒤 카드를 눌러 답을 확인하세요.</p>`
+            }
+          </div>
+          <div class="actions">
+            ${
+              revealed
+                ? `<button type="button" class="primary" id="btnNext">${
+                    index < picks.length - 1 ? "다음 카드" : "완료"
+                  }</button>`
+                : ""
+            }
+            <button type="button" class="ghost" id="btnReset">오늘 다시 뽑기</button>
+          </div>
+        `;
+
+        const shell = document.getElementById("cardTap");
+        const goReveal = () => {
+          if (state.revealed) return;
+          state.revealed = true;
+          persistProgress(state);
+          render(state);
+        };
+        shell.addEventListener("click", (e) => {
+          if (e.target.closest("button")) return;
+          if (!state.revealed) goReveal();
+        });
+        shell.addEventListener("keydown", (e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            if (!state.revealed) goReveal();
+          }
+        });
+
+        const btnNext = document.getElementById("btnNext");
+        if (btnNext) {
+          btnNext.onclick = () => {
+            state.index += 1;
+            state.revealed = false;
+            persistProgress(state);
+            render(state);
+          };
+        }
+        document.getElementById("btnReset").onclick = () => {
+          if (confirm("오늘 뽑은 카드를 버리고 다시 뽑을까요?")) {
+            clearSession();
+            location.reload();
+          }
+        };
+      }
+
+      function escapeHtml(s) {
+        return s
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;");
+      }
+
+      async function main() {
+        let cards;
+        try {
+          const res = await fetch(DATA_URL);
+          if (!res.ok) throw new Error(`HTTP ${res.status}`);
+          cards = validateCards(await res.json());
+        } catch (e) {
+          app.innerHTML = `
+            <div class="error">
+              <strong>데이터를 불러오지 못했습니다.</strong><br />
+              같은 폴더에서 정적 서버를 띄운 뒤 열어 주세요.<br />
+              <code>cd random-card && python3 -m http.server 8080</code><br />
+              그다음 <code>http://localhost:8080/</code><br /><br />
+              <span class="meta">${escapeHtml(String(e.message || e))}</span>
+            </div>`;
+          return;
+        }
+
+        const state = getOrCreateDailyState(cards);
+        render(state);
+      }
+
+      main();
+    })();
+  </script>
+</body>
+</html>
