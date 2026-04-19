@@ -212,7 +212,7 @@
     (function () {
       const DATA_URL = "data/cards.json";
       const STORAGE_KEY = "english-random-card-session";
-      const STORAGE_VERSION = 1;
+      const STORAGE_VERSION = 2;
       /** 같은 날 같은 카드가 두 번 나오지 않도록 고정 */
       const ALLOW_SAME_CARD_TWICE_SAME_DAY = false;
       const WEIGHTS = { latest: 10, prev: 6, older: 3 };
@@ -290,9 +290,21 @@
         return arr[Math.floor(Math.random() * arr.length)];
       }
 
+      /** Fisher–Yates. JSON·id 순서와 무관하게 그날 1→2→3번째 순서를 만듦. */
+      function shuffleInPlace(arr) {
+        for (let i = arr.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          const t = arr[i];
+          arr[i] = arr[j];
+          arr[j] = t;
+        }
+        return arr;
+      }
+
       /**
        * README: R = max(round). 가중치 10:6:3. 구간 비면 건너뜀.
        * 같은 날 카드 중복 없음 (ALLOW_SAME_CARD_TWICE_SAME_DAY가 false일 때).
+       * 선정된 멤버는 shuffle로 표시 순서만 무작위(같은 round 안도 랜덤 순).
        */
       function pickDailyCards(cards) {
         const R = maxRound(cards);
@@ -337,6 +349,7 @@
           }
         }
 
+        shuffleInPlace(chosen);
         return { picks: chosen, R };
       }
 

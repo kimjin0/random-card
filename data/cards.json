@@ -2,55 +2,55 @@
   {
     "id": "r1-1",
     "round": 1,
-    "situation": "A coworker says, \"I'm swamped this week. Could you cover the stand-up tomorrow?\"",
-    "answer": "Sure, I can run stand-up tomorrow. I'll send you the notes after. Let me know if you need anything else covered."
+    "situation": "팀장한테 배포해도 되냐고 물어볼 때",
+    "answer": "Is it okay if I push this to production?"
   },
   {
     "id": "r1-2",
     "round": 1,
-    "situation": "You arrive late to a casual dinner with friends. How do you open?",
+    "situation": "친구들이랑 저녁 약속에 늦게 도착해서 인사할 때",
     "answer": "Hey everyone, sorry I'm late — traffic was rough. Thanks for waiting. What did I miss?"
   },
   {
     "id": "r1-3",
     "round": 1,
-    "situation": "At a coffee shop, the barista asks, \"For here or to go?\"",
+    "situation": "카페에서 직원이 매장에서 드실지 포장인지 물어볼 때",
     "answer": "To go, please. Could I also get a little room for milk?"
   },
   {
     "id": "r2-1",
     "round": 2,
-    "situation": "Your manager asks, \"Can you give me a quick update on the blocker?\"",
+    "situation": "매니저가 일 막힌 거 간단히 상황 설명해 달라고 할 때",
     "answer": "We're blocked on API access from the vendor. I emailed them this morning and I'm chasing a response by EOD. If it slips, I'll escalate with a timeline."
   },
   {
     "id": "r2-2",
     "round": 2,
-    "situation": "A neighbor's dog won't stop barking at night. You want to address it politely.",
+    "situation": "밤에 옆집 개 짖는 소리 때문에 정중하게 말해야 할 때",
     "answer": "Hi, I hope you're doing well. I wanted to mention I've been hearing barking late at night. I know dogs can be sensitive — is there anything I can do on my side to help?"
   },
   {
     "id": "r2-3",
     "round": 2,
-    "situation": "You're on a call and didn't catch the last sentence. What do you say?",
+    "situation": "화상회의에서 상대 말이 잘 안 들려서 다시 물어볼 때",
     "answer": "Sorry, I didn't catch that — could you repeat the last part? I had a slight audio glitch."
   },
   {
     "id": "r3-1",
     "round": 3,
-    "situation": "Someone cuts in line at the airport. You want to speak up calmly.",
+    "situation": "공항 줄 서 있는데 누가 새치기했을 때 차분하게 말할 때",
     "answer": "Excuse me, I think the line starts back there. We're all trying to make the same flight — mind joining the queue?"
   },
   {
     "id": "r3-2",
     "round": 3,
-    "situation": "A client says your estimate feels too high. You respond professionally.",
+    "situation": "클라이언트가 견적이 너무 비싸다고 할 때 전문적으로 답할 때",
     "answer": "I hear you. The estimate reflects risk buffers for integrations and QA. If scope shifts, we can revisit. Happy to walk through line items so it's transparent."
   },
   {
     "id": "r3-3",
     "round": 3,
-    "situation": "You're offered food you can't eat (allergy). How do you decline graciously?",
+    "situation": "알레르기 때문에 못 먹는 음식을 권할 때 정중하게 거절할 때",
     "answer": "That's so kind of you — I have a food allergy, so I'll pass. I really appreciate you offering, though."
   }
 ]
