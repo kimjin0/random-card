@@ -31,7 +31,7 @@
       {
         "id": 6,
         "situation": "유월절 지키는 것을.",
-        "answer": "to keep the Passover"
+        "answer": "to keep the Passover?"
       },
       {
         "id": 7,
@@ -52,6 +52,31 @@
         "id": 10,
         "situation": "여호와 하나님께서 이스라엘 백성에게 명령하셨습니다",
         "answer": "God Jehobah commanded Israelites"
+      },
+      {
+        "id": 11,
+        "situation": "유월절 지키는 것을",
+        "answer": "to keep the Passover"
+      },
+      {
+        "id": 12,
+        "situation": "그러자 그들은 이집트의 노예 생활에서 벗어났습니다.",
+        "answer": "Then, they escaped from the slavery in Egypt."
+      },
+      {
+        "id": 13,
+        "situation": "그러면 누가 우리에게 말씀하셨습니까",
+        "answer": "Then, who told us"
+      },
+      {
+        "id": 14,
+        "situation": "유월절을 지키라고",
+        "answer": "to keep the Passover"
+      },
+      {
+        "id": 15,
+        "situation": "신약시대에",
+        "answer": "In the New Testament Times?"
       }
     ]
   }
