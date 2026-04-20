@@ -5,7 +5,7 @@
     "cards": [
       {
         "id": 1,
-        "situation": "새언약의 유월절은",
+        "situation": "새 언약의 유월절은",
         "answer": "The Passover of the new covenant"
       },
       {
@@ -26,11 +26,11 @@
       {
         "id": 5,
         "situation": "그러면 누가 우리에게 명령하셨습니까",
-        "answer": "Then who commands us"
+        "answer": "Then, who commands us"
       },
       {
         "id": 6,
-        "situation": "유월절 지키는 것을.",
+        "situation": "유월절을 지키는 것을?",
         "answer": "to keep the Passover?"
       },
       {
@@ -40,28 +40,28 @@
       },
       {
         "id": 8,
-        "situation": "유월절 영원히 지키는 것을.",
-        "answer": "to keep the Passover forever"
+        "situation": "유월절을 영원히 지키는 것을.",
+        "answer": "to keep the Passover forever."
       },
       {
         "id": 9,
         "situation": "구약시대에는",
-        "answer": "In the Old Testament Times"
+        "answer": "In the Old Testament,"
       },
       {
         "id": 10,
         "situation": "여호와 하나님께서 이스라엘 백성에게 명령하셨습니다",
-        "answer": "God Jehobah commanded Israelites"
+        "answer": "God Jehovah commanded Israelites"
       },
       {
         "id": 11,
-        "situation": "유월절 지키는 것을",
-        "answer": "to keep the Passover"
+        "situation": "유월절을 지키는 것을.",
+        "answer": "to keep the Passover."
       },
       {
         "id": 12,
         "situation": "그러자 그들은 이집트의 노예 생활에서 벗어났습니다.",
-        "answer": "Then, they escaped from the slavery in Egypt."
+        "answer": "Then, they escaped from slavery in Egypt."
       },
       {
         "id": 13,
@@ -75,8 +75,233 @@
       },
       {
         "id": 15,
-        "situation": "신약시대에",
-        "answer": "In the New Testament Times?"
+        "situation": "신약시대에?",
+        "answer": "in the New Testament?"
+      },
+      {
+        "id": 16,
+        "situation": "예수님께서는 제자들에게 말씀하셨습니다",
+        "answer": "Jesus told His disciples"
+      },
+      {
+        "id": 17,
+        "situation": "유월절을 준비하는 것을.",
+        "answer": "to prepare the Passover."
+      },
+      {
+        "id": 18,
+        "situation": "신약시대에는",
+        "answer": "In the New Testament,"
+      },
+      {
+        "id": 19,
+        "situation": "예수님께서 우리에게 말씀하셨습니다",
+        "answer": "Jesus told us"
+      },
+      {
+        "id": 20,
+        "situation": "유월절을 지키는 것을.",
+        "answer": "to keep the Passover."
+      },
+      {
+        "id": 21,
+        "situation": "왜 예수님께서는 우리에게 명령하셨습니까",
+        "answer": "Why did Jesus command us"
+      },
+      {
+        "id": 22,
+        "situation": "유월절을 지키는 것을?",
+        "answer": "to keep the Passover?"
+      },
+      {
+        "id": 23,
+        "situation": "그 이유는",
+        "answer": "It is because"
+      },
+      {
+        "id": 24,
+        "situation": "예수님께서 우리에게 영생 주길 원하셨기 때문입니다.",
+        "answer": "He wants to give us eternal life."
+      },
+      {
+        "id": 25,
+        "situation": "우리는 영생을 얻을 수 있습니다",
+        "answer": "We can get eternal life"
+      },
+      {
+        "id": 26,
+        "situation": "우리가 예수님의 살을 먹었을 때,",
+        "answer": "when we eat Jesus' flesh"
+      },
+      {
+        "id": 27,
+        "situation": "그리고 그의 피를 마실 때.",
+        "answer": "and drink His blood."
+      },
+      {
+        "id": 28,
+        "situation": "예수님의 살과 피를 통해",
+        "answer": "Through Jesus' flesh and blood,"
+      },
+      {
+        "id": 29,
+        "situation": "우리는 영생을 받을 수 있습니다.",
+        "answer": "we can get eternal life."
+      },
+      {
+        "id": 30,
+        "situation": "그러면 어떻게 우리가 예수님의 살을 먹을 수 있고,",
+        "answer": "Then, how can we eat Jesus' flesh"
+      },
+      {
+        "id": 31,
+        "situation": "그의 피를 마실 수 있습니까?",
+        "answer": "and drink His blood?"
+      },
+      {
+        "id": 32,
+        "situation": "예수님께서 말씀하셨습니다",
+        "answer": "Jesus said"
+      },
+      {
+        "id": 33,
+        "situation": "유월절 떡은 예수님의 몸이며",
+        "answer": "the Passover bread is His body,"
+      },
+      {
+        "id": 34,
+        "situation": "유월절 포도주는 예수님의 피라고.",
+        "answer": "the Passover wine is His blood."
+      },
+      {
+        "id": 35,
+        "situation": "그러므로 우리는 예수님의 살을 먹을 수 있고,",
+        "answer": "So, we can eat Jesus' flesh"
+      },
+      {
+        "id": 36,
+        "situation": "그리고 그의 피를 마실 수 있습니다",
+        "answer": "and drink His blood"
+      },
+      {
+        "id": 37,
+        "situation": "유월절을 통해서.",
+        "answer": "through the Passover."
+      },
+      {
+        "id": 38,
+        "situation": "하나님께서는 우리에게 유월절을 주셨습니다",
+        "answer": "God gave us the Passover"
+      },
+      {
+        "id": 39,
+        "situation": "우리에게 영생을 주시기 위해서.",
+        "answer": "to give us eternal life."
+      },
+      {
+        "id": 40,
+        "situation": "왜 하나님께서는 원하십니까",
+        "answer": "Why does God want"
+      },
+      {
+        "id": 41,
+        "situation": "우리에게 영생을 주시기를?",
+        "answer": "to give us eternal life?"
+      },
+      {
+        "id": 42,
+        "situation": "천국에는 죽음이 없습니다.",
+        "answer": "There is no death in heaven."
+      },
+      {
+        "id": 43,
+        "situation": "오직 영원히 사는 사람들만",
+        "answer": "Only people who live forever"
+      },
+      {
+        "id": 44,
+        "situation": "하늘나라에 들어갈 수 있습니다.",
+        "answer": "can enter heaven."
+      },
+      {
+        "id": 45,
+        "situation": "예수님께서는 우리에게 유월절을 지키라 말씀하십니다.",
+        "answer": "Jesus tells us to keep the Passover."
+      },
+      {
+        "id": 46,
+        "situation": "그는 우리에게 영생을 주고자 하십니다.",
+        "answer": "He wants to give us eternal life."
+      },
+      {
+        "id": 47,
+        "situation": "무슨 일이 일어날까요",
+        "answer": "What will happen"
+      },
+      {
+        "id": 48,
+        "situation": "만약 사람들이 거부한다면",
+        "answer": "if people refuse"
+      },
+      {
+        "id": 49,
+        "situation": "유월절을 지키는 것을?",
+        "answer": "to keep the Passover?"
+      },
+      {
+        "id": 50,
+        "situation": "오직 하나님의 뜻을 행하는 자만",
+        "answer": "Only people who do God's will"
+      },
+      {
+        "id": 51,
+        "situation": "하늘나라에 들어갈 수 있습니다.",
+        "answer": "can enter heaven."
+      },
+      {
+        "id": 52,
+        "situation": "구약과 신약 모두에서",
+        "answer": "In both the Old and New Testaments,"
+      },
+      {
+        "id": 53,
+        "situation": "하나님께서는 우리에게 명령하십니다",
+        "answer": "God commands us"
+      },
+      {
+        "id": 54,
+        "situation": "유월절을 지키는 것을.",
+        "answer": "to keep the Passover."
+      },
+      {
+        "id": 55,
+        "situation": "그러므로 유월절을 지키는 것이 하나님의 뜻입니다.",
+        "answer": "So, keeping the Passover is God's will."
+      },
+      {
+        "id": 56,
+        "situation": "우리 모두 유월절을 지킵시다.",
+        "answer": "Let us keep the Passover."
+      },
+      {
+        "id": 57,
+        "situation": "우리 모두 영생을 받읍시다.",
+        "answer": "Let us receive eternal life."
+      },
+      {
+        "id": 58,
+        "situation": "우리 모두 영원한 하늘나라에 들어갑시다.",
+        "answer": "Let us enter the eternal kingdom of heaven."
+      },
+      {
+        "id": 59,
+        "situation": "그리고 유월절을 전합시다",
+        "answer": "And let us preach the Passover"
+      },
+      {
+        "id": 60,
+        "situation": "온 세상에.",
+        "answer": "to the whole world."
       }
     ]
   }

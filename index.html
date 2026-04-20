@@ -777,7 +777,10 @@
       }
 
       function createTruthStudyState(group) {
-        const picks = shuffleInPlace(group.cards.slice());
+        // 진리발표 모드는 truth.json에 정의된 순서(카드 id 오름차순)대로 진행.
+        const picks = group.cards
+          .slice()
+          .sort((a, b) => a.localId - b.localId);
         return {
           chapter: group.chapter,
           title: group.title,
@@ -801,7 +804,7 @@
           .join("");
         app.innerHTML = `
           <div class="gate-panel">
-            <strong>진리발표 학습</strong> · 공부할 챕터를 선택하면 해당 문장만 랜덤 카드로 학습합니다.
+            <strong>진리발표 학습</strong> · 공부할 챕터를 선택하면 해당 문장을 순서대로 학습합니다.
           </div>
           <div class="actions">${chapterButtons}</div>
           <div class="actions" style="margin-top:0.75rem;">
@@ -882,7 +885,7 @@
                   }</button>`
                 : ""
             }
-            <button type="button" class="ghost" id="btnTruthReshuffle">챕터 다시 섞기</button>
+            <button type="button" class="ghost" id="btnTruthRestart">처음부터 다시</button>
             <button type="button" class="ghost" id="btnTruthList">챕터 선택</button>
           </div>
         `;
@@ -912,7 +915,7 @@
             renderTruthStudy(state, groups);
           };
         }
-        document.getElementById("btnTruthReshuffle").onclick = () => {
+        document.getElementById("btnTruthRestart").onclick = () => {
           const group = groups.find((g) => g.chapter === state.chapter);
           if (!group) return;
           renderTruthStudy(createTruthStudyState(group), groups);
