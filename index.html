@@ -257,13 +257,14 @@
     </header>
     <div id="app"></div>
     <footer class="note">
-      데이터: <code>data/cards.json</code> · 로컬에서 열 때는 <code>python3 -m http.server</code> 등으로 같은 폴더를 서빙한 뒤 접속하세요.
+      데이터: <code>data/cards.json</code>, <code>data/truth.json</code> · 로컬에서 열 때는 <code>python3 -m http.server</code> 등으로 같은 폴더를 서빙한 뒤 접속하세요.
     </footer>
   </div>
 
   <script>
     (function () {
-      const DATA_URL = "data/cards.json";
+      const DAILY_DATA_URL = "data/cards.json";
+      const TRUTH_DATA_URL = "data/truth.json";
       const STORAGE_KEY = "english-random-card-session";
       const STORAGE_VERSION = 3;
       const PROGRESS_KEY = "english-random-card-study-progress";
@@ -302,7 +303,7 @@
         return cards.reduce((m, c) => Math.max(m, c.round), -Infinity);
       }
 
-      function validateCards(raw) {
+      function validateDailyCards(raw) {
         if (!Array.isArray(raw)) throw new Error("JSON 최상위는 배열이어야 합니다.");
         const out = [];
         raw.forEach((row, i) => {
@@ -336,6 +337,54 @@
             situation: situation.trim(),
             answer: answer.trim(),
           });
+        });
+        if (out.length === 0) throw new Error("카드가 한 장도 없습니다.");
+        return out;
+      }
+
+      function validateTruthChapters(raw) {
+        if (!Array.isArray(raw)) throw new Error("JSON 최상위는 배열이어야 합니다.");
+        const out = raw.map((row, i) => {
+          if (!row || typeof row !== "object") throw new Error(`챕터 ${i}: 객체가 아닙니다.`);
+          const chapter = row.chapter;
+          const title = row.title;
+          const cards = row.cards;
+          if (!Number.isInteger(chapter)) {
+            throw new Error(`챕터 ${i}: chapter는 정수여야 합니다.`);
+          }
+          if (typeof title !== "string" || !title.trim()) {
+            throw new Error(`챕터 ${i}: title은 비어 있지 않은 문자열이어야 합니다.`);
+          }
+          if (!Array.isArray(cards) || cards.length === 0) {
+            throw new Error(`챕터 ${i}: cards는 비어 있지 않은 배열이어야 합니다.`);
+          }
+          const normalizedCards = cards.map((card, ci) => {
+            if (!card || typeof card !== "object") {
+              throw new Error(`챕터 ${chapter}, 카드 ${ci}: 객체가 아닙니다.`);
+            }
+            if (!Number.isInteger(card.id)) {
+              throw new Error(`챕터 ${chapter}, 카드 ${ci}: id는 정수여야 합니다.`);
+            }
+            const situation = card.situation;
+            const answer = card.answer;
+            if (typeof situation !== "string" || !situation.trim()) {
+              throw new Error(`챕터 ${chapter}, 카드 ${ci}: situation은 비어 있지 않은 문자열이어야 합니다.`);
+            }
+            if (typeof answer !== "string" || !answer.trim()) {
+              throw new Error(`챕터 ${chapter}, 카드 ${ci}: answer은 비어 있지 않은 문자열이어야 합니다.`);
+            }
+            return {
+              id: `${chapter}-${card.id}`,
+              localId: card.id,
+              situation: situation.trim(),
+              answer: answer.trim(),
+            };
+          });
+          return {
+            chapter,
+            title: title.trim(),
+            cards: normalizedCards,
+          };
         });
         if (out.length === 0) throw new Error("카드가 한 장도 없습니다.");
         return out;
@@ -612,7 +661,7 @@
         </div>`;
       }
 
-      function render(state, cards, progress) {
+      function renderDaily(state, cards, progress) {
         const { picks, index, revealed } = state;
         dateLine.textContent = todayKey();
 
@@ -628,11 +677,15 @@
               <p class="meta">내일 다시 만나요.</p>
               <div class="actions" style="justify-content:center;margin-top:1rem;">
                 <button type="button" class="ghost" id="btnReset">오늘 다시 뽑기 (테스트)</button>
+                <button type="button" class="ghost" id="btnModeSelectDone">모드 선택</button>
               </div>
             </div>`;
           document.getElementById("btnReset").onclick = () => {
             clearSession();
             location.reload();
+          };
+          document.getElementById("btnModeSelectDone").onclick = () => {
+            renderModePicker();
           };
           return;
         }
@@ -668,6 +721,7 @@
                 : ""
             }
             <button type="button" class="ghost" id="btnReset">오늘 다시 뽑기</button>
+            <button type="button" class="ghost" id="btnModeSelect">모드 선택</button>
           </div>
         `;
 
@@ -676,7 +730,7 @@
           if (state.revealed) return;
           state.revealed = true;
           persistProgress(state);
-          render(state, cards, progress);
+          renderDaily(state, cards, progress);
         };
         shell.addEventListener("click", (e) => {
           if (e.target.closest("button")) return;
@@ -700,7 +754,7 @@
             state.index += 1;
             state.revealed = false;
             persistProgress(state);
-            render(state, cards, progress);
+            renderDaily(state, cards, progress);
           };
         }
         document.getElementById("btnReset").onclick = () => {
@@ -708,6 +762,9 @@
             clearSession();
             location.reload();
           }
+        };
+        document.getElementById("btnModeSelect").onclick = () => {
+          renderModePicker();
         };
       }
 
@@ -719,12 +776,158 @@
           .replace(/"/g, "&quot;");
       }
 
-      async function main() {
+      function createTruthStudyState(group) {
+        const picks = shuffleInPlace(group.cards.slice());
+        return {
+          chapter: group.chapter,
+          title: group.title,
+          picks,
+          index: 0,
+          revealed: false,
+        };
+      }
+
+      function renderTruthChapterPicker(groups) {
+        dateLine.textContent = todayKey();
+        if (!groups.length) {
+          app.innerHTML = `<div class="error">진리발표 챕터 데이터가 없습니다.</div>`;
+          return;
+        }
+        const chapterButtons = groups
+          .map(
+            (g) =>
+              `<button type="button" class="primary truth-chapter-btn" data-chapter="${g.chapter}">Chapter ${g.chapter}${g.title ? ` · ${escapeHtml(g.title)}` : ""} (${g.cards.length}문장)</button>`
+          )
+          .join("");
+        app.innerHTML = `
+          <div class="gate-panel">
+            <strong>진리발표 학습</strong> · 공부할 챕터를 선택하면 해당 문장만 랜덤 카드로 학습합니다.
+          </div>
+          <div class="actions">${chapterButtons}</div>
+          <div class="actions" style="margin-top:0.75rem;">
+            <button type="button" class="ghost" id="btnModeBack">모드 선택으로</button>
+          </div>
+        `;
+
+        app.querySelectorAll(".truth-chapter-btn").forEach((btn) => {
+          btn.addEventListener("click", () => {
+            const chapter = Number(btn.dataset.chapter);
+            const group = groups.find((g) => g.chapter === chapter);
+            if (!group) return;
+            const state = createTruthStudyState(group);
+            renderTruthStudy(state, groups);
+          });
+        });
+        document.getElementById("btnModeBack").onclick = () => {
+          renderModePicker();
+        };
+      }
+
+      function renderTruthStudy(state, groups) {
+        const { picks, index, revealed } = state;
+        dateLine.textContent = todayKey();
+
+        if (picks.length === 0) {
+          app.innerHTML = `<div class="error">선택한 챕터에 카드가 없습니다.</div>`;
+          return;
+        }
+
+        if (index >= picks.length) {
+          app.innerHTML = `
+            <div class="done">
+              <h2>Chapter ${state.chapter} 완료</h2>
+              <p class="meta">${escapeHtml(state.title || "선택한 챕터")} 학습을 마쳤습니다.</p>
+              <div class="actions" style="justify-content:center;margin-top:1rem;">
+                <button type="button" class="primary" id="btnTruthReplay">챕터 다시 학습</button>
+                <button type="button" class="ghost" id="btnTruthList">챕터 선택</button>
+              </div>
+            </div>`;
+          document.getElementById("btnTruthReplay").onclick = () => {
+            const group = groups.find((g) => g.chapter === state.chapter);
+            if (!group) return;
+            renderTruthStudy(createTruthStudyState(group), groups);
+          };
+          document.getElementById("btnTruthList").onclick = () => {
+            renderTruthChapterPicker(groups);
+          };
+          return;
+        }
+
+        const card = picks[index];
+        const bars = picks
+          .map((_, i) => `<span class="${i <= index ? "on" : ""}"></span>`)
+          .join("");
+        const titleLabel = state.title ? ` · ${escapeHtml(state.title)}` : "";
+
+        app.innerHTML = `
+          <div class="progress">${bars}</div>
+          <div class="pill" style="margin-bottom:0.75rem;">Chapter ${state.chapter}${titleLabel} · ${index + 1} / ${picks.length}</div>
+          <div class="card-shell" id="cardTap" tabindex="0" role="button" aria-label="카드 뒤집기 또는 답 보기">
+            <div class="label">Situation</div>
+            <div class="situation">${escapeHtml(card.situation)}</div>
+            ${
+              revealed
+                ? `<div class="answer-block">
+                    <div class="label">Model answer</div>
+                    <div class="answer">${escapeHtml(card.answer)}</div>
+                  </div>`
+                : `<p class="hint">말해 본 뒤 카드를 눌러 답을 확인하세요.</p>`
+            }
+          </div>
+          <div class="actions">
+            ${
+              revealed
+                ? `<button type="button" class="primary" id="btnNext">${
+                    index < picks.length - 1 ? "다음 카드" : "완료"
+                  }</button>`
+                : ""
+            }
+            <button type="button" class="ghost" id="btnTruthReshuffle">챕터 다시 섞기</button>
+            <button type="button" class="ghost" id="btnTruthList">챕터 선택</button>
+          </div>
+        `;
+
+        const shell = document.getElementById("cardTap");
+        const goReveal = () => {
+          if (state.revealed) return;
+          state.revealed = true;
+          renderTruthStudy(state, groups);
+        };
+        shell.addEventListener("click", (e) => {
+          if (e.target.closest("button")) return;
+          if (!state.revealed) goReveal();
+        });
+        shell.addEventListener("keydown", (e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            if (!state.revealed) goReveal();
+          }
+        });
+
+        const btnNext = document.getElementById("btnNext");
+        if (btnNext) {
+          btnNext.onclick = () => {
+            state.index += 1;
+            state.revealed = false;
+            renderTruthStudy(state, groups);
+          };
+        }
+        document.getElementById("btnTruthReshuffle").onclick = () => {
+          const group = groups.find((g) => g.chapter === state.chapter);
+          if (!group) return;
+          renderTruthStudy(createTruthStudyState(group), groups);
+        };
+        document.getElementById("btnTruthList").onclick = () => {
+          renderTruthChapterPicker(groups);
+        };
+      }
+
+      async function startDailyMode() {
         let cards;
         try {
-          const res = await fetch(DATA_URL);
+          const res = await fetch(DAILY_DATA_URL);
           if (!res.ok) throw new Error(`HTTP ${res.status}`);
-          cards = validateCards(await res.json());
+          cards = validateDailyCards(await res.json());
         } catch (e) {
           app.innerHTML = `
             <div class="error">
@@ -739,7 +942,48 @@
 
         const progress = loadProgress(cards);
         const state = getOrCreateDailyState(cards, progress);
-        render(state, cards, progress);
+        renderDaily(state, cards, progress);
+      }
+
+      async function startTruthMode() {
+        let groups;
+        try {
+          const res = await fetch(TRUTH_DATA_URL);
+          if (!res.ok) throw new Error(`HTTP ${res.status}`);
+          groups = validateTruthChapters(await res.json());
+        } catch (e) {
+          app.innerHTML = `
+            <div class="error">
+              <strong>진리발표 데이터를 불러오지 못했습니다.</strong><br />
+              <code>data/truth.json</code> 파일을 확인해 주세요.<br /><br />
+              <span class="meta">${escapeHtml(String(e.message || e))}</span>
+            </div>`;
+          return;
+        }
+        renderTruthChapterPicker(groups);
+      }
+
+      function renderModePicker() {
+        dateLine.textContent = todayKey();
+        app.innerHTML = `
+          <div class="gate-panel">
+            <strong>학습 모드 선택</strong> · 오늘은 어떤 모드로 학습할지 선택하세요.
+          </div>
+          <div class="actions">
+            <button type="button" class="primary" id="btnModeDaily">일상 생활</button>
+            <button type="button" class="primary" id="btnModeTruth">진리발표</button>
+          </div>
+        `;
+        document.getElementById("btnModeDaily").onclick = () => {
+          startDailyMode();
+        };
+        document.getElementById("btnModeTruth").onclick = () => {
+          startTruthMode();
+        };
+      }
+
+      function main() {
+        renderModePicker();
       }
 
       main();

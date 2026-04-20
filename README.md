@@ -8,6 +8,11 @@
 - **일일 분량**: 하루 **3장**씩만 진행합니다.
 - **데이터**: 상황과 답은 **JSON**에 두고, **`studyDate`(달력 날짜)**로 “언제 넣은 묶음인지”를 구분합니다.
 
+## 파트 구성
+
+- `data/cards.json`: **일상 생활**
+- `data/truth.json`: **진리발표**
+
 ## 파일 구조
 
 | 파일 | 역할 |
@@ -36,6 +41,24 @@
 - **`situation`**: 카드 앞면에만 노출되는 **상황** 문장.
 - **`answer`**: 클릭 후 확인하는 **영어 대답**(모범 답안).
 - **`id`**: 고유 문자열. **`id` 순서는 연습 순서와 무관**합니다.
+
+### 진리발표 데이터 (`data/truth.json`)
+
+진리발표는 날짜 게이트가 아니라 **챕터 선택 학습**을 기준으로 합니다.
+
+```json
+{
+  "chapter": 7,
+  "title": "Passover, the Way to Eternal Life",
+  "cards": [
+    {
+      "id": 1,
+      "situation": "새언약의 유월절은",
+      "answer": "The Passover of the new covenant"
+    }
+  ]
+}
+```
 
 ## 화면·UX (index.html)
 
