@@ -144,6 +144,10 @@
       align-items: center;
     }
 
+    .actions .push-right {
+      margin-left: auto;
+    }
+
     button {
       font: inherit;
       cursor: pointer;
@@ -887,6 +891,8 @@
             }
             <button type="button" class="ghost" id="btnTruthRestart">처음부터 다시</button>
             <button type="button" class="ghost" id="btnTruthList">챕터 선택</button>
+            <button type="button" class="ghost push-right" id="btnPrevCard" ${index === 0 ? "disabled" : ""}>이전</button>
+            <button type="button" class="ghost" id="btnNextCard" ${index >= picks.length - 1 ? "disabled" : ""}>다음</button>
           </div>
         `;
 
@@ -910,6 +916,24 @@
         const btnNext = document.getElementById("btnNext");
         if (btnNext) {
           btnNext.onclick = () => {
+            state.index += 1;
+            state.revealed = false;
+            renderTruthStudy(state, groups);
+          };
+        }
+        const btnPrevCard = document.getElementById("btnPrevCard");
+        if (btnPrevCard) {
+          btnPrevCard.onclick = () => {
+            if (state.index <= 0) return;
+            state.index -= 1;
+            state.revealed = false;
+            renderTruthStudy(state, groups);
+          };
+        }
+        const btnNextCard = document.getElementById("btnNextCard");
+        if (btnNextCard) {
+          btnNextCard.onclick = () => {
+            if (state.index >= picks.length - 1) return;
             state.index += 1;
             state.revealed = false;
             renderTruthStudy(state, groups);
