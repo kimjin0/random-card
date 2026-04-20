@@ -864,7 +864,7 @@
 
         app.innerHTML = `
           <div class="progress">${bars}</div>
-          <div class="pill" style="margin-bottom:0.75rem;">Chapter ${state.chapter}${titleLabel} · ${index + 1} / ${picks.length}</div>
+          <div class="pill" style="margin-bottom:0.75rem;">Chapter ${state.chapter}${titleLabel} · ${index + 1} / ${picks.length} · 카드 ID ${card.localId}</div>
           <div class="card-shell" id="cardTap" tabindex="0" role="button" aria-label="카드 뒤집기 또는 답 보기">
             <div class="label">Situation</div>
             <div class="situation">${escapeHtml(card.situation)}</div>
