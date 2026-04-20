@@ -61,5 +61,26 @@
     "studyDate": "2026-04-18",
     "situation": "새 팀원한테 어떤 언어 쓰냐고 물어볼 때",
     "answer": "What kind of framework do you use?"
+  },
+  {
+    "id": "r4-1",
+    "round": 4,
+    "studyDate": "2026-04-20",
+    "situation": "팀원이 검토 없이 뭔가 하려 할 때\n",
+    "answer": "Are you trying to + [동사원형]?\nAre you trying to skip the review"
+  },
+  {
+    "id": "r4-2",
+    "round": 4,
+    "studyDate": "2026-04-20",
+    "situation": "내 생각엔 ~할까 해 / ~해야겠어",
+    "answer": "I think I'll + [동사원형]\nI think I'll restart the server."
+  },
+  {
+    "id": "r4-3",
+    "round": 4,
+    "studyDate": "2026-04-20",
+    "situation": "쓰기 싫은 기술/코드 피할 때",
+    "answer": "stay away from + [명사]\nI stay away from legacy code."
   }
 ]
