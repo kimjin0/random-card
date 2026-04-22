@@ -133,10 +133,43 @@
       border-top: 1px solid var(--border);
     }
 
+    .answer-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem;
+      margin-bottom: 0.35rem;
+    }
+
     .answer {
       font-size: 0.98rem;
       color: #dbe4f5;
       white-space: pre-line;
+    }
+
+    .tts-btn {
+      border: 1px solid #3b4a66;
+      background: #1b2434;
+      color: #cfe0ff;
+      padding: 0.2rem 0.45rem;
+      font-size: 0.78rem;
+      line-height: 1;
+      border-radius: 8px;
+    }
+
+    .tts-btn:hover {
+      border-color: #5c79b3;
+      color: #e6efff;
+    }
+
+    .tts-voice {
+      border: 1px solid #3b4a66;
+      background: #111827;
+      color: #d8e4ff;
+      padding: 0.22rem 0.4rem;
+      font-size: 0.74rem;
+      border-radius: 8px;
+      max-width: 170px;
     }
 
     .actions {
@@ -276,6 +309,7 @@
       const STORAGE_VERSION = 3;
       const PROGRESS_KEY = "english-random-card-study-progress";
       const PROGRESS_VERSION = 1;
+      const TTS_VOICE_KEY = "english-random-card-tts-voice-uri";
       /** studyDate 기준: 오늘 6회 → 어제 4회 → 그제 2회 순차 게이트 후, 날짜 구간별 6:4:2 가중 */
       const SEQ_GOALS = { today: 6, yesterday: 4, dayBefore: 2 };
       /** 같은 날 같은 카드가 두 번 나오지 않도록 고정 */
@@ -713,7 +747,13 @@
             ${
               revealed
                 ? `<div class="answer-block">
-                    <div class="label">Model answer</div>
+                    <div class="answer-head">
+                      <div class="label">Model answer</div>
+                      <div style="display:flex;align-items:center;gap:0.35rem;">
+                        ${getVoiceOptionsHtml()}
+                        <button type="button" class="tts-btn" id="btnSpeakAnswer" aria-label="영어 문장 듣기">🔊 듣기</button>
+                      </div>
+                    </div>
                     <div class="answer">${escapeHtml(card.answer)}</div>
                   </div>`
                 : `<p class="hint">말해 본 뒤 카드를 눌러 답을 확인하세요.</p>`
@@ -773,6 +813,19 @@
         document.getElementById("btnModeSelect").onclick = () => {
           renderModePicker();
         };
+        const btnSpeakAnswer = document.getElementById("btnSpeakAnswer");
+        if (btnSpeakAnswer) {
+          btnSpeakAnswer.onclick = () => {
+            speakEnglish(card.answer);
+          };
+        }
+        const ttsVoiceSelect = document.getElementById("ttsVoiceSelect");
+        if (ttsVoiceSelect) {
+          ttsVoiceSelect.onchange = () => {
+            const uri = String(ttsVoiceSelect.value || "");
+            setSavedVoiceUri(uri);
+          };
+        }
       }
 
       function escapeHtml(s) {
@@ -781,6 +834,74 @@
           .replace(/</g, "&lt;")
           .replace(/>/g, "&gt;")
           .replace(/"/g, "&quot;");
+      }
+
+      function getEnglishVoices() {
+        if (!("speechSynthesis" in window)) return [];
+        const voices = window.speechSynthesis.getVoices();
+        return voices.filter((v) => /^en(-|_)/i.test(v.lang || ""));
+      }
+
+      function getSavedVoiceUri() {
+        try {
+          return localStorage.getItem(TTS_VOICE_KEY) || "";
+        } catch {
+          return "";
+        }
+      }
+
+      function setSavedVoiceUri(uri) {
+        try {
+          if (uri) localStorage.setItem(TTS_VOICE_KEY, uri);
+        } catch {}
+      }
+
+      function chooseVoice(voices) {
+        if (!voices.length) return null;
+        const saved = getSavedVoiceUri();
+        if (saved) {
+          const matched = voices.find((v) => v.voiceURI === saved);
+          if (matched) return matched;
+        }
+        const preferredNames = ["Samantha", "Google US English", "Microsoft Aria Online", "Alex"];
+        const preferred = voices.find((v) =>
+          preferredNames.some((name) => (v.name || "").includes(name))
+        );
+        return preferred || voices[0];
+      }
+
+      function getVoiceOptionsHtml() {
+        const voices = getEnglishVoices();
+        if (!voices.length) return "";
+        const selected = chooseVoice(voices);
+        return `<select id="ttsVoiceSelect" class="tts-voice" aria-label="영어 TTS 목소리 선택">
+          ${voices
+            .map((v) => {
+              const selectedAttr = selected && v.voiceURI === selected.voiceURI ? "selected" : "";
+              return `<option value="${escapeHtml(v.voiceURI)}" ${selectedAttr}>${escapeHtml(
+                `${v.name} (${v.lang})`
+              )}</option>`;
+            })
+            .join("")}
+        </select>`;
+      }
+
+      function speakEnglish(text) {
+        if (!("speechSynthesis" in window)) {
+          alert("이 브라우저는 음성 읽기(TTS)를 지원하지 않습니다.");
+          return;
+        }
+        const content = typeof text === "string" ? text.trim() : "";
+        if (!content) return;
+        const voices = getEnglishVoices();
+        const selected = chooseVoice(voices);
+        window.speechSynthesis.cancel();
+        const u = new SpeechSynthesisUtterance(content);
+        u.lang = selected?.lang || "en-US";
+        u.voice = selected || null;
+        u.rate = 0.95;
+        u.pitch = 1;
+        window.speechSynthesis.speak(u);
       }
 
       function createTruthStudyState(group) {
@@ -878,7 +999,13 @@
             ${
               revealed
                 ? `<div class="answer-block">
-                    <div class="label">Model answer</div>
+                    <div class="answer-head">
+                      <div class="label">Model answer</div>
+                      <div style="display:flex;align-items:center;gap:0.35rem;">
+                        ${getVoiceOptionsHtml()}
+                        <button type="button" class="tts-btn" id="btnSpeakAnswer" aria-label="영어 문장 듣기">🔊 듣기</button>
+                      </div>
+                    </div>
                     <div class="answer">${escapeHtml(card.answer)}</div>
                   </div>`
                 : `<p class="hint">말해 본 뒤 카드를 눌러 답을 확인하세요.</p>`
@@ -950,6 +1077,19 @@
         document.getElementById("btnTruthList").onclick = () => {
           renderTruthChapterPicker(groups);
         };
+        const btnSpeakAnswer = document.getElementById("btnSpeakAnswer");
+        if (btnSpeakAnswer) {
+          btnSpeakAnswer.onclick = () => {
+            speakEnglish(card.answer);
+          };
+        }
+        const ttsVoiceSelect = document.getElementById("ttsVoiceSelect");
+        if (ttsVoiceSelect) {
+          ttsVoiceSelect.onchange = () => {
+            const uri = String(ttsVoiceSelect.value || "");
+            setSavedVoiceUri(uri);
+          };
+        }
       }
 
       async function startDailyMode() {
@@ -1013,6 +1153,10 @@
       }
 
       function main() {
+        if ("speechSynthesis" in window) {
+          // 일부 브라우저는 getVoices()를 미리 호출해야 음성 목록이 채워집니다.
+          window.speechSynthesis.getVoices();
+        }
         renderModePicker();
       }
 
