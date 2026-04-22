@@ -899,7 +899,7 @@
         const u = new SpeechSynthesisUtterance(content);
         u.lang = selected?.lang || "en-US";
         u.voice = selected || null;
-        u.rate = 0.95;
+        u.rate = 0.8;
         u.pitch = 1;
         window.speechSynthesis.speak(u);
       }
