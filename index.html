@@ -406,6 +406,7 @@
       const MAX_SAMPLE_TRIES = 200;
       const MYMEMORY_TRANSLATE =
         "https://api.mymemory.translated.net/get?langpair=en%7Cko&q=";
+      const DICTIONARY_API = "https://api.dictionaryapi.dev/api/v2/entries/en/";
       /**
        * gtx 요청이 막힐 때를 대비한 Google Cloud Translation API(v2) 키(선택).
        *   localStorage.setItem('english-random-card-google-translate-key', 'API_키');
@@ -944,7 +945,7 @@
                         <button type="button" class="tts-btn" id="btnSpeakAnswer" aria-label="영어 문장 듣기">🔊 듣기</button>
                       </div>
                     </div>
-                    <div class="answer">${englishWordsInteractiveHtml(card.answer)}</div>
+                    <div class="answer" data-en-context="${escapeHtml(card.answer)}">${englishWordsInteractiveHtml(card.answer)}</div>
                   </div>`
                 : `<p class="hint">말해 본 뒤 카드를 눌러 답을 확인하세요.</p>`
             }
@@ -1035,6 +1036,7 @@
       function englishWordsInteractiveHtml(text) {
         if (!text || typeof text !== "string") return "";
         const parts = text.split(/(\s+)/);
+        let wordIndex = 0;
         return parts
           .map((part) => {
             if (/^\s+$/.test(part)) return escapeHtml(part);
@@ -1043,9 +1045,54 @@
             if (!key) return escapeHtml(part);
             const disp = escapeHtml(part);
             const safeLabel = escapeHtml(key);
-            return `<span class="click-en" tabindex="0" role="button" aria-label="${safeLabel}, 한글 번역 보기" data-w="${escapeHtml(key)}">${disp}</span>`;
+            const html = `<span class="click-en" tabindex="0" role="button" aria-label="${safeLabel}, 한글 번역 보기" data-w="${escapeHtml(key)}" data-wi="${wordIndex}">${disp}</span>`;
+            wordIndex += 1;
+            return html;
           })
           .join("");
+      }
+
+      function getContextWordParts(text) {
+        if (!text || typeof text !== "string") return [];
+        const parts = text.split(/(\s+)/);
+        const words = [];
+        for (const part of parts) {
+          if (/^\s+$/.test(part)) continue;
+          if (!/[a-zA-Z]/.test(part)) continue;
+          const key = normalizeEnglishLookup(part);
+          if (!key) continue;
+          const cleaned = part.replace(/^[^\w']+|[^\w']+$/g, "").trim();
+          words.push({ key, raw: cleaned || key });
+        }
+        return words;
+      }
+
+      function inferPreferredPos(sentence, wordIndex) {
+        const words = getContextWordParts(sentence);
+        if (!words.length) return "";
+        const wi = Number.isInteger(wordIndex) ? wordIndex : -1;
+        if (wi < 0 || wi >= words.length) return "";
+        const prev = (words[wi - 1] && words[wi - 1].key) || "";
+        const prev2 = (words[wi - 2] && words[wi - 2].key) || "";
+        const determiners = new Set(["a", "an", "the", "this", "that", "these", "those"]);
+        const degree = new Set(["very", "so", "too", "quite", "rather", "more", "most"]);
+        const pronouns = new Set(["i", "you", "we", "they", "he", "she", "it"]);
+
+        if (degree.has(prev)) return "adjective";
+        if (determiners.has(prev)) return "adjective";
+        if (determiners.has(prev2) && degree.has(prev)) return "adjective";
+        if (prev === "to") return "verb";
+        if (pronouns.has(prev)) return "verb";
+        return "";
+      }
+
+      function canonicalPosLabel(pos) {
+        const s = String(pos || "").toLowerCase();
+        if (s.includes("adj") || s.includes("형용")) return "adjective";
+        if (s.includes("verb") || s.includes("동사")) return "verb";
+        if (s.includes("noun") || s.includes("명사")) return "noun";
+        if (s.includes("adverb") || s.includes("부사")) return "adverb";
+        return s.trim();
       }
 
       function closeWordDefinitionPanel() {
@@ -1131,6 +1178,59 @@
         return String(out).trim();
       }
 
+      async function translateWordWithContextBias(word, contextSentence, wordIndex, signal) {
+        const url =
+          "https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=ko&dt=t&dt=bd&q=" +
+          encodeURIComponent(word);
+        const res = await fetch(url, { signal });
+        if (!res.ok) throw new Error("Google 단어 번역 응답 " + res.status);
+        const raw = await res.text();
+        let data;
+        try {
+          data = JSON.parse(raw);
+        } catch {
+          throw new Error("Google 단어 번역 형식 오류");
+        }
+
+        const direct = (data && data[0] && data[0][0] && data[0][0][0]) || "";
+        const dictRows = Array.isArray(data && data[1]) ? data[1] : [];
+        const preferredPos = inferPreferredPos(contextSentence, wordIndex);
+
+        let picked = "";
+        let pickedPos = "";
+        if (preferredPos) {
+          const row = dictRows.find((r) => canonicalPosLabel((r && r[0]) || "") === preferredPos);
+          if (row && Array.isArray(row[1]) && row[1][0]) {
+            picked = String(row[1][0]).trim();
+            pickedPos = preferredPos;
+          }
+        }
+
+        if (!picked && direct) picked = String(direct).trim();
+        if (!picked && dictRows[0] && Array.isArray(dictRows[0][1]) && dictRows[0][1][0]) {
+          picked = String(dictRows[0][1][0]).trim();
+          pickedPos = canonicalPosLabel(dictRows[0][0] || "");
+        }
+        if (!picked) throw new Error("단어 뜻을 찾지 못했습니다.");
+        return { text: picked, provider: "Google 단어사전", pos: pickedPos };
+      }
+
+      async function fetchWordPhonetic(word, signal) {
+        const w = normalizeEnglishLookup(word);
+        if (!w) return "";
+        const res = await fetch(DICTIONARY_API + encodeURIComponent(w), { signal });
+        if (!res.ok) return "";
+        const data = await res.json();
+        if (!Array.isArray(data) || data.length === 0) return "";
+        const entry = data[0] || {};
+        if (typeof entry.phonetic === "string" && entry.phonetic.trim()) return entry.phonetic.trim();
+        const phonetics = Array.isArray(entry.phonetics) ? entry.phonetics : [];
+        for (const p of phonetics) {
+          if (p && typeof p.text === "string" && p.text.trim()) return p.text.trim();
+        }
+        return "";
+      }
+
       /** @returns {{ text: string, provider: string }} */
       async function translateEnglishToKorean(query, signal) {
         try {
@@ -1159,19 +1259,19 @@
         );
       }
 
-      async function fetchAndShowWordDefinition(displayWord, lookupKey) {
+      async function fetchAndShowWordDefinition(displayWord, lookupKey, contextSentence, wordIndex) {
         const panel = document.getElementById("wordDefPanel");
         const titleEl = document.getElementById("wordDefTitle");
         const bodyEl = document.getElementById("wordDefBody");
         if (!panel || !titleEl || !bodyEl) return;
 
         panel.hidden = false;
-        titleEl.textContent = (displayWord || lookupKey || "").trim() || lookupKey;
+        const displayLabel = (displayWord || lookupKey || "").trim() || lookupKey;
+        titleEl.textContent = displayLabel;
         wordDefLookupKey = lookupKey || "";
 
         const query = String(displayWord || lookupKey || "").trim();
         if (!query) return;
-
         bodyEl.innerHTML = `<span class="meta">한글 번역 불러오는 중…</span>`;
 
         if (wordLookupAbort) wordLookupAbort.abort();
@@ -1181,15 +1281,32 @@
 
         try {
           if (wordLookupAbort !== ac) return;
-          const { text: koText, provider } = await translateEnglishToKorean(query, ac.signal);
+          const [result, phonetic] = await Promise.all([
+            (async () => {
+              try {
+                return await translateWordWithContextBias(query, contextSentence, wordIndex, ac.signal);
+              } catch (_) {
+                return await translateEnglishToKorean(query, ac.signal);
+              }
+            })(),
+            fetchWordPhonetic(lookupKey || query, ac.signal),
+          ]);
           window.clearTimeout(t);
           if (wordLookupAbort !== ac) return;
+          titleEl.textContent = phonetic ? `${displayLabel} ${phonetic}` : displayLabel;
           bodyEl.innerHTML = `
-            <p class="word-def-ko-main">${escapeHtml(koText)}</p>
+            <p class="word-def-ko-main">${escapeHtml(result.text)}</p>
             <p class="meta" style="margin:0.45rem 0 0;line-height:1.45;">
-              원문 · <strong style="font-weight:600;color:#cdd8ee;">${escapeHtml(query)}</strong>
-              · ${escapeHtml(provider)}
+              단어 · <strong style="font-weight:600;color:#cdd8ee;">${escapeHtml(query)}</strong>
+              · ${escapeHtml(result.provider)}
             </p>
+            ${
+              result.pos
+                ? `<p class="meta" style="margin:0.3rem 0 0;line-height:1.45;">
+                     문맥 품사 추정 · ${escapeHtml(result.pos)}
+                   </p>`
+                : ""
+            }
             <p class="meta" style="margin:0.35rem 0 0;font-size:0.76rem;line-height:1.45;">
               <a href="${escapeHtml(googleTranslateWebUrl(query))}" target="_blank" rel="noopener noreferrer" style="color:var(--accent);">구글 번역 웹에서 보기 ↗</a>
             </p>`;
@@ -1221,8 +1338,22 @@
             e.stopPropagation();
             const raw = (wEl.getAttribute("data-w") || wEl.dataset.w || "").trim();
             const display = (wEl.textContent || "").trim();
+            const answerEl = wEl.closest(".answer");
+            const contextSentence = String(answerEl?.dataset.enContext || "").trim();
+            const byAttr = Number(wEl.dataset.wi);
+            let wordIndex = Number.isInteger(byAttr) ? byAttr : -1;
+            if (answerEl) {
+              const clickable = Array.from(answerEl.querySelectorAll(".click-en"));
+              const byDom = clickable.indexOf(wEl);
+              if (byDom >= 0) wordIndex = byDom;
+            }
             if (!raw) return;
-            fetchAndShowWordDefinition(display, raw);
+            fetchAndShowWordDefinition(
+              display,
+              raw,
+              contextSentence,
+              wordIndex
+            );
             return;
           }
         });
@@ -1425,7 +1556,7 @@
                         <button type="button" class="tts-btn" id="btnSpeakAnswer" aria-label="영어 문장 듣기">🔊 듣기</button>
                       </div>
                     </div>
-                    <div class="answer">${englishWordsInteractiveHtml(card.answer)}</div>
+                    <div class="answer" data-en-context="${escapeHtml(card.answer)}">${englishWordsInteractiveHtml(card.answer)}</div>
                   </div>`
                 : `<p class="hint">말해 본 뒤 카드를 눌러 답을 확인하세요.</p>`
             }
@@ -1658,7 +1789,7 @@
                         <button type="button" class="tts-btn" id="btnVerbSpeakEnglish" aria-label="영어 문장 듣기">🔊 듣기</button>
                       </div>
                     </div>
-                    <div class="answer">${englishWordsInteractiveHtml(card.english)}</div>
+                    <div class="answer" data-en-context="${escapeHtml(card.english)}">${englishWordsInteractiveHtml(card.english)}</div>
                     <div class="note-block">
                       <div class="label">메모</div>
                       <div class="note-body">${escapeHtml(card.note)}</div>
