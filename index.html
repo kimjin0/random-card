@@ -287,6 +287,77 @@
       background: var(--accent);
       max-width: 100%;
     }
+
+    .note-block {
+      margin-top: 0.85rem;
+      padding-top: 0.85rem;
+      border-top: 1px dashed var(--border);
+      font-size: 0.88rem;
+      color: #b8c2d4;
+    }
+
+    .note-block .note-body {
+      white-space: pre-line;
+      line-height: 1.5;
+    }
+
+    .answer .click-en {
+      cursor: pointer;
+      border-bottom: 1px dotted rgba(125, 178, 255, 0.45);
+      padding: 0 0.02em;
+      border-radius: 2px;
+      transition: background 0.12s ease, color 0.12s ease;
+    }
+
+    .answer .click-en:hover,
+    .answer .click-en:focus {
+      outline: none;
+      background: rgba(108, 158, 255, 0.18);
+      border-bottom-color: rgba(125, 178, 255, 0.85);
+    }
+
+    .word-def-panel {
+      margin-top: 1rem;
+      padding: 0.75rem 0.9rem 0.85rem;
+      border-radius: var(--radius);
+      background: #141a24;
+      border: 1px solid #3d4d6a;
+      box-shadow: 0 8px 28px rgba(0, 0, 0, 0.35);
+      font-size: 0.86rem;
+      line-height: 1.45;
+      max-height: min(42vh, 320px);
+      overflow: auto;
+    }
+
+    .word-def-panel[hidden] {
+      display: none !important;
+    }
+
+    .word-def-top {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 0.5rem;
+      margin-bottom: 0.45rem;
+    }
+
+    .word-def-top strong {
+      font-size: 0.95rem;
+      color: #e4ecff;
+    }
+
+    .word-def-ko-main {
+      margin: 0;
+      font-size: 1.08rem;
+      font-weight: 600;
+      color: #eef3fc;
+      line-height: 1.55;
+    }
+
+    .word-def-error {
+      color: #f0b8c0;
+      font-size: 0.85rem;
+    }
   </style>
 </head>
 <body>
@@ -296,8 +367,23 @@
       <span class="meta" id="dateLine"></span>
     </header>
     <div id="app"></div>
+    <div id="wordDefPanel" class="word-def-panel" hidden aria-live="polite">
+      <div class="word-def-top">
+        <strong id="wordDefTitle"></strong>
+        <div style="display:flex;gap:0.35rem;align-items:center;flex-shrink:0;">
+          <button type="button" class="tts-btn" id="btnWordDefSpeak" aria-label="이 단어 듣기">🔊</button>
+          <button type="button" class="tts-btn word-def-dismiss" aria-label="뜻 패널 닫기">
+            닫기
+          </button>
+        </div>
+      </div>
+      <div id="wordDefBody" class="word-def-body"></div>
+      <p class="meta" style="margin:0.5rem 0 0;font-size:0.72rem;line-height:1.45;">
+        단어 탭 시 이 영역에 영→한 번역을 표시합니다. Google(gtx) →(실패 시) Cloud API 키 → MyMemory 순으로 시도합니다. 인터넷이 필요합니다.
+      </p>
+    </div>
     <footer class="note">
-      데이터: <code>data/cards.json</code>, <code>data/truth.json</code> · 로컬에서 열 때는 <code>python3 -m http.server</code> 등으로 같은 폴더를 서빙한 뒤 접속하세요.
+      데이터: <code>data/cards.json</code>, <code>data/truth.json</code>, <code>data/verbs.json</code> · 로컬에서 열 때는 <code>python3 -m http.server</code> 등으로 같은 폴더를 서빙한 뒤 접속하세요.
     </footer>
   </div>
 
@@ -305,6 +391,7 @@
     (function () {
       const DAILY_DATA_URL = "data/cards.json";
       const TRUTH_DATA_URL = "data/truth.json";
+      const VERBS_DATA_URL = "data/verbs.json";
       const STORAGE_KEY = "english-random-card-session";
       const STORAGE_VERSION = 3;
       const PROGRESS_KEY = "english-random-card-study-progress";
@@ -317,6 +404,17 @@
       const WEIGHTS = { latest: 6, prev: 4, older: 2 };
       const DAILY_COUNT = 3;
       const MAX_SAMPLE_TRIES = 200;
+      const MYMEMORY_TRANSLATE =
+        "https://api.mymemory.translated.net/get?langpair=en%7Cko&q=";
+      /**
+       * gtx 요청이 막힐 때를 대비한 Google Cloud Translation API(v2) 키(선택).
+       *   localStorage.setItem('english-random-card-google-translate-key', 'API_키');
+       */
+      const GOOGLE_TRANSLATE_API_KEY = "";
+      const LS_GOOGLE_TRANSLATE_KEY = "english-random-card-google-translate-key";
+
+      let wordLookupAbort = null;
+      let wordDefLookupKey = "";
 
       function todayKey() {
         const d = new Date();
@@ -429,6 +527,98 @@
         });
         if (out.length === 0) throw new Error("카드가 한 장도 없습니다.");
         return out;
+      }
+
+      function isVerbUnitBlock(row) {
+        return !!(row && typeof row === "object" && Array.isArray(row.cards));
+      }
+
+      function normalizeVerbCards(verbKey, unitId, rows, pathLabel) {
+        if (!rows.length) {
+          throw new Error(`${pathLabel}: cards 배열에 예문이 한 개 이상 있어야 합니다.`);
+        }
+        return rows.map((row, i) => {
+          if (!row || typeof row !== "object") {
+            throw new Error(`${pathLabel} 예문 ${i}: 객체가 아닙니다.`);
+          }
+          const english = row.english;
+          const korean = row.korean;
+          const note = row.note;
+          if (typeof english !== "string" || !english.trim()) {
+            throw new Error(`${pathLabel} 예문 ${i}: english는 비어 있지 않은 문자열이어야 합니다.`);
+          }
+          if (typeof korean !== "string" || !korean.trim()) {
+            throw new Error(`${pathLabel} 예문 ${i}: korean은 비어 있지 않은 문자열이어야 합니다.`);
+          }
+          if (typeof note !== "string" || !note.trim()) {
+            throw new Error(`${pathLabel} 예문 ${i}: note는 비어 있지 않은 문자열이어야 합니다.`);
+          }
+          return {
+            id: `${verbKey}:${unitId}:${i}`,
+            english: english.trim(),
+            korean: korean.trim(),
+            note: note.trim(),
+          };
+        });
+      }
+
+      /**
+       * 기본동사: 최상위 키 = 동사(그룹) 식별자.
+       * (단일) 플랫 예문만: "have": [ { english, korean, note }, ... ]
+       * (복수 의미/day) 블록: "have": [ { "id": "day1", "focus"|"title", "cards": [ ... ] }, ... ]
+       */
+      function validateVerbLexicon(raw) {
+        if (!raw || typeof raw !== "object" || Array.isArray(raw)) {
+          throw new Error("기본동사 JSON 최상위는 객체여야 합니다.");
+        }
+        const keys = Object.keys(raw).sort((a, b) => a.localeCompare(b, "ko"));
+        const groups = [];
+        for (const key of keys) {
+          const arr = raw[key];
+          if (!Array.isArray(arr) || arr.length === 0) {
+            throw new Error(`동사 "${key}": 내용 배열이 비어 있지 않아야 합니다.`);
+          }
+          const unitLike = arr.filter(isVerbUnitBlock);
+          if (unitLike.length > 0 && unitLike.length !== arr.length) {
+            throw new Error(
+              `동사 "${key}": 예문 객체와 단위 블록({ cards: [...] })을 한 배열에 섞지 마세요. 둘 중 한 형식만 쓰면 됩니다.`
+            );
+          }
+
+          let units;
+          if (unitLike.length === arr.length) {
+            units = arr.map((block, bi) => {
+              const fallbackId = `unit-${bi}`;
+              let unitId = block.id != null ? String(block.id).trim() : "";
+              if (!unitId) unitId = fallbackId;
+              const focus =
+                typeof block.focus === "string" && block.focus.trim()
+                  ? block.focus.trim()
+                  : typeof block.title === "string" && block.title.trim()
+                    ? block.title.trim()
+                    : "";
+              const label = focus || unitId;
+              const pathLabel = `동사 "${key}" · ${unitId}`;
+              const cards = normalizeVerbCards(key, unitId, block.cards, pathLabel);
+              return { unitId, label, cards };
+            });
+          } else {
+            const cards = normalizeVerbCards(key, "all", arr, `동사 "${key}"`);
+            units = [{ unitId: "all", label: "", cards }];
+          }
+
+          let totalCards = 0;
+          for (const u of units) totalCards += u.cards.length;
+          groups.push({ key, units, cardCount: totalCards });
+        }
+        if (groups.length === 0) throw new Error("등록된 동사 그룹이 없습니다.");
+        return groups;
+      }
+
+      function findVerbUnit(groups, verbKey, unitId) {
+        const g = groups.find((x) => x.key === verbKey);
+        if (!g) return null;
+        return g.units.find((u) => u.unitId === unitId) || null;
       }
 
       function allMeetGoal(pool, counts, goal) {
@@ -754,7 +944,7 @@
                         <button type="button" class="tts-btn" id="btnSpeakAnswer" aria-label="영어 문장 듣기">🔊 듣기</button>
                       </div>
                     </div>
-                    <div class="answer">${escapeHtml(card.answer)}</div>
+                    <div class="answer">${englishWordsInteractiveHtml(card.answer)}</div>
                   </div>`
                 : `<p class="hint">말해 본 뒤 카드를 눌러 답을 확인하세요.</p>`
             }
@@ -834,6 +1024,235 @@
           .replace(/</g, "&lt;")
           .replace(/>/g, "&gt;")
           .replace(/"/g, "&quot;");
+      }
+
+      function normalizeEnglishLookup(raw) {
+        if (!raw || typeof raw !== "string") return "";
+        return raw.toLowerCase().replace(/^[^\w']+|[^\w']+$/g, "");
+      }
+
+      /** 영문 답 줄: 단어 단위 탭 가능한 HTML */
+      function englishWordsInteractiveHtml(text) {
+        if (!text || typeof text !== "string") return "";
+        const parts = text.split(/(\s+)/);
+        return parts
+          .map((part) => {
+            if (/^\s+$/.test(part)) return escapeHtml(part);
+            if (!/[a-zA-Z]/.test(part)) return escapeHtml(part);
+            const key = normalizeEnglishLookup(part);
+            if (!key) return escapeHtml(part);
+            const disp = escapeHtml(part);
+            const safeLabel = escapeHtml(key);
+            return `<span class="click-en" tabindex="0" role="button" aria-label="${safeLabel}, 한글 번역 보기" data-w="${escapeHtml(key)}">${disp}</span>`;
+          })
+          .join("");
+      }
+
+      function closeWordDefinitionPanel() {
+        const panel = document.getElementById("wordDefPanel");
+        if (panel) panel.hidden = true;
+        if (wordLookupAbort) {
+          wordLookupAbort.abort();
+          wordLookupAbort = null;
+        }
+        wordDefLookupKey = "";
+      }
+
+      function getGoogleTranslateApiKey() {
+        const fromCode = typeof GOOGLE_TRANSLATE_API_KEY === "string" ? GOOGLE_TRANSLATE_API_KEY.trim() : "";
+        if (fromCode) return fromCode;
+        try {
+          return (localStorage.getItem(LS_GOOGLE_TRANSLATE_KEY) || "").trim();
+        } catch {
+          return "";
+        }
+      }
+
+      async function translateEnToKoMyMemory(text, signal) {
+        const url = MYMEMORY_TRANSLATE + encodeURIComponent(text);
+        const res = await fetch(url, { signal });
+        const j = await res.json();
+        if (j.quotaFinished) throw new Error("번역 한도가 찼습니다. 잠시 후 다시 시도하세요.");
+        if (Number(j.responseStatus) !== 200) {
+          throw new Error((j.responseDetails && String(j.responseDetails)) || "번역 응답 오류");
+        }
+        const out = j.responseData && j.responseData.translatedText;
+        if (!out || !String(out).trim()) throw new Error("번역 결과가 비어 있습니다.");
+        return String(out).trim();
+      }
+
+      async function translateEnToKoGoogleCloud(text, apiKey, signal) {
+        const url =
+          "https://translation.googleapis.com/language/translate/v2?key=" + encodeURIComponent(apiKey);
+        const res = await fetch(url, {
+          method: "POST",
+          signal,
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ q: text, source: "en", target: "ko", format: "text" }),
+        });
+        const j = await res.json();
+        if (!res.ok) {
+          const msg = (j.error && j.error.message) || res.statusText || "Google 번역 오류";
+          throw new Error(msg);
+        }
+        const first = j.data && j.data.translations && j.data.translations[0];
+        const out = first && first.translatedText;
+        if (!out || !String(out).trim()) throw new Error("Google 번역 결과가 비어 있습니다.");
+        return String(out).trim();
+      }
+
+      /** translate.googleapis.com translate_a/single (client=gtx) — 브라우저에서 CORS 허용, 크롬 빠른 번역과 동일 계열. */
+      function parseGtxTranslateJson(data) {
+        const row = data && data[0];
+        if (!Array.isArray(row)) return "";
+        const parts = [];
+        for (let i = 0; i < row.length; i++) {
+          const cell = row[i];
+          if (Array.isArray(cell) && cell.length > 0 && typeof cell[0] === "string") parts.push(cell[0]);
+        }
+        return parts.join("");
+      }
+
+      async function translateEnToKoGtx(text, signal) {
+        const url =
+          "https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=ko&dt=t&q=" +
+          encodeURIComponent(text);
+        const res = await fetch(url, { signal });
+        if (!res.ok) throw new Error("Google 번역(gtx) 응답 " + res.status);
+        const raw = await res.text();
+        let data;
+        try {
+          data = JSON.parse(raw);
+        } catch {
+          throw new Error("Google 번역(gtx) 형식 오류");
+        }
+        const out = parseGtxTranslateJson(data);
+        if (!String(out || "").trim()) throw new Error("Google 번역(gtx) 결과가 비었습니다.");
+        return String(out).trim();
+      }
+
+      /** @returns {{ text: string, provider: string }} */
+      async function translateEnglishToKorean(query, signal) {
+        try {
+          const ko = await translateEnToKoGtx(query, signal);
+          return { text: ko, provider: "Google 번역" };
+        } catch (_) {
+          /* fall through */
+        }
+        const key = getGoogleTranslateApiKey();
+        if (key) {
+          try {
+            const ko = await translateEnToKoGoogleCloud(query, key, signal);
+            return { text: ko, provider: "Google Cloud Translation" };
+          } catch (_) {
+            /* fall through */
+          }
+        }
+        const ko = await translateEnToKoMyMemory(query, signal);
+        return { text: ko, provider: "MyMemory (백업)" };
+      }
+
+      function googleTranslateWebUrl(enText) {
+        return (
+          "https://translate.google.com/?sl=en&tl=ko&op=translate&text=" +
+          encodeURIComponent(enText || "")
+        );
+      }
+
+      async function fetchAndShowWordDefinition(displayWord, lookupKey) {
+        const panel = document.getElementById("wordDefPanel");
+        const titleEl = document.getElementById("wordDefTitle");
+        const bodyEl = document.getElementById("wordDefBody");
+        if (!panel || !titleEl || !bodyEl) return;
+
+        panel.hidden = false;
+        titleEl.textContent = (displayWord || lookupKey || "").trim() || lookupKey;
+        wordDefLookupKey = lookupKey || "";
+
+        const query = String(displayWord || lookupKey || "").trim();
+        if (!query) return;
+
+        bodyEl.innerHTML = `<span class="meta">한글 번역 불러오는 중…</span>`;
+
+        if (wordLookupAbort) wordLookupAbort.abort();
+        const ac = new AbortController();
+        wordLookupAbort = ac;
+        const t = window.setTimeout(() => ac.abort(), 14000);
+
+        try {
+          if (wordLookupAbort !== ac) return;
+          const { text: koText, provider } = await translateEnglishToKorean(query, ac.signal);
+          window.clearTimeout(t);
+          if (wordLookupAbort !== ac) return;
+          bodyEl.innerHTML = `
+            <p class="word-def-ko-main">${escapeHtml(koText)}</p>
+            <p class="meta" style="margin:0.45rem 0 0;line-height:1.45;">
+              원문 · <strong style="font-weight:600;color:#cdd8ee;">${escapeHtml(query)}</strong>
+              · ${escapeHtml(provider)}
+            </p>
+            <p class="meta" style="margin:0.35rem 0 0;font-size:0.76rem;line-height:1.45;">
+              <a href="${escapeHtml(googleTranslateWebUrl(query))}" target="_blank" rel="noopener noreferrer" style="color:var(--accent);">구글 번역 웹에서 보기 ↗</a>
+            </p>`;
+          if (wordLookupAbort === ac) wordLookupAbort = null;
+        } catch (e) {
+          window.clearTimeout(t);
+          if (e.name === "AbortError") return;
+          if (wordLookupAbort !== ac) return;
+          const msg =
+            e && e.message
+              ? escapeHtml(String(e.message))
+              : "네트워크 오류로 번역하지 못했습니다.";
+          bodyEl.innerHTML = `<p class="word-def-error">${msg}</p>
+            <p class="meta" style="margin:0.5rem 0 0;line-height:1.45;">
+              <a href="${escapeHtml(googleTranslateWebUrl(query))}" target="_blank" rel="noopener noreferrer" style="color:var(--accent);">구글 번역 웹에서 직접 보기 ↗</a>
+            </p>`;
+          if (wordLookupAbort === ac) wordLookupAbort = null;
+        }
+      }
+
+      function initEnglishWordLookup() {
+        const appEl = document.getElementById("app");
+        if (!appEl || appEl.dataset.wordTapInit === "1") return;
+        appEl.dataset.wordTapInit = "1";
+
+        appEl.addEventListener("click", (e) => {
+          const wEl = e.target.closest(".click-en");
+          if (wEl) {
+            e.stopPropagation();
+            const raw = (wEl.getAttribute("data-w") || wEl.dataset.w || "").trim();
+            const display = (wEl.textContent || "").trim();
+            if (!raw) return;
+            fetchAndShowWordDefinition(display, raw);
+            return;
+          }
+        });
+
+        appEl.addEventListener("keydown", (e) => {
+          if (e.key !== "Enter" && e.key !== " ") return;
+          const wEl = e.target.closest(".click-en");
+          if (!wEl) return;
+          e.preventDefault();
+          wEl.click();
+        });
+
+        document.addEventListener("click", (e) => {
+          if (e.target.closest("#wordDefPanel") || e.target.closest(".click-en")) return;
+          closeWordDefinitionPanel();
+        });
+
+        const panel = document.getElementById("wordDefPanel");
+        if (panel) {
+          panel.querySelectorAll(".word-def-dismiss").forEach((btn) => {
+            btn.addEventListener("click", () => closeWordDefinitionPanel());
+          });
+          const speakBtn = document.getElementById("btnWordDefSpeak");
+          if (speakBtn) {
+            speakBtn.addEventListener("click", () => {
+              const k = wordDefLookupKey;
+              if (k) speakEnglish(k);
+            });
+          }
+        }
       }
 
       function getEnglishVoices() {
@@ -1006,7 +1425,7 @@
                         <button type="button" class="tts-btn" id="btnSpeakAnswer" aria-label="영어 문장 듣기">🔊 듣기</button>
                       </div>
                     </div>
-                    <div class="answer">${escapeHtml(card.answer)}</div>
+                    <div class="answer">${englishWordsInteractiveHtml(card.answer)}</div>
                   </div>`
                 : `<p class="hint">말해 본 뒤 카드를 눌러 답을 확인하세요.</p>`
             }
@@ -1078,6 +1497,248 @@
         }
       }
 
+      function createVerbStudyState(verbKey, unit) {
+        return {
+          verbKey,
+          unitId: unit.unitId,
+          unitLabel: unit.label,
+          picks: unit.cards.slice(),
+          index: 0,
+          revealed: false,
+        };
+      }
+
+      function renderVerbPicker(groups) {
+        dateLine.textContent = todayKey();
+        if (!groups.length) {
+          app.innerHTML = `<div class="error">기본동사 데이터가 없습니다.</div>`;
+          return;
+        }
+        const verbButtons = groups
+          .map((g) => {
+            const tiers =
+              g.units.length > 1 ? `${g.units.length}단위 · ` : "";
+            return `<button type="button" class="primary verb-group-btn" data-verb-key="${escapeHtml(g.key)}">${escapeHtml(g.key)} · ${tiers}${g.cardCount}문장</button>`;
+          })
+          .join("");
+        app.innerHTML = `
+          <div class="gate-panel">
+            <strong>기본동사</strong> · 동사를 고른 뒤, Day별 의미 블록이 여러 개이면 한 단계 더 고릅니다. 앞면은 한국어, 클릭하면 영어·메모가 보입니다.
+          </div>
+          <div class="actions">${verbButtons}</div>
+          <div class="actions" style="margin-top:0.75rem;">
+            <button type="button" class="ghost" id="btnVerbModeBack">모드 선택으로</button>
+          </div>
+        `;
+        app.querySelectorAll(".verb-group-btn").forEach((btn) => {
+          btn.addEventListener("click", () => {
+            const verbKey = btn.dataset.verbKey;
+            const group = groups.find((g) => g.key === verbKey);
+            if (!group) return;
+            if (group.units.length === 1) {
+              renderVerbStudy(createVerbStudyState(group.key, group.units[0]), groups);
+              return;
+            }
+            renderVerbUnitPicker(group, groups);
+          });
+        });
+        document.getElementById("btnVerbModeBack").onclick = () => {
+          renderModePicker();
+        };
+      }
+
+      function renderVerbUnitPicker(verbGroup, allGroups) {
+        dateLine.textContent = todayKey();
+        const unitButtons = verbGroup.units
+          .map(
+            (u) =>
+              `<button type="button" class="primary verb-unit-btn" data-unit-id="${escapeHtml(u.unitId)}">${escapeHtml(u.unitId)}${
+                u.label ? ` · ${escapeHtml(u.label)}` : ""
+              } (${u.cards.length}문장)</button>`
+          )
+          .join("");
+        app.innerHTML = `
+          <div class="gate-panel">
+            <strong>${escapeHtml(verbGroup.key)}</strong> · 같은 동사라도 의미·일차(Day)마다 카드를 나눌 수 있습니다. 블록을 선택하세요.
+          </div>
+          <div class="actions">${unitButtons}</div>
+          <div class="actions" style="margin-top:0.75rem;">
+            <button type="button" class="ghost" id="btnVerbUnitBackVerbs">동사 선택으로</button>
+            <button type="button" class="ghost" id="btnVerbUnitBackMode">모드 선택으로</button>
+          </div>
+        `;
+        app.querySelectorAll(".verb-unit-btn").forEach((btn) => {
+          btn.addEventListener("click", () => {
+            const unitId = btn.dataset.unitId;
+            const unit = verbGroup.units.find((u) => u.unitId === unitId);
+            if (!unit) return;
+            renderVerbStudy(createVerbStudyState(verbGroup.key, unit), allGroups);
+          });
+        });
+        document.getElementById("btnVerbUnitBackVerbs").onclick = () => {
+          renderVerbPicker(allGroups);
+        };
+        document.getElementById("btnVerbUnitBackMode").onclick = () => {
+          renderModePicker();
+        };
+      }
+
+      function verbUnitSubtitle(state) {
+        const parts = [state.verbKey];
+        if (state.unitId && state.unitId !== "all") parts.push(state.unitId);
+        if (state.unitLabel) parts.push(state.unitLabel);
+        return parts.join(" · ");
+      }
+
+      function renderVerbStudy(state, groups) {
+        const { picks, index, revealed } = state;
+        dateLine.textContent = todayKey();
+        const verbGroup = groups.find((g) => g.key === state.verbKey);
+        const multiUnit = verbGroup && verbGroup.units.length > 1;
+
+        if (picks.length === 0) {
+          app.innerHTML = `<div class="error">선택한 동사에 예문이 없습니다.</div>`;
+          return;
+        }
+
+        if (index >= picks.length) {
+          app.innerHTML = `
+            <div class="done">
+              <h2>${escapeHtml(verbUnitSubtitle(state))} 완료</h2>
+              <p class="meta">${picks.length}개 예문을 모두 확인했습니다.</p>
+              <div class="actions" style="justify-content:center;margin-top:1rem;flex-wrap:wrap;">
+                <button type="button" class="primary" id="btnVerbReplay">다시 학습</button>
+                ${
+                  multiUnit
+                    ? `<button type="button" class="ghost" id="btnVerbPickUnitFromDone">다른 Day</button>`
+                    : ""
+                }
+                <button type="button" class="ghost" id="btnVerbPickOther">동사 선택</button>
+                <button type="button" class="ghost" id="btnVerbModeFromDone">모드 선택</button>
+              </div>
+            </div>`;
+          document.getElementById("btnVerbReplay").onclick = () => {
+            const unit = findVerbUnit(groups, state.verbKey, state.unitId);
+            if (!unit) return;
+            renderVerbStudy(createVerbStudyState(state.verbKey, unit), groups);
+          };
+          if (multiUnit) {
+            document.getElementById("btnVerbPickUnitFromDone").onclick = () => {
+              if (!verbGroup) return;
+              renderVerbUnitPicker(verbGroup, groups);
+            };
+          }
+          document.getElementById("btnVerbPickOther").onclick = () => {
+            renderVerbPicker(groups);
+          };
+          document.getElementById("btnVerbModeFromDone").onclick = () => {
+            renderModePicker();
+          };
+          return;
+        }
+
+        const card = picks[index];
+        const bars = picks
+          .map((_, i) => `<span class="${i <= index ? "on" : ""}"></span>`)
+          .join("");
+
+        app.innerHTML = `
+          <div class="progress">${bars}</div>
+          <div class="pill" style="margin-bottom:0.75rem;">동사 · ${escapeHtml(verbUnitSubtitle(state))} · ${index + 1} / ${picks.length}</div>
+          <div class="card-shell" id="verbCardTap" tabindex="0" role="button" aria-label="답 보기">
+            <div class="label">한국어</div>
+            <div class="situation">${escapeHtml(card.korean)}</div>
+            ${
+              revealed
+                ? `<div class="answer-block">
+                    <div class="answer-head">
+                      <div class="label">영어</div>
+                      <div style="display:flex;align-items:center;gap:0.35rem;">
+                        ${getVoiceOptionsHtml()}
+                        <button type="button" class="tts-btn" id="btnVerbSpeakEnglish" aria-label="영어 문장 듣기">🔊 듣기</button>
+                      </div>
+                    </div>
+                    <div class="answer">${englishWordsInteractiveHtml(card.english)}</div>
+                    <div class="note-block">
+                      <div class="label">메모</div>
+                      <div class="note-body">${escapeHtml(card.note)}</div>
+                    </div>
+                  </div>`
+                : `<p class="hint">영어로 말해 본 뒤 카드를 눌러 답과 메모를 확인하세요.</p>`
+            }
+          </div>
+          <div class="actions">
+            <button type="button" class="ghost" id="btnVerbPrev" ${index === 0 ? "disabled" : ""}>이전</button>
+            <button type="button" class="ghost" id="btnVerbNext" ${index >= picks.length - 1 && !revealed ? "disabled" : ""}>${index >= picks.length - 1 && revealed ? "완료" : "다음"}</button>
+            <button type="button" class="ghost push-right" id="btnVerbRestart">처음부터</button>
+            ${
+              multiUnit
+                ? `<button type="button" class="ghost" id="btnVerbToUnitPicker">Day 선택</button>`
+                : ""
+            }
+            <button type="button" class="ghost" id="btnVerbToPicker">동사 선택</button>
+          </div>
+        `;
+
+        const shell = document.getElementById("verbCardTap");
+        const goReveal = () => {
+          if (state.revealed) return;
+          state.revealed = true;
+          renderVerbStudy(state, groups);
+        };
+        shell.addEventListener("click", (e) => {
+          if (e.target.closest("button")) return;
+          if (!state.revealed) goReveal();
+        });
+        shell.addEventListener("keydown", (e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            if (!state.revealed) goReveal();
+          }
+        });
+
+        document.getElementById("btnVerbPrev").onclick = () => {
+          if (state.index <= 0) return;
+          state.index -= 1;
+          state.revealed = false;
+          renderVerbStudy(state, groups);
+        };
+        document.getElementById("btnVerbNext").onclick = () => {
+          const last = state.index >= picks.length - 1;
+          if (last && !state.revealed) return;
+          state.index += 1;
+          state.revealed = false;
+          renderVerbStudy(state, groups);
+        };
+        document.getElementById("btnVerbRestart").onclick = () => {
+          const unit = findVerbUnit(groups, state.verbKey, state.unitId);
+          if (!unit) return;
+          renderVerbStudy(createVerbStudyState(state.verbKey, unit), groups);
+        };
+        const btnVerbToUnitPicker = document.getElementById("btnVerbToUnitPicker");
+        if (btnVerbToUnitPicker && verbGroup) {
+          btnVerbToUnitPicker.onclick = () => {
+            renderVerbUnitPicker(verbGroup, groups);
+          };
+        }
+        document.getElementById("btnVerbToPicker").onclick = () => {
+          renderVerbPicker(groups);
+        };
+        const btnVerbSpeakEnglish = document.getElementById("btnVerbSpeakEnglish");
+        if (btnVerbSpeakEnglish) {
+          btnVerbSpeakEnglish.onclick = () => {
+            speakEnglish(card.english);
+          };
+        }
+        const ttsVoiceVerb = document.getElementById("ttsVoiceSelect");
+        if (ttsVoiceVerb) {
+          ttsVoiceVerb.onchange = () => {
+            const uri = String(ttsVoiceVerb.value || "");
+            setSavedVoiceUri(uri);
+          };
+        }
+      }
+
       async function startDailyMode() {
         let cards;
         try {
@@ -1119,6 +1780,24 @@
         renderTruthChapterPicker(groups);
       }
 
+      async function startVerbsMode() {
+        let groups;
+        try {
+          const res = await fetch(VERBS_DATA_URL);
+          if (!res.ok) throw new Error(`HTTP ${res.status}`);
+          groups = validateVerbLexicon(await res.json());
+        } catch (e) {
+          app.innerHTML = `
+            <div class="error">
+              <strong>기본동사 데이터를 불러오지 못했습니다.</strong><br />
+              <code>data/verbs.json</code> 형식을 확인해 주세요.<br /><br />
+              <span class="meta">${escapeHtml(String(e.message || e))}</span>
+            </div>`;
+          return;
+        }
+        renderVerbPicker(groups);
+      }
+
       function renderModePicker() {
         dateLine.textContent = todayKey();
         app.innerHTML = `
@@ -1128,6 +1807,7 @@
           <div class="actions">
             <button type="button" class="primary" id="btnModeDaily">일상 생활</button>
             <button type="button" class="primary" id="btnModeTruth">진리발표</button>
+            <button type="button" class="primary" id="btnModeVerbs">기본동사</button>
           </div>
         `;
         document.getElementById("btnModeDaily").onclick = () => {
@@ -1136,9 +1816,13 @@
         document.getElementById("btnModeTruth").onclick = () => {
           startTruthMode();
         };
+        document.getElementById("btnModeVerbs").onclick = () => {
+          startVerbsMode();
+        };
       }
 
       function main() {
+        initEnglishWordLookup();
         if ("speechSynthesis" in window) {
           // 일부 브라우저는 getVoices()를 미리 호출해야 음성 목록이 채워집니다.
           window.speechSynthesis.getVoices();

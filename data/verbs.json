@@ -1,0 +1,60 @@
+{
+  "have": [
+    {
+      "id": "day1",
+      "focus": "~을 가지고[소유·관계·추상적 보유] 있다",
+      "cards": [
+        {
+          "english": "I have a younger brother who is a teacher.",
+          "korean": "나는 선생님인 남동생이 한 명 있다.",
+          "note": "가족 관계를 나타낼 때 'have'를 사용합니다."
+        },
+        {
+          "english": "My friend has a golden retriever.",
+          "korean": "내 친구는 골든 리트리버를 키운다.",
+          "note": "반려동물을 '키우다'라고 할 때 'raise' 대신 자연스럽게 'have'를 씁니다."
+        },
+        {
+          "english": "We have a very close relationship.",
+          "korean": "우리는 매우 친밀한 관계다.",
+          "note": "사람 사이의 유대감이나 관계를 표현할 때 적합합니다."
+        },
+        {
+          "english": "I had a different opinion on that matter.",
+          "korean": "그 문제에 대해 내 의견은 달랐다.",
+          "note": "생각이나 아이디어를 '가지고 있다'는 상태를 나타냅니다."
+        },
+        {
+          "english": "She has a lot of experience in marketing.",
+          "korean": "그녀는 마케팅 분야에서 경험이 많다.",
+          "note": "추상적인 경험이나 경력도 'have'의 영역입니다."
+        },
+        {
+          "english": "I have mixed feelings about moving to a new city.",
+          "korean": "새로운 도시로 이사하는 것에 대해 시원섭섭하다.",
+          "note": "복합적인 감정을 느낄 때 쓰는 관용적 표현입니다."
+        },
+        {
+          "english": "Do you have any regrets about your choice?",
+          "korean": "당신의 선택에 대해 후회하는 점이 있나요?",
+          "note": "후회라는 감정을 명사로 써서 'have'와 함께 표현합니다."
+        },
+        {
+          "english": "I have many good memories of my childhood.",
+          "korean": "나는 어린 시절에 대한 좋은 추억이 많다.",
+          "note": "기억이나 추억을 소유하고 있는 상태를 말합니다."
+        },
+        {
+          "english": "They have a meeting at 2 PM.",
+          "korean": "그들은 오후 2시에 회의가 있다.",
+          "note": "일정이나 약속이 있을 때도 'have'를 사용합니다."
+        },
+        {
+          "english": "I have a slight headache today.",
+          "korean": "나 오늘 두통이 좀 있어.",
+          "note": "통증이나 신체적 상태를 나타낼 때도 'have'가 쓰입니다."
+        }
+      ]
+    }
+  ]
+}
