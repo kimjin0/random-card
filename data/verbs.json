@@ -55,6 +55,168 @@
           "note": "통증이나 신체적 상태를 나타낼 때도 'have'가 쓰입니다."
         }
       ]
+    },
+    {
+      "id": "day2",
+      "focus": "~을 먹다 / 마시다",
+      "cards": [
+        {
+          "english": "I just had a snack, so I'm not that hungry.",
+          "korean": "방금 간식을 먹었더니, 배가 별로 안 고파요.",
+          "note": "Day 2 대표 문장. have = 먹다"
+        },
+        {
+          "english": "I usually have cereal for breakfast.",
+          "korean": "나는 아침으로 주로 시리얼을 먹는다.",
+          "note": "아침 식사 루틴을 말할 때 자연스럽게 have를 씁니다."
+        },
+        {
+          "english": "I'll have the steak, please.",
+          "korean": "저는 스테이크 먹을게요.",
+          "note": "식당에서 주문할 때 가장 자연스러운 표현입니다."
+        },
+        {
+          "english": "I didn't have anything for lunch today.",
+          "korean": "오늘 점심으로 아무것도 안 먹었어요.",
+          "note": "점심을 거른 상황을 표현할 때 씁니다."
+        },
+        {
+          "english": "You should have something before you leave.",
+          "korean": "출발하기 전에 뭐라도 먹어야 해.",
+          "note": "should have ~로 먹을 것을 권유하는 표현입니다."
+        },
+        {
+          "english": "Let's have some pizza and watch a movie.",
+          "korean": "피자 먹으면서 영화 보자.",
+          "note": "Let's have ~로 제안할 때 자연스럽게 씁니다."
+        },
+        {
+          "english": "Did you have anything before class?",
+          "korean": "수업 전에 뭐 좀 먹었어?",
+          "note": "먹었는지 여부를 물어볼 때 have를 사용합니다."
+        },
+        {
+          "english": "What time do you usually have lunch?",
+          "korean": "점심은 주로 몇 시에 먹어요?",
+          "note": "have lunch / have dinner처럼 식사 이름과 함께 씁니다."
+        },
+        {
+          "english": "I had a salad for lunch today.",
+          "korean": "오늘 점심으로 샐러드를 먹었어.",
+          "note": "have a salad처럼 음식 이름과 함께 쓰여 하나의 의미 덩어리가 됩니다."
+        },
+        {
+          "english": "Can I have a glass of water, please?",
+          "korean": "물 한 잔 주실 수 있을까요?",
+          "note": "음료를 요청할 때도 have를 자연스럽게 씁니다."
+        },
+        {
+          "english": "She had a cup of coffee before the meeting.",
+          "korean": "그녀는 회의 전에 커피 한 잔을 마셨다.",
+          "note": "'마시다'의 의미로도 have를 씁니다."
+        },
+        {
+          "english": "We had dinner together last Friday.",
+          "korean": "우리는 지난 금요일에 함께 저녁을 먹었다.",
+          "note": "have dinner = 저녁 식사를 하다."
+        },
+        {
+          "english": "He usually has a sandwich for lunch.",
+          "korean": "그는 보통 점심으로 샌드위치를 먹는다.",
+          "note": "3인칭 단수 주어일 때는 has로 씁니다."
+        },
+        {
+          "english": "Do you want to have some tea?",
+          "korean": "차 좀 마실래요?",
+          "note": "차나 음료를 권유할 때 have를 씁니다."
+        },
+        {
+          "english": "I'm going to have ramen for dinner tonight.",
+          "korean": "오늘 저녁은 라면 먹을 거야.",
+          "note": "저녁 메뉴를 말할 때 eat보다 have가 더 자연스럽습니다."
+        }
+      ]
+    },
+    {
+      "id": "day3",
+      "focus": "~을 겪다 / 경험하다",
+      "cards": [
+        {
+          "english": "I had a weird morning yesterday.",
+          "korean": "어제 아침에는 별일이 다 있었어요.",
+          "note": "Day 3 대표 문장. have = 경험하다"
+        },
+        {
+          "english": "We had a great time in Japan last week.",
+          "korean": "우리는 지난주 일본에서 정말 좋은 시간을 보냈어요.",
+          "note": "have a great time = 좋은 시간을 보내다."
+        },
+        {
+          "english": "I had a rough childhood.",
+          "korean": "나는 힘든 유년 시절을 보냈다.",
+          "note": "have a rough ~ = 힘든 ~을 겪다."
+        },
+        {
+          "english": "I think I have a bad connection.",
+          "korean": "(줌 회의에서) 제가 접속 상태가 안 좋은 것 같습니다.",
+          "note": "상태를 겪고 있는 현재 상황을 나타냅니다."
+        },
+        {
+          "english": "We always have such good conversations.",
+          "korean": "저희는 만나면 늘 대화가 즐겁습니다.",
+          "note": "have a conversation = 대화를 나누다."
+        },
+        {
+          "english": "He had a long flight, so he needs some extra sleep.",
+          "korean": "그는 비행기를 오래 타서, 잠을 좀 더 자야 했어요.",
+          "note": "have a long flight = 장거리 비행을 겪다."
+        },
+        {
+          "english": "My mom and I had a falling-out over my major.",
+          "korean": "전공 때문에 엄마랑 사이가 틀어졌거든.",
+          "note": "have a falling-out = 사이가 틀어지다, 관계가 나빠지다."
+        },
+        {
+          "english": "I had a rough week, emotionally.",
+          "korean": "한 주 동안 마음이 좀 힘들었거든.",
+          "note": "emotionally를 붙여 감정적으로 힘든 한 주를 겪었음을 표현합니다."
+        },
+        {
+          "english": "I have a cold.",
+          "korean": "감기 걸렸어.",
+          "note": "신체적 상태를 겪고 있을 때도 have를 씁니다."
+        },
+        {
+          "english": "I have a terrible headache.",
+          "korean": "머리가 너무 아파.",
+          "note": "통증이나 컨디션을 겪는 상황에 자연스럽게 쓰입니다."
+        },
+        {
+          "english": "We had a terrible breakup.",
+          "korean": "저희가 너무 안 좋게 끝났어요.",
+          "note": "have a breakup = 이별을 겪다. terrible을 붙여 상황을 강조합니다."
+        },
+        {
+          "english": "Those two had a major falling-out after Christmas.",
+          "korean": "그 두 사람 크리스마스 이후로 사이가 완전히 틀어졌대.",
+          "note": "falling-out 앞에 major를 붙여 심각한 사이 틀어짐을 표현합니다."
+        },
+        {
+          "english": "My business partner and I had a falling-out over money.",
+          "korean": "제 동업자와 저는 돈 문제로 사이가 멀어졌어요.",
+          "note": "have a falling-out over ~ = ~ 때문에 사이가 틀어지다."
+        },
+        {
+          "english": "She had a hard time adjusting to the new team.",
+          "korean": "그녀는 새 팀에 적응하는 데 힘든 시간을 보냈다.",
+          "note": "have a hard time ~ing = ~하는 데 어려움을 겪다."
+        },
+        {
+          "english": "We had a serious argument about the project deadline.",
+          "korean": "우리는 프로젝트 마감 때문에 심각하게 다퉜어.",
+          "note": "have an argument = 언쟁을 겪다. 개발 현장에서 자주 쓸 수 있는 표현입니다."
+        }
+      ]
     }
   ]
 }
