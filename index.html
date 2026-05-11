@@ -1642,11 +1642,13 @@
       }
 
       function createVerbStudyState(verbKey, unit) {
+        const shuffledPicks = unit.cards.slice();
+        shuffleInPlace(shuffledPicks);
         return {
           verbKey,
           unitId: unit.unitId,
           unitLabel: unit.label,
-          picks: unit.cards.slice(),
+          picks: shuffledPicks,
           index: 0,
           revealed: false,
         };
