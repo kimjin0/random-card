@@ -391,9 +391,6 @@
         </div>
       </div>
       <div id="wordDefBody" class="word-def-body"></div>
-      <p class="meta" style="margin:0.5rem 0 0;font-size:0.72rem;line-height:1.45;">
-        단어 탭 시 이 영역에 영→한 번역을 표시합니다. Google(gtx) →(실패 시) Cloud API 키 → MyMemory 순으로 시도합니다. 인터넷이 필요합니다.
-      </p>
     </div>
     <footer class="note">
       데이터: <code>data/cards.json</code>, <code>data/truth.json</code>, <code>data/verbs.json</code> · 로컬에서 열 때는 <code>python3 -m http.server</code> 등으로 같은 폴더를 서빙한 뒤 접속하세요.
@@ -410,6 +407,7 @@
       const PROGRESS_KEY = "english-random-card-study-progress";
       const PROGRESS_VERSION = 1;
       const TTS_VOICE_KEY = "english-random-card-tts-voice-uri";
+      const TTS_RATE_KEY = "english-random-card-tts-rate";
       /** studyDate 기준: 오늘 6회 → 어제 4회 → 그제 2회 순차 게이트 후, 날짜 구간별 6:4:2 가중 */
       const SEQ_GOALS = { today: 6, yesterday: 4, dayBefore: 2 };
       /** 같은 날 같은 카드가 두 번 나오지 않도록 고정 */
@@ -1108,6 +1106,19 @@
         return s.trim();
       }
 
+      function posLabelKorean(pos) {
+        const p = canonicalPosLabel(pos);
+        if (p === "verb") return "동사";
+        if (p === "noun") return "명사";
+        if (p === "adjective") return "형용사";
+        if (p === "adverb") return "부사";
+        if (p === "pronoun") return "대명사";
+        if (p === "preposition") return "전치사";
+        if (p === "conjunction") return "접속사";
+        if (p === "interjection") return "감탄사";
+        return p || "";
+      }
+
       function closeWordDefinitionPanel() {
         const panel = document.getElementById("wordDefPanel");
         if (panel) panel.hidden = true;
@@ -1228,20 +1239,35 @@
         return { text: picked, provider: "Google 단어사전", pos: pickedPos };
       }
 
-      async function fetchWordPhonetic(word, signal) {
+      async function fetchWordMeta(word, signal) {
         const w = normalizeEnglishLookup(word);
-        if (!w) return "";
+        if (!w) return { phonetic: "", posCandidates: [] };
         const res = await fetch(DICTIONARY_API + encodeURIComponent(w), { signal });
-        if (!res.ok) return "";
+        if (!res.ok) return { phonetic: "", posCandidates: [] };
         const data = await res.json();
-        if (!Array.isArray(data) || data.length === 0) return "";
+        if (!Array.isArray(data) || data.length === 0) return { phonetic: "", posCandidates: [] };
         const entry = data[0] || {};
-        if (typeof entry.phonetic === "string" && entry.phonetic.trim()) return entry.phonetic.trim();
-        const phonetics = Array.isArray(entry.phonetics) ? entry.phonetics : [];
-        for (const p of phonetics) {
-          if (p && typeof p.text === "string" && p.text.trim()) return p.text.trim();
+        let phonetic = "";
+        if (typeof entry.phonetic === "string" && entry.phonetic.trim()) {
+          phonetic = entry.phonetic.trim();
+        } else {
+          const phonetics = Array.isArray(entry.phonetics) ? entry.phonetics : [];
+          for (const p of phonetics) {
+            if (p && typeof p.text === "string" && p.text.trim()) {
+              phonetic = p.text.trim();
+              break;
+            }
+          }
         }
-        return "";
+
+        const posSet = new Set();
+        const meanings = Array.isArray(entry.meanings) ? entry.meanings : [];
+        for (const m of meanings) {
+          const rawPos = m && m.partOfSpeech;
+          const c = canonicalPosLabel(rawPos);
+          if (c) posSet.add(c);
+        }
+        return { phonetic, posCandidates: Array.from(posSet) };
       }
 
       /** @returns {{ text: string, provider: string }} */
@@ -1294,7 +1320,7 @@
 
         try {
           if (wordLookupAbort !== ac) return;
-          const [result, phonetic] = await Promise.all([
+          const [result, wordMeta] = await Promise.all([
             (async () => {
               try {
                 return await translateWordWithContextBias(query, contextSentence, wordIndex, ac.signal);
@@ -1302,21 +1328,28 @@
                 return await translateEnglishToKorean(query, ac.signal);
               }
             })(),
-            fetchWordPhonetic(lookupKey || query, ac.signal),
+            fetchWordMeta(lookupKey || query, ac.signal),
           ]);
           window.clearTimeout(t);
           if (wordLookupAbort !== ac) return;
-          titleEl.textContent = phonetic ? `${displayLabel} ${phonetic}` : displayLabel;
+          const preferredPos = inferPreferredPos(contextSentence, wordIndex);
+          let resolvedPos = canonicalPosLabel(result.pos || "");
+          if (!resolvedPos && preferredPos && wordMeta.posCandidates.includes(preferredPos)) {
+            resolvedPos = preferredPos;
+          }
+          if (!resolvedPos && wordMeta.posCandidates.length > 0) {
+            resolvedPos = wordMeta.posCandidates[0];
+          }
+          const posKo = posLabelKorean(resolvedPos);
+          titleEl.textContent = wordMeta.phonetic ? `${displayLabel} ${wordMeta.phonetic}` : displayLabel;
           bodyEl.innerHTML = `
             <p class="word-def-ko-main">${escapeHtml(result.text)}</p>
-            <p class="meta" style="margin:0.45rem 0 0;line-height:1.45;">
-              단어 · <strong style="font-weight:600;color:#cdd8ee;">${escapeHtml(query)}</strong>
-              · ${escapeHtml(result.provider)}
-            </p>
             ${
-              result.pos
+              posKo
                 ? `<p class="meta" style="margin:0.3rem 0 0;line-height:1.45;">
-                     문맥 품사 추정 · ${escapeHtml(result.pos)}
+                     품사 · ${escapeHtml(posKo)}${
+                       resolvedPos ? ` (${escapeHtml(resolvedPos)})` : ""
+                     }
                    </p>`
                 : ""
             }
@@ -1419,6 +1452,40 @@
         } catch {}
       }
 
+      function isLikelyFemaleVoice(voice) {
+        const n = String(voice?.name || "").toLowerCase();
+        const femaleHints = [
+          "samantha",
+          "aria",
+          "zira",
+          "jenny",
+          "ava",
+          "victoria",
+          "female",
+          "woman",
+          "google us english",
+        ];
+        return femaleHints.some((hint) => n.includes(hint));
+      }
+
+      function getSavedTtsRate() {
+        try {
+          const raw = localStorage.getItem(TTS_RATE_KEY);
+          const v = Number(raw);
+          if (Number.isFinite(v) && v >= 0.5 && v <= 1.2) return v;
+        } catch {}
+        return 0.7;
+      }
+
+      function setSavedTtsRate(rate) {
+        const n = Number(rate);
+        if (!Number.isFinite(n)) return;
+        const clamped = Math.max(0.5, Math.min(1.2, n));
+        try {
+          localStorage.setItem(TTS_RATE_KEY, String(clamped));
+        } catch {}
+      }
+
       function chooseVoice(voices) {
         if (!voices.length) return null;
         const saved = getSavedVoiceUri();
@@ -1426,7 +1493,9 @@
           const matched = voices.find((v) => v.voiceURI === saved);
           if (matched) return matched;
         }
-        const preferredNames = ["Samantha", "Google US English", "Microsoft Aria Online", "Alex"];
+        const femaleFirst = voices.find((v) => isLikelyFemaleVoice(v));
+        if (femaleFirst) return femaleFirst;
+        const preferredNames = ["Samantha", "Google US English", "Microsoft Aria Online"];
         const preferred = voices.find((v) =>
           preferredNames.some((name) => (v.name || "").includes(name))
         );
@@ -1462,7 +1531,7 @@
         const u = new SpeechSynthesisUtterance(content);
         u.lang = selected?.lang || "en-US";
         u.voice = selected || null;
-        u.rate = 0.8;
+        u.rate = getSavedTtsRate();
         u.pitch = 1;
         window.speechSynthesis.speak(u);
       }
@@ -1946,9 +2015,24 @@
 
       function renderModePicker() {
         dateLine.textContent = todayKey();
+        const ttsRate = getSavedTtsRate();
         app.innerHTML = `
           <div class="gate-panel">
             <strong>학습 모드 선택</strong> · 오늘은 어떤 모드로 학습할지 선택하세요.
+          </div>
+          <div class="gate-panel" style="margin-top:0.6rem;">
+            <strong>TTS 재생속도</strong>
+            <div style="margin-top:0.5rem;display:flex;gap:0.5rem;align-items:center;flex-wrap:wrap;">
+              <label for="modeTtsRate" class="meta" style="font-size:0.8rem;">읽기 속도</label>
+              <select id="modeTtsRate" class="tts-voice" aria-label="TTS 재생속도 선택">
+                ${[0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
+                  .map((rate) => {
+                    const selected = Math.abs(ttsRate - rate) < 0.001 ? "selected" : "";
+                    return `<option value="${rate.toFixed(1)}" ${selected}>${rate.toFixed(1)}x</option>`;
+                  })
+                  .join("")}
+              </select>
+            </div>
           </div>
           <div class="actions">
             <button type="button" class="primary" id="btnModeDaily">일상 생활</button>
@@ -1965,6 +2049,12 @@
         document.getElementById("btnModeVerbs").onclick = () => {
           startVerbsMode();
         };
+        const modeTtsRate = document.getElementById("modeTtsRate");
+        if (modeTtsRate) {
+          modeTtsRate.onchange = () => {
+            setSavedTtsRate(modeTtsRate.value);
+          };
+        }
       }
 
       function main() {
