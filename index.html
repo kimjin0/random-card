@@ -408,6 +408,8 @@
       const PROGRESS_VERSION = 1;
       const TTS_VOICE_KEY = "english-random-card-tts-voice-uri";
       const TTS_RATE_KEY = "english-random-card-tts-rate";
+      /** 카드 첫 화면: "ko" = 한국어(상황), "en" = 영어(모범답) */
+      const CARD_FACE_KEY = "english-random-card-card-face";
       /** studyDate 기준: 오늘 6회 → 어제 4회 → 그제 2회 순차 게이트 후, 날짜 구간별 6:4:2 가중 */
       const SEQ_GOALS = { today: 6, yesterday: 4, dayBefore: 2 };
       /** 같은 날 같은 카드가 두 번 나오지 않도록 고정 */
@@ -904,6 +906,78 @@
         </div>`;
       }
 
+      /** 일상·진리발표: situation=한국어, answer=영어. 설정에 따라 앞뒤면 순서를 바꿉니다. */
+      function buildSituationAnswerCardMain(card, revealed) {
+        const koFirst = isKoreanCardFaceFirst();
+        const englishBlock = `<div class="answer-head">
+              <div class="label">영어</div>
+              <div style="display:flex;align-items:center;gap:0.35rem;">
+                ${getVoiceOptionsHtml()}
+                <button type="button" class="tts-btn" id="btnSpeakAnswer" aria-label="영어 문장 듣기">🔊 듣기</button>
+              </div>
+            </div>
+            <div class="answer" data-en-context="${escapeHtml(card.answer)}">${englishWordsInteractiveHtml(card.answer)}</div>`;
+        const frontHint = koFirst
+          ? `<p class="hint">말해 본 뒤 카드를 눌러 영어 답을 확인하세요.</p>`
+          : `<p class="hint">한국어 상황문을 떠올린 뒤 카드를 눌러 확인하세요.</p>`;
+        const frontBlock = koFirst
+          ? `<div class="label">한국어</div>
+            <div class="situation">${escapeHtml(card.situation)}</div>
+            ${frontHint}`
+          : `${englishBlock}
+            ${frontHint}`;
+        const backBlock = koFirst
+          ? `<div class="label">한국어</div>
+            <div class="situation">${escapeHtml(card.situation)}</div>
+            <div class="answer-block">
+              ${englishBlock}
+            </div>`
+          : `${englishBlock}
+            <div class="answer-block">
+              <div class="label">한국어</div>
+              <div class="situation">${escapeHtml(card.situation)}</div>
+            </div>`;
+        return revealed ? backBlock : frontBlock;
+      }
+
+      /** 기본동사: korean / english+note */
+      function buildVerbCardMain(card, revealed) {
+        const koFirst = isKoreanCardFaceFirst();
+        const englishHead = `<div class="answer-head">
+              <div class="label">영어</div>
+              <div style="display:flex;align-items:center;gap:0.35rem;">
+                ${getVoiceOptionsHtml()}
+                <button type="button" class="tts-btn" id="btnVerbSpeakEnglish" aria-label="영어 문장 듣기">🔊 듣기</button>
+              </div>
+            </div>
+            <div class="answer" data-en-context="${escapeHtml(card.english)}">${englishWordsInteractiveHtml(card.english)}</div>`;
+        const noteBlock = `<div class="note-block">
+              <div class="label">메모</div>
+              <div class="note-body">${escapeHtml(card.note)}</div>
+            </div>`;
+        if (koFirst) {
+          const tail = revealed
+            ? `<div class="answer-block">
+                ${englishHead}
+                ${noteBlock}
+              </div>`
+            : `<p class="hint">영어로 말해 본 뒤 카드를 눌러 답과 메모를 확인하세요.</p>`;
+          return `<div class="label">한국어</div>
+            <div class="situation">${escapeHtml(card.korean)}</div>
+            ${tail}`;
+        }
+        if (revealed) {
+          return `${englishHead}
+            <div class="answer-block">
+              <div class="label">한국어</div>
+              <div class="situation">${escapeHtml(card.korean)}</div>
+              ${noteBlock}
+            </div>`;
+        }
+        return `${englishHead}
+          <p class="hint">한국어와 메모를 떠올린 뒤 카드를 눌러 확인하세요.</p>`;
+      }
+
       function renderDaily(state, cards, progress) {
         const { picks, index, revealed } = state;
         dateLine.textContent = todayKey();
@@ -938,28 +1012,14 @@
         const bars = picks
           .map((_, i) => `<span class="${i <= index ? "on" : ""}"></span>`)
           .join("");
+        const cardMain = buildSituationAnswerCardMain(card, revealed);
 
         app.innerHTML = `
           ${gatePanelHtml(cards, progress)}
           <div class="progress">${bars}</div>
           <div class="pill" style="margin-bottom:0.75rem;">${roundLabel} · ${index + 1} / ${picks.length}</div>
           <div class="card-shell" id="cardTap" tabindex="0" role="button" aria-label="카드 뒤집기 또는 답 보기">
-            <div class="label">Situation</div>
-            <div class="situation">${escapeHtml(card.situation)}</div>
-            ${
-              revealed
-                ? `<div class="answer-block">
-                    <div class="answer-head">
-                      <div class="label">Model answer</div>
-                      <div style="display:flex;align-items:center;gap:0.35rem;">
-                        ${getVoiceOptionsHtml()}
-                        <button type="button" class="tts-btn" id="btnSpeakAnswer" aria-label="영어 문장 듣기">🔊 듣기</button>
-                      </div>
-                    </div>
-                    <div class="answer" data-en-context="${escapeHtml(card.answer)}">${englishWordsInteractiveHtml(card.answer)}</div>
-                  </div>`
-                : `<p class="hint">말해 본 뒤 카드를 눌러 답을 확인하세요.</p>`
-            }
+            ${cardMain}
           </div>
           <div class="actions">
             ${
@@ -982,7 +1042,7 @@
           renderDaily(state, cards, progress);
         };
         shell.addEventListener("click", (e) => {
-          if (e.target.closest("button")) return;
+          if (e.target.closest("button, select, .click-en")) return;
           if (!state.revealed) goReveal();
         });
         shell.addEventListener("keydown", (e) => {
@@ -1486,6 +1546,27 @@
         } catch {}
       }
 
+      function getSavedCardFace() {
+        try {
+          const v = localStorage.getItem(CARD_FACE_KEY);
+          if (v === "en") return "en";
+          return "ko";
+        } catch {
+          return "ko";
+        }
+      }
+
+      function setSavedCardFace(face) {
+        const v = face === "en" ? "en" : "ko";
+        try {
+          localStorage.setItem(CARD_FACE_KEY, v);
+        } catch {}
+      }
+
+      function isKoreanCardFaceFirst() {
+        return getSavedCardFace() !== "en";
+      }
+
       function chooseVoice(voices) {
         if (!voices.length) return null;
         const saved = getSavedVoiceUri();
@@ -1621,27 +1702,13 @@
           .map((_, i) => `<span class="${i <= index ? "on" : ""}"></span>`)
           .join("");
         const titleLabel = state.title ? ` · ${escapeHtml(state.title)}` : "";
+        const cardMain = buildSituationAnswerCardMain(card, revealed);
 
         app.innerHTML = `
           <div class="progress">${bars}</div>
           <div class="pill" style="margin-bottom:0.75rem;">Chapter ${state.chapter}${titleLabel} · ${index + 1} / ${picks.length} · 카드 ID ${card.localId}</div>
           <div class="card-shell" id="cardTap" tabindex="0" role="button" aria-label="카드 뒤집기 또는 답 보기">
-            <div class="label">Situation</div>
-            <div class="situation">${escapeHtml(card.situation)}</div>
-            ${
-              revealed
-                ? `<div class="answer-block">
-                    <div class="answer-head">
-                      <div class="label">Model answer</div>
-                      <div style="display:flex;align-items:center;gap:0.35rem;">
-                        ${getVoiceOptionsHtml()}
-                        <button type="button" class="tts-btn" id="btnSpeakAnswer" aria-label="영어 문장 듣기">🔊 듣기</button>
-                      </div>
-                    </div>
-                    <div class="answer" data-en-context="${escapeHtml(card.answer)}">${englishWordsInteractiveHtml(card.answer)}</div>
-                  </div>`
-                : `<p class="hint">말해 본 뒤 카드를 눌러 답을 확인하세요.</p>`
-            }
+            ${cardMain}
           </div>
           <div class="actions">
             <button type="button" class="ghost" id="btnPrevCard" ${index === 0 ? "disabled" : ""}>이전</button>
@@ -1658,7 +1725,7 @@
           renderTruthStudy(state, groups);
         };
         shell.addEventListener("click", (e) => {
-          if (e.target.closest("button")) return;
+          if (e.target.closest("button, select, .click-en")) return;
           if (!state.revealed) goReveal();
         });
         shell.addEventListener("keydown", (e) => {
@@ -1738,7 +1805,7 @@
           .join("");
         app.innerHTML = `
           <div class="gate-panel">
-            <strong>기본동사</strong> · 동사를 고른 뒤, Day별 의미 블록이 여러 개이면 한 단계 더 고릅니다. 앞면은 한국어, 클릭하면 영어·메모가 보입니다.
+            <strong>기본동사</strong> · 동사를 고른 뒤, Day별 의미 블록이 여러 개이면 한 단계 더 고릅니다. 카드 앞면 언어는 모드 선택 화면의 <strong>설정</strong>에서 고를 수 있습니다.
           </div>
           <div class="actions">${verbButtons}</div>
           <div class="actions" style="margin-top:0.75rem;">
@@ -1857,30 +1924,13 @@
           .map((_, i) => `<span class="${i <= index ? "on" : ""}"></span>`)
           .join("");
 
+        const verbCardMain = buildVerbCardMain(card, revealed);
+
         app.innerHTML = `
           <div class="progress">${bars}</div>
           <div class="pill" style="margin-bottom:0.75rem;">동사 · ${escapeHtml(verbUnitSubtitle(state))} · ${index + 1} / ${picks.length}</div>
           <div class="card-shell" id="verbCardTap" tabindex="0" role="button" aria-label="답 보기">
-            <div class="label">한국어</div>
-            <div class="situation">${escapeHtml(card.korean)}</div>
-            ${
-              revealed
-                ? `<div class="answer-block">
-                    <div class="answer-head">
-                      <div class="label">영어</div>
-                      <div style="display:flex;align-items:center;gap:0.35rem;">
-                        ${getVoiceOptionsHtml()}
-                        <button type="button" class="tts-btn" id="btnVerbSpeakEnglish" aria-label="영어 문장 듣기">🔊 듣기</button>
-                      </div>
-                    </div>
-                    <div class="answer" data-en-context="${escapeHtml(card.english)}">${englishWordsInteractiveHtml(card.english)}</div>
-                    <div class="note-block">
-                      <div class="label">메모</div>
-                      <div class="note-body">${escapeHtml(card.note)}</div>
-                    </div>
-                  </div>`
-                : `<p class="hint">영어로 말해 본 뒤 카드를 눌러 답과 메모를 확인하세요.</p>`
-            }
+            ${verbCardMain}
           </div>
           <div class="actions">
             <button type="button" class="ghost" id="btnVerbPrev" ${index === 0 ? "disabled" : ""}>이전</button>
@@ -1902,7 +1952,7 @@
           renderVerbStudy(state, groups);
         };
         shell.addEventListener("click", (e) => {
-          if (e.target.closest("button")) return;
+          if (e.target.closest("button, select, .click-en")) return;
           if (!state.revealed) goReveal();
         });
         shell.addEventListener("keydown", (e) => {
@@ -2016,22 +2066,41 @@
       function renderModePicker() {
         dateLine.textContent = todayKey();
         const ttsRate = getSavedTtsRate();
+        const face = getSavedCardFace();
+        const selKo = face === "ko" ? "selected" : "";
+        const selEn = face === "en" ? "selected" : "";
         app.innerHTML = `
           <div class="gate-panel">
             <strong>학습 모드 선택</strong> · 오늘은 어떤 모드로 학습할지 선택하세요.
           </div>
           <div class="gate-panel" style="margin-top:0.6rem;">
-            <strong>TTS 재생속도</strong>
-            <div style="margin-top:0.5rem;display:flex;gap:0.5rem;align-items:center;flex-wrap:wrap;">
-              <label for="modeTtsRate" class="meta" style="font-size:0.8rem;">읽기 속도</label>
-              <select id="modeTtsRate" class="tts-voice" aria-label="TTS 재생속도 선택">
-                ${[0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
-                  .map((rate) => {
-                    const selected = Math.abs(ttsRate - rate) < 0.001 ? "selected" : "";
-                    return `<option value="${rate.toFixed(1)}" ${selected}>${rate.toFixed(1)}x</option>`;
-                  })
-                  .join("")}
-              </select>
+            <strong>설정</strong>
+            <div style="margin-top:0.65rem;display:flex;flex-direction:column;gap:0.85rem;">
+              <div>
+                <strong style="font-size:0.88rem;">카드 첫 화면</strong>
+                <div style="margin-top:0.4rem;display:flex;gap:0.5rem;align-items:center;flex-wrap:wrap;">
+                  <label for="modeCardFace" class="meta" style="font-size:0.8rem;">앞면 언어</label>
+                  <select id="modeCardFace" class="tts-voice" aria-label="카드 앞면 언어">
+                    <option value="ko" ${selKo}>한국어</option>
+                    <option value="en" ${selEn}>영어</option>
+                  </select>
+                </div>
+                <p class="meta" style="margin:0.35rem 0 0;font-size:0.76rem;line-height:1.45;">처음에 보일 면입니다. 카드를 누르면 반대쪽 내용이 함께 보입니다.</p>
+              </div>
+              <div>
+                <strong style="font-size:0.88rem;">TTS 재생속도</strong>
+                <div style="margin-top:0.4rem;display:flex;gap:0.5rem;align-items:center;flex-wrap:wrap;">
+                  <label for="modeTtsRate" class="meta" style="font-size:0.8rem;">읽기 속도</label>
+                  <select id="modeTtsRate" class="tts-voice" aria-label="TTS 재생속도 선택">
+                    ${[0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
+                      .map((rate) => {
+                        const selected = Math.abs(ttsRate - rate) < 0.001 ? "selected" : "";
+                        return `<option value="${rate.toFixed(1)}" ${selected}>${rate.toFixed(1)}x</option>`;
+                      })
+                      .join("")}
+                  </select>
+                </div>
+              </div>
             </div>
           </div>
           <div class="actions">
@@ -2053,6 +2122,12 @@
         if (modeTtsRate) {
           modeTtsRate.onchange = () => {
             setSavedTtsRate(modeTtsRate.value);
+          };
+        }
+        const modeCardFace = document.getElementById("modeCardFace");
+        if (modeCardFace) {
+          modeCardFace.onchange = () => {
+            setSavedCardFace(modeCardFace.value);
           };
         }
       }
