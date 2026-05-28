@@ -562,6 +562,472 @@
     ]
   },
   {
+    "chapter": 3,
+    "title": "The Tree of Life and Christ Ahnsahnghong",
+    "cards": [
+      {
+        "id": 1,
+        "situation": "모든 사람들은 고통을 겪고 있습니다",
+        "answer": "All men are suffering"
+      },
+      {
+        "id": 2,
+        "situation": "죽음의 고통 가운데서.",
+        "answer": "in the agony of death."
+      },
+      {
+        "id": 3,
+        "situation": "죽음은 시작되었습니다",
+        "answer": "Death originated"
+      },
+      {
+        "id": 4,
+        "situation": "에덴동산에서.",
+        "answer": "in the garden of Eden."
+      },
+      {
+        "id": 5,
+        "situation": "생명의 비밀도 그곳에서 찾을 수 있습니다",
+        "answer": "The secret of life can be found there"
+      },
+      {
+        "id": 6,
+        "situation": "역시.",
+        "answer": "as well."
+      },
+      {
+        "id": 7,
+        "situation": "마태복음 13:34~35 예수님께서 비유로 말씀하셨습니다",
+        "answer": "Matthew 13:34–35 Jesus tells parables"
+      },
+      {
+        "id": 8,
+        "situation": "그리고 감추어진 비밀을 나타내 주셨습니다",
+        "answer": "and reveals secrets hidden"
+      },
+      {
+        "id": 9,
+        "situation": "창세로부터.",
+        "answer": "since the creation of the world."
+      },
+      {
+        "id": 10,
+        "situation": "그렇다면 성경의 어떤 책이 말하고 있습니까",
+        "answer": "So, which book of the Bible tells"
+      },
+      {
+        "id": 11,
+        "situation": "창조의 역사를?",
+        "answer": "the history of creation?"
+      },
+      {
+        "id": 12,
+        "situation": "그것은 창세기입니다.",
+        "answer": "It is Genesis."
+      },
+      {
+        "id": 13,
+        "situation": "그 비밀에 대해 함께 알아보겠습니다",
+        "answer": "Let's learn about the secrets"
+      },
+      {
+        "id": 14,
+        "situation": "창세기 속에서.",
+        "answer": "in Genesis."
+      },
+      {
+        "id": 15,
+        "situation": "창세기 2:16~17 그것을 먹는 날에는",
+        "answer": "Genesis 2:16–17 When you eat of it,"
+      },
+      {
+        "id": 16,
+        "situation": "정녕 죽을 것이라.",
+        "answer": "you will certainly die."
+      },
+      {
+        "id": 17,
+        "situation": "아담과 하와는 먹었습니다",
+        "answer": "Adam and Eve ate"
+      },
+      {
+        "id": 18,
+        "situation": "선악을 알게 하는 나무로부터.",
+        "answer": "from the tree of knowledge of good and evil."
+      },
+      {
+        "id": 19,
+        "situation": "그래서 그들은 죽게 되었습니다.",
+        "answer": "So they came to die."
+      },
+      {
+        "id": 20,
+        "situation": "그렇다면, 어떤 방법이 있을까요",
+        "answer": "Then, what way is there"
+      },
+      {
+        "id": 21,
+        "situation": "죽을 수밖에 없는 사람들이",
+        "answer": "for mortal men"
+      },
+      {
+        "id": 22,
+        "situation": "영원히 살기 위해서?",
+        "answer": "to live forever?"
+      },
+      {
+        "id": 23,
+        "situation": "창세기 3:22~24 만약 그들이 생명나무로부터 먹으면,",
+        "answer": "Genesis 3:22–24 If they eat from the tree of life,"
+      },
+      {
+        "id": 24,
+        "situation": "그들은 영생할 수 있습니다.",
+        "answer": "they can live forever."
+      },
+      {
+        "id": 25,
+        "situation": "심지어 죄인이라도 영원히 살 수 있습니다",
+        "answer": "Even sinners can live forever"
+      },
+      {
+        "id": 26,
+        "situation": "생명나무로부터 먹음으로써.",
+        "answer": "by eating from the tree of life."
+      },
+      {
+        "id": 27,
+        "situation": "하지만 하나님께서 그 길을 막으셨습니다.",
+        "answer": "But God blocked the way."
+      },
+      {
+        "id": 28,
+        "situation": "그러므로",
+        "answer": "So,"
+      },
+      {
+        "id": 29,
+        "situation": "오직 하나님만이 그 길을 여실 수 있습니다.",
+        "answer": "only God can open the way."
+      },
+      {
+        "id": 30,
+        "situation": "생명나무는 비유입니다.",
+        "answer": "The tree of life is a parable."
+      },
+      {
+        "id": 31,
+        "situation": "그 실체는 무엇일까요",
+        "answer": "What is the reality"
+      },
+      {
+        "id": 32,
+        "situation": "생명나무의?",
+        "answer": "of the tree of life?"
+      },
+      {
+        "id": 33,
+        "situation": "요한복음 6:53~54 누구든지 내 살을 먹고",
+        "answer": "John 6:53–54 Whoever eats my flesh"
+      },
+      {
+        "id": 34,
+        "situation": "내 피를 마시는 자는",
+        "answer": "and drinks my blood"
+      },
+      {
+        "id": 35,
+        "situation": "영생을 얻으리라.",
+        "answer": "has eternal life."
+      },
+      {
+        "id": 36,
+        "situation": "에덴동산에서",
+        "answer": "In the garden of Eden,"
+      },
+      {
+        "id": 37,
+        "situation": "우리가 무엇을 먹어야 하나요",
+        "answer": "what should we eat"
+      },
+      {
+        "id": 38,
+        "situation": "영원히 살기 위해서?",
+        "answer": "to live forever?"
+      },
+      {
+        "id": 39,
+        "situation": "(생명나무)",
+        "answer": "(The tree of life)"
+      },
+      {
+        "id": 40,
+        "situation": "요한복음 6장 53절에 따르면",
+        "answer": "According to John 6:53,"
+      },
+      {
+        "id": 41,
+        "situation": "우리는 무엇을 먹어야 하나요",
+        "answer": "what should we eat"
+      },
+      {
+        "id": 42,
+        "situation": "영원히 살기 위해서?",
+        "answer": "to live forever?"
+      },
+      {
+        "id": 43,
+        "situation": "(예수님의 살과 피)",
+        "answer": "(Jesus' flesh and blood)"
+      },
+      {
+        "id": 44,
+        "situation": "그러므로 생명나무는",
+        "answer": "So, the tree of life means"
+      },
+      {
+        "id": 45,
+        "situation": "예수님의 살과 피를 의미합니다.",
+        "answer": "Jesus' flesh and blood."
+      },
+      {
+        "id": 46,
+        "situation": "우리는 어떻게 먹을 수 있을까요",
+        "answer": "How can we eat"
+      },
+      {
+        "id": 47,
+        "situation": "예수님의 살과 피를?",
+        "answer": "Jesus' flesh and blood?"
+      },
+      {
+        "id": 48,
+        "situation": "마태복음 26:17~19, 26~28 유월절의 떡과 포도주는",
+        "answer": "Matthew 26:17–19, 26–28 The Passover bread and wine are"
+      },
+      {
+        "id": 49,
+        "situation": "예수님의 살과 피입니다.",
+        "answer": "Jesus' flesh and blood."
+      },
+      {
+        "id": 50,
+        "situation": "유월절을 지키는 것은",
+        "answer": "Keeping the Passover"
+      },
+      {
+        "id": 51,
+        "situation": "생명나무를 먹는 것입니다.",
+        "answer": "is eating the tree of life."
+      },
+      {
+        "id": 52,
+        "situation": "누가 그 길을 막으셨습니까",
+        "answer": "Who blocked the way"
+      },
+      {
+        "id": 53,
+        "situation": "생명나무로 가는",
+        "answer": "to the tree of life"
+      },
+      {
+        "id": 54,
+        "situation": "에덴동산에서?",
+        "answer": "in the garden of Eden?"
+      },
+      {
+        "id": 55,
+        "situation": "(하나님)",
+        "answer": "(God)"
+      },
+      {
+        "id": 56,
+        "situation": "그래서 우리를 구원하시기 위해",
+        "answer": "So, to save us,"
+      },
+      {
+        "id": 57,
+        "situation": "하나님께서 생명나무를 가지고 오셔야 합니다.",
+        "answer": "God must come with the tree of life."
+      },
+      {
+        "id": 58,
+        "situation": "요한복음 10:10 내가 온 것은",
+        "answer": "John 10:10 I have come"
+      },
+      {
+        "id": 59,
+        "situation": "그들이 생명을 얻게 하려 함이라.",
+        "answer": "that they may have life."
+      },
+      {
+        "id": 60,
+        "situation": "영생을 얻기 위해서는",
+        "answer": "To receive eternal life,"
+      },
+      {
+        "id": 61,
+        "situation": "무엇을 먹어야 할까요",
+        "answer": "what should we eat"
+      },
+      {
+        "id": 62,
+        "situation": "에덴동산에서?",
+        "answer": "in the garden of Eden?"
+      },
+      {
+        "id": 63,
+        "situation": "(생명나무)",
+        "answer": "(The tree of life)"
+      },
+      {
+        "id": 64,
+        "situation": "진리는 무엇입니까",
+        "answer": "What is the truth"
+      },
+      {
+        "id": 65,
+        "situation": "우리로 먹게 하는",
+        "answer": "that makes us eat"
+      },
+      {
+        "id": 66,
+        "situation": "생명나무로부터?",
+        "answer": "from the tree of life?"
+      },
+      {
+        "id": 67,
+        "situation": "(유월절)",
+        "answer": "(The Passover)"
+      },
+      {
+        "id": 68,
+        "situation": "그래서 예수님께서 유월절을 가져오셨습니다.",
+        "answer": "So, Jesus brought the Passover."
+      },
+      {
+        "id": 69,
+        "situation": "그러나",
+        "answer": "But"
+      },
+      {
+        "id": 70,
+        "situation": "사단이 유월절을 폐지하였습니다",
+        "answer": "Satan abolished the Passover"
+      },
+      {
+        "id": 71,
+        "situation": "서기 325년에.",
+        "answer": "in 325 AD."
+      },
+      {
+        "id": 72,
+        "situation": "그래서 예수님께서 다시 오셔야 합니다.",
+        "answer": "So, Jesus must come again."
+      },
+      {
+        "id": 73,
+        "situation": "히브리서 9:28 예수님께서 나타나실 것입니다",
+        "answer": "Hebrews 9:28 Jesus will appear"
+      },
+      {
+        "id": 74,
+        "situation": "두 번째로",
+        "answer": "a second time"
+      },
+      {
+        "id": 75,
+        "situation": "우리를 구원하시기 위해서.",
+        "answer": "to save us."
+      },
+      {
+        "id": 76,
+        "situation": "목적은 무엇입니까",
+        "answer": "What is the purpose"
+      },
+      {
+        "id": 77,
+        "situation": "예수님의 재림의?",
+        "answer": "of Jesus' second coming?"
+      },
+      {
+        "id": 78,
+        "situation": "(우리를 구원하시기 위해서)",
+        "answer": "(To save us)"
+      },
+      {
+        "id": 79,
+        "situation": "우리는 에덴의 무엇이 필요합니까",
+        "answer": "What do we need from Eden"
+      },
+      {
+        "id": 80,
+        "situation": "구원받기 위해서?",
+        "answer": "to be saved?"
+      },
+      {
+        "id": 81,
+        "situation": "(생명나무)",
+        "answer": "(The tree of life)"
+      },
+      {
+        "id": 82,
+        "situation": "생명나무의 진리는 무엇입니까?",
+        "answer": "What is the truth of the tree of life?"
+      },
+      {
+        "id": 83,
+        "situation": "(유월절)",
+        "answer": "(The Passover)"
+      },
+      {
+        "id": 84,
+        "situation": "그러므로",
+        "answer": "So,"
+      },
+      {
+        "id": 85,
+        "situation": "재림 예수님께서는",
+        "answer": "the Second Coming Jesus"
+      },
+      {
+        "id": 86,
+        "situation": "유월절을 가지고 오셔야 합니다.",
+        "answer": "must come with the Passover."
+      },
+      {
+        "id": 87,
+        "situation": "유월절을 가지고 오신 분은 누구입니까?",
+        "answer": "Who came with the Passover?"
+      },
+      {
+        "id": 88,
+        "situation": "(그리스도 안상홍님)",
+        "answer": "(Christ Ahnsahnghong)"
+      },
+      {
+        "id": 89,
+        "situation": "그렇다면 그분은 누구이십니까?",
+        "answer": "Then, who is He?"
+      },
+      {
+        "id": 90,
+        "situation": "그분은 하나님이십니다.",
+        "answer": "He is God."
+      },
+      {
+        "id": 91,
+        "situation": "안상홍님을 믿읍시다",
+        "answer": "Let's believe in Ahnsahnghong"
+      },
+      {
+        "id": 92,
+        "situation": "그리고 천국으로 나아갑시다.",
+        "answer": "and go forward to heaven."
+      }
+    ]
+  },
+  {
     "chapter": 4,
     "title": "Jerusalem Mother",
     "cards": [
@@ -903,6 +1369,398 @@
     ]
   },
   {
+    "chapter": 5,
+    "title": "Heavenly Family and Earthly Family",
+    "cards": [
+      {
+        "id": 1,
+        "situation": "지상제도는 모형과 그림자입니다",
+        "answer": "The earthly system is a copy and shadow"
+      },
+      {
+        "id": 2,
+        "situation": "하늘에 있는 것의.",
+        "answer": "of what is in heaven."
+      },
+      {
+        "id": 3,
+        "situation": "히브리서 8:5 저희가 성소에서 섬기는 것은",
+        "answer": "Hebrews 8:5 They serve at a sanctuary"
+      },
+      {
+        "id": 4,
+        "situation": "모형과 그림자입니다",
+        "answer": "that is a copy and shadow"
+      },
+      {
+        "id": 5,
+        "situation": "하늘에 있는 것의.",
+        "answer": "of what is in heaven."
+      },
+      {
+        "id": 6,
+        "situation": "공부해 봅시다",
+        "answer": "Let's study"
+      },
+      {
+        "id": 7,
+        "situation": "가족제도에 대해서.",
+        "answer": "about the family system."
+      },
+      {
+        "id": 8,
+        "situation": "가족제도는 구성되어 있습니다",
+        "answer": "The Family system consists of"
+      },
+      {
+        "id": 9,
+        "situation": "아버지, 어머니, 자녀로.",
+        "answer": "a father, a mother, sons and daughters."
+      },
+      {
+        "id": 10,
+        "situation": "아버지에 관해서 먼저 알아봅시다.",
+        "answer": "Let's confirm the Father first."
+      },
+      {
+        "id": 11,
+        "situation": "히브리서 12:9 육체의 아버지가 있는 것처럼,",
+        "answer": "Hebrews 12:9 As we have human fathers,"
+      },
+      {
+        "id": 12,
+        "situation": "우리는 영의 아버지가 계십니다.",
+        "answer": "we have the Father of our spirits."
+      },
+      {
+        "id": 13,
+        "situation": "마태복음 6:9 하늘에 계신 우리 아버지",
+        "answer": "Matthew 6:9 Our Father in heaven."
+      },
+      {
+        "id": 14,
+        "situation": "아버지는 일반적으로 자녀가 있습니다.",
+        "answer": "A father typically has children."
+      },
+      {
+        "id": 15,
+        "situation": "자녀가 없으면,",
+        "answer": "Without children,"
+      },
+      {
+        "id": 16,
+        "situation": "그는 아버지라 불릴 수 없습니다.",
+        "answer": "he can't be called a father."
+      },
+      {
+        "id": 17,
+        "situation": "살펴봅시다",
+        "answer": "Let's find out"
+      },
+      {
+        "id": 18,
+        "situation": "영의 자녀들에 대해서.",
+        "answer": "about the spiritual children."
+      },
+      {
+        "id": 19,
+        "situation": "고린도후서 6:17~18 우리는 하나님의 자녀들입니다.",
+        "answer": "2 Corinthians 6:17–18 We are sons and daughters of God."
+      },
+      {
+        "id": 20,
+        "situation": "만약 자녀들이 존재한다면,",
+        "answer": "If sons and daughters exist,"
+      },
+      {
+        "id": 21,
+        "situation": "그러면 그들의 어머니도 반드시 존재해야 합니다.",
+        "answer": "then their mother must also exist."
+      },
+      {
+        "id": 22,
+        "situation": "갈라디아서 4:26 위에 있는 예루살렘은 우리 어머니라.",
+        "answer": "Galatians 4:26 The Jerusalem that is above is our Mother."
+      },
+      {
+        "id": 23,
+        "situation": "하늘 어머니는 반드시 존재합니다.",
+        "answer": "Heavenly Mother must exist."
+      },
+      {
+        "id": 24,
+        "situation": "어떻게 우리는 될 수 있을까요",
+        "answer": "How can we become"
+      },
+      {
+        "id": 25,
+        "situation": "하늘 가족의 구성원이?",
+        "answer": "members of the heavenly family?"
+      },
+      {
+        "id": 26,
+        "situation": "가족은 피로써 연결되어 있습니다.",
+        "answer": "Family is related by blood."
+      },
+      {
+        "id": 27,
+        "situation": "자녀들이 이어받는 것처럼",
+        "answer": "As children inherit"
+      },
+      {
+        "id": 28,
+        "situation": "그들의 부모의 피를,",
+        "answer": "the blood of their parents"
+      },
+      {
+        "id": 29,
+        "situation": "마찬가지로,",
+        "answer": "Likewise,"
+      },
+      {
+        "id": 30,
+        "situation": "하늘 부모님도 하나님의 피를 우리에게 주십니다.",
+        "answer": "Heavenly Parents gave us God's blood."
+      },
+      {
+        "id": 31,
+        "situation": "누가복음 22:20 이 잔은 새 언약이라",
+        "answer": "Luke 22:20 This cup is the new covenant"
+      },
+      {
+        "id": 32,
+        "situation": "내 피로 세우는.",
+        "answer": "in my blood."
+      },
+      {
+        "id": 33,
+        "situation": "하나님은 우리에게 하늘의 피를 주셨습니다",
+        "answer": "God gave us the heavenly blood"
+      },
+      {
+        "id": 34,
+        "situation": "유월절을 통해서.",
+        "answer": "through the Passover."
+      },
+      {
+        "id": 35,
+        "situation": "유월절을 지키는 자들이",
+        "answer": "Those who keep the Passover"
+      },
+      {
+        "id": 36,
+        "situation": "천국 가족이 될 수 있습니다.",
+        "answer": "can become heavenly family."
+      },
+      {
+        "id": 37,
+        "situation": "유월절을 지킵시다",
+        "answer": "Let's keep the Passover"
+      },
+      {
+        "id": 38,
+        "situation": "그리고 하나님의 자녀가 됩시다.",
+        "answer": "and become the children of God."
+      }
+    ]
+  },
+  {
+    "chapter": 6,
+    "title": "Keep the Sabbath Day Holy",
+    "cards": [
+      {
+        "id": 1,
+        "situation": "하나님의 백성은 따라야만 합니다",
+        "answer": "God's people must follow"
+      },
+      {
+        "id": 2,
+        "situation": "하나님의 말씀을.",
+        "answer": "the words of God."
+      },
+      {
+        "id": 3,
+        "situation": "요한계시록 22:18 더하거나,",
+        "answer": "Revelation 22:18 Do not add to"
+      },
+      {
+        "id": 4,
+        "situation": "빼지 말아라",
+        "answer": "or take away"
+      },
+      {
+        "id": 5,
+        "situation": "하나님의 말씀에서.",
+        "answer": "from the words of God."
+      },
+      {
+        "id": 6,
+        "situation": "살펴봅시다",
+        "answer": "Let's find out,"
+      },
+      {
+        "id": 7,
+        "situation": "무슨 요일이 성경의 안식일인지.",
+        "answer": "\"What day is the biblical Sabbath day?\""
+      },
+      {
+        "id": 8,
+        "situation": "출애굽기 20:8 안식일을 기억하라",
+        "answer": "Exodus 20:8 Remember the Sabbath day"
+      },
+      {
+        "id": 9,
+        "situation": "그것을 거룩히 지킴으로써.",
+        "answer": "by keeping it holy."
+      },
+      {
+        "id": 10,
+        "situation": "몇째 날이 안식일일까요?",
+        "answer": "Which day is the Sabbath day?"
+      },
+      {
+        "id": 11,
+        "situation": "창세기 2:1 일곱째 날이 안식일이다.",
+        "answer": "Genesis 2:1 The seventh day is the Sabbath."
+      },
+      {
+        "id": 12,
+        "situation": "무슨 요일이 일곱째 날일까요?",
+        "answer": "What day is the seventh day?"
+      },
+      {
+        "id": 13,
+        "situation": "일요일일까요 아니면 토요일일까요?",
+        "answer": "Is it Sunday or Saturday?"
+      },
+      {
+        "id": 14,
+        "situation": "먼저, 달력을 봅시다.",
+        "answer": "First, look at the calendar."
+      },
+      {
+        "id": 15,
+        "situation": "일요일은 주의 첫째 날입니다.",
+        "answer": "Sunday is the first day of the week."
+      },
+      {
+        "id": 16,
+        "situation": "토요일은 주의 일곱째 날입니다.",
+        "answer": "Saturday is the seventh day of the week."
+      },
+      {
+        "id": 17,
+        "situation": "둘째, 사전을 봅시다.",
+        "answer": "Second, look at the dictionary."
+      },
+      {
+        "id": 18,
+        "situation": "\"일요일\"은 주의 첫째 날입니다.",
+        "answer": "\"Sunday\" is the first day of the week."
+      },
+      {
+        "id": 19,
+        "situation": "\"토요일\"이 주의 일곱째 날입니다.",
+        "answer": "\"Saturday\" is the seventh day of the week."
+      },
+      {
+        "id": 20,
+        "situation": "마가복음 16:9 예수께서 이른 아침에 살아나셨다",
+        "answer": "Mark 16:9 When Jesus rose early"
+      },
+      {
+        "id": 21,
+        "situation": "한 주의 첫날에.",
+        "answer": "on the first day of the week."
+      },
+      {
+        "id": 22,
+        "situation": "이것에 관해서,",
+        "answer": "About this,"
+      },
+      {
+        "id": 23,
+        "situation": "TEV는 일요일이라고 말한다.",
+        "answer": "TEV says Sunday."
+      },
+      {
+        "id": 24,
+        "situation": "여기서 살아나신 것은 부활을 의미합니다.",
+        "answer": "Here, \"rose\" means Resurrection."
+      },
+      {
+        "id": 25,
+        "situation": "예수님은 일요일에 부활하셨습니다.",
+        "answer": "Jesus resurrected on Sunday."
+      },
+      {
+        "id": 26,
+        "situation": "이것은 상식입니다.",
+        "answer": "It's common sense."
+      },
+      {
+        "id": 27,
+        "situation": "만약 일요일이 첫째 날이면,",
+        "answer": "If Sunday is the first day,"
+      },
+      {
+        "id": 28,
+        "situation": "그렇다면, 무슨 요일이 일곱째 날일까요? (토요일)",
+        "answer": "then, what day is the seventh day? (Saturday)"
+      },
+      {
+        "id": 29,
+        "situation": "그것은 분명합니다",
+        "answer": "It's clear that"
+      },
+      {
+        "id": 30,
+        "situation": "일곱째 날 안식일은 토요일이지",
+        "answer": "the Seventh day, Sabbath is Saturday,"
+      },
+      {
+        "id": 31,
+        "situation": "일요일이 아니라는 것이.",
+        "answer": "not Sunday."
+      },
+      {
+        "id": 32,
+        "situation": "마태복음 7:21 오직 아버지의 뜻대로 행하는 자가",
+        "answer": "Matthew 7:21 Only the one who does the will of my father"
+      },
+      {
+        "id": 33,
+        "situation": "천국에 들어갈 수 있다.",
+        "answer": "can enter the Heaven."
+      },
+      {
+        "id": 34,
+        "situation": "무엇이 하나님의 뜻입니까?",
+        "answer": "Which is God's will?"
+      },
+      {
+        "id": 35,
+        "situation": "일요일 예배를 지키는 것",
+        "answer": "To keep the Sunday service"
+      },
+      {
+        "id": 36,
+        "situation": "아니면 토요일 안식일 지키는 것?",
+        "answer": "or Saturday, Sabbath?"
+      },
+      {
+        "id": 37,
+        "situation": "안식일을 토요일에 지킵시다",
+        "answer": "Let's keep the Sabbath on Saturday"
+      },
+      {
+        "id": 38,
+        "situation": "그리고 천국에 들어갑시다.",
+        "answer": "and enter the kingdom of God."
+      }
+    ]
+  },
+  {
     "chapter": 7,
     "title": "Passover, the Way to Eternal Life",
     "cards": [
@@ -1205,6 +2063,994 @@
         "id": 60,
         "situation": "온 세상에.",
         "answer": "to the whole world."
+      }
+    ]
+  },
+  {
+    "chapter": 8,
+    "title": "Cross-Reverence Is Idolatry",
+    "cards": [
+      {
+        "id": 1,
+        "situation": "많은 교회들은 말합니다",
+        "answer": "Many churches say"
+      },
+      {
+        "id": 2,
+        "situation": "십자가가 우상이 아니라고.",
+        "answer": "the cross is not an idol."
+      },
+      {
+        "id": 3,
+        "situation": "하지만 십자가는 우상입니다.",
+        "answer": "But the cross is an idol."
+      },
+      {
+        "id": 4,
+        "situation": "하나님의 가르침을 살펴보겠습니다.",
+        "answer": "Let us see God's teaching."
+      },
+      {
+        "id": 5,
+        "situation": "출애굽기 20:4~5 우리는 어떤 형상도 만들어서는 안 됩니다",
+        "answer": "Exodus 20:4–5 We should not make an image"
+      },
+      {
+        "id": 6,
+        "situation": "어떤 형태로서도.",
+        "answer": "in the form of anything."
+      },
+      {
+        "id": 7,
+        "situation": "'어떤 것'에는 십자가도 포함됩니다.",
+        "answer": "\"Anything\" includes the cross."
+      },
+      {
+        "id": 8,
+        "situation": "그러므로 십자가를 만드는 것은",
+        "answer": "So making a cross"
+      },
+      {
+        "id": 9,
+        "situation": "하나님의 계명을 어기는 것입니다.",
+        "answer": "breaks God's command."
+      },
+      {
+        "id": 10,
+        "situation": "레위기 26:1 우상을 만들거나 절하지 말라",
+        "answer": "Leviticus 26:1 Not to make or bow down to idols"
+      },
+      {
+        "id": 11,
+        "situation": "나무, 돌이나 금속으로 만들어진.",
+        "answer": "made of wood, stone, or metal."
+      },
+      {
+        "id": 12,
+        "situation": "십자가도 나무나 금속으로 만들어졌습니다.",
+        "answer": "The cross is also made of wood or metal."
+      },
+      {
+        "id": 13,
+        "situation": "그러므로 십자가는 우상입니다.",
+        "answer": "So the cross is an idol."
+      },
+      {
+        "id": 14,
+        "situation": "예레미야 10:2~5 사람이 만든 형상을 숭배하는 것은",
+        "answer": "Jeremiah 10:2–5 Worshiping man-made images is"
+      },
+      {
+        "id": 15,
+        "situation": "가치 없는 우상 숭배입니다.",
+        "answer": "worthless idol worship."
+      },
+      {
+        "id": 16,
+        "situation": "오늘날 많은 그리스도인들이 십자가를 지니고 다닙니다",
+        "answer": "Today, many Christians carry crosses"
+      },
+      {
+        "id": 17,
+        "situation": "행운을 위해서.",
+        "answer": "for good luck."
+      },
+      {
+        "id": 18,
+        "situation": "이것은 동일한 우상 숭배입니다",
+        "answer": "This is the same idol worship"
+      },
+      {
+        "id": 19,
+        "situation": "예레미야가 경고한.",
+        "answer": "Jeremiah warned about."
+      },
+      {
+        "id": 20,
+        "situation": "사람들은 십자가는 단지 상징일 뿐이라고 말합니다.",
+        "answer": "People say the cross is only a symbol."
+      },
+      {
+        "id": 21,
+        "situation": "하지만 그들은 그것을 거룩한 것처럼 취급합니다.",
+        "answer": "But they treat it like something holy."
+      },
+      {
+        "id": 22,
+        "situation": "이것이 바로 우상 숭배입니다.",
+        "answer": "This is idol worship."
+      },
+      {
+        "id": 23,
+        "situation": "우상을 만드는 사람들에게 무슨 일이 일어나겠습니까?",
+        "answer": "What happens to those who make idols?"
+      },
+      {
+        "id": 24,
+        "situation": "신명기 27:15 우상을 만드는 자는 누구든지 저주를 받을 것이라.",
+        "answer": "Deuteronomy 27:15 Anyone who makes an idol will be cursed."
+      },
+      {
+        "id": 25,
+        "situation": "저주받은 사람은 구원을 받을 수 없습니다.",
+        "answer": "A cursed person cannot be saved."
+      },
+      {
+        "id": 26,
+        "situation": "그러므로 우리는 우상을 만들어서는 안 됩니다",
+        "answer": "So we must not make idols,"
+      },
+      {
+        "id": 27,
+        "situation": "십자가를 포함해서.",
+        "answer": "including the cross."
+      },
+      {
+        "id": 28,
+        "situation": "구약시대에",
+        "answer": "In the Old Testament,"
+      },
+      {
+        "id": 29,
+        "situation": "이스라엘은 하나님을 믿는다고 말했습니다.",
+        "answer": "Israel said they believed in God."
+      },
+      {
+        "id": 30,
+        "situation": "그러나 그들은 여전히 우상을 숭배했습니다.",
+        "answer": "But they still worshiped idols."
+      },
+      {
+        "id": 31,
+        "situation": "예레미야 2:27~28 하나님께서는 이스라엘을 구원하지 않으셨습니다",
+        "answer": "Jeremiah 2:27–28 God did not save the Israelites"
+      },
+      {
+        "id": 32,
+        "situation": "우상 숭배한.",
+        "answer": "who worshiped idols."
+      },
+      {
+        "id": 33,
+        "situation": "그들은 멸망했습니다",
+        "answer": "They were destroyed"
+      },
+      {
+        "id": 34,
+        "situation": "우상 숭배 때문에.",
+        "answer": "because of idol worship."
+      },
+      {
+        "id": 35,
+        "situation": "초대교회는 십자가를 사용하지 않았습니다",
+        "answer": "The early Church did not use crosses"
+      },
+      {
+        "id": 36,
+        "situation": "수세기 동안에.",
+        "answer": "for many centuries."
+      },
+      {
+        "id": 37,
+        "situation": "어떤 신학 사전은 말합니다",
+        "answer": "A theology dictionary says"
+      },
+      {
+        "id": 38,
+        "situation": "십자가는 콘스탄틴 시대에 시작되었다고.",
+        "answer": "the cross started in Constantine's time."
+      },
+      {
+        "id": 39,
+        "situation": "하나님께서는 이미 경고하셨습니다",
+        "answer": "God already warned"
+      },
+      {
+        "id": 40,
+        "situation": "십자가 숭배에 대해서.",
+        "answer": "about worshiping the cross."
+      },
+      {
+        "id": 41,
+        "situation": "민수기 21:4~6, 7~9 이스라엘은 불평했고",
+        "answer": "Numbers 21:4–6, 7–9 Israel complained"
+      },
+      {
+        "id": 42,
+        "situation": "뱀에게 물렸습니다.",
+        "answer": "and were bitten by snakes."
+      },
+      {
+        "id": 43,
+        "situation": "하나님께서는 그들에게 말씀하셨습니다",
+        "answer": "God told them"
+      },
+      {
+        "id": 44,
+        "situation": "살기 위해 놋뱀을 보라고.",
+        "answer": "to look at a bronze snake to live."
+      },
+      {
+        "id": 45,
+        "situation": "놋뱀 자체에는",
+        "answer": "The bronze snake itself"
+      },
+      {
+        "id": 46,
+        "situation": "아무 능력도 없었습니다.",
+        "answer": "had no power."
+      },
+      {
+        "id": 47,
+        "situation": "오직 하나님의 말씀이 그들을 살렸습니다.",
+        "answer": "Only God's word saved them."
+      },
+      {
+        "id": 48,
+        "situation": "그러나 이스라엘은 숭배했습니다",
+        "answer": "But Israel worshiped"
+      },
+      {
+        "id": 49,
+        "situation": "그 놋뱀을",
+        "answer": "the bronze snake"
+      },
+      {
+        "id": 50,
+        "situation": "오랜 기간 동안에.",
+        "answer": "for many years."
+      },
+      {
+        "id": 51,
+        "situation": "열왕기하 18:3~4 히스기야왕은 그 놋뱀을 부숴버렸습니다.",
+        "answer": "2 Kings 18:3–4 King Hezekiah destroyed the bronze snake."
+      },
+      {
+        "id": 52,
+        "situation": "그는 그것을 \"느후스단\"이라 불렀습니다",
+        "answer": "He called it \"Nehushtan,\""
+      },
+      {
+        "id": 53,
+        "situation": "\"그냥 하나의 놋조각\"을 의미하는.",
+        "answer": "meaning \"a piece of bronze.\""
+      },
+      {
+        "id": 54,
+        "situation": "그것은 단지 금속일 뿐이었습니다",
+        "answer": "It was only metal,"
+      },
+      {
+        "id": 55,
+        "situation": "하나님이 아닌.",
+        "answer": "not a God."
+      },
+      {
+        "id": 56,
+        "situation": "요한복음 3:14~15 모세가 뱀을 든 것처럼",
+        "answer": "John 3:14–15 Just as Moses lifted the snake,"
+      },
+      {
+        "id": 57,
+        "situation": "인자도 들려야 하리니",
+        "answer": "the Son of Man must be lifted up."
+      },
+      {
+        "id": 58,
+        "situation": "예수님께서는 들리셨습니다",
+        "answer": "Jesus was lifted up"
+      },
+      {
+        "id": 59,
+        "situation": "십자가에",
+        "answer": "on the cross"
+      },
+      {
+        "id": 60,
+        "situation": "우리를 구원하기 위해.",
+        "answer": "to save us."
+      },
+      {
+        "id": 61,
+        "situation": "십자가 자체에는 아무런 능력이 없습니다",
+        "answer": "The cross itself has no power,"
+      },
+      {
+        "id": 62,
+        "situation": "놋뱀처럼.",
+        "answer": "just like the bronze snake."
+      },
+      {
+        "id": 63,
+        "situation": "우리는 십자가 숭배를 버려야 합니다.",
+        "answer": "We must reject cross worship."
+      },
+      {
+        "id": 64,
+        "situation": "우리는 지켜야 합니다",
+        "answer": "We must keep"
+      },
+      {
+        "id": 65,
+        "situation": "새 언약 유월절을.",
+        "answer": "the new covenant Passover."
+      },
+      {
+        "id": 66,
+        "situation": "그러면 우리는 받을 것입니다",
+        "answer": "Then we will receive"
+      },
+      {
+        "id": 67,
+        "situation": "영생을 하나님께로부터.",
+        "answer": "eternal life from God."
+      }
+    ]
+  },
+  {
+    "chapter": 9,
+    "title": "Be Baptized Immediately",
+    "cards": [
+      {
+        "id": 1,
+        "situation": "침례는 매우 중요합니다.",
+        "answer": "Baptism is very important."
+      },
+      {
+        "id": 2,
+        "situation": "그것은 우리에게 죄 사함을 줍니다.",
+        "answer": "It gives us forgiveness of sins."
+      },
+      {
+        "id": 3,
+        "situation": "우리는 여섯 달을 기다려서는 안 됩니다",
+        "answer": "We should not wait six months"
+      },
+      {
+        "id": 4,
+        "situation": "또는 일 년을",
+        "answer": "or one year"
+      },
+      {
+        "id": 5,
+        "situation": "침례 받기 위해서.",
+        "answer": "to be baptized."
+      },
+      {
+        "id": 6,
+        "situation": "성경은 이것을 우리에게 가르칩니다.",
+        "answer": "The Bible teaches us this."
+      },
+      {
+        "id": 7,
+        "situation": "잠언 27:1 내일을 자랑하지 말라",
+        "answer": "Proverbs 27:1 Do not boast about tomorrow."
+      },
+      {
+        "id": 8,
+        "situation": "우리는 알지 못합니다",
+        "answer": "We do not know"
+      },
+      {
+        "id": 9,
+        "situation": "내일 무슨 일이 일어날지를.",
+        "answer": "what will happen tomorrow."
+      },
+      {
+        "id": 10,
+        "situation": "그러므로 우리가 진리를 깨달을 때,",
+        "answer": "So when we understand the truth,"
+      },
+      {
+        "id": 11,
+        "situation": "우리는 즉시 침례를 받아야 합니다.",
+        "answer": "we must be baptized soon."
+      },
+      {
+        "id": 12,
+        "situation": "예수님께서도 이것을 가르치셨습니다.",
+        "answer": "Jesus also taught this."
+      },
+      {
+        "id": 13,
+        "situation": "누가복음 12:16~20 한 부자가 많은 계획을 세웠습니다.",
+        "answer": "Luke 12:16–20 A rich man made many plans."
+      },
+      {
+        "id": 14,
+        "situation": "그러나 하나님께서는 그를 어리석다고 하셨습니다.",
+        "answer": "But God called him foolish."
+      },
+      {
+        "id": 15,
+        "situation": "하나님께서는 그에게 말씀하셨습니다",
+        "answer": "God told him"
+      },
+      {
+        "id": 16,
+        "situation": "그의 영혼을 데려갈 것이라고",
+        "answer": "his soul would be taken"
+      },
+      {
+        "id": 17,
+        "situation": "그 밤에.",
+        "answer": "that night."
+      },
+      {
+        "id": 18,
+        "situation": "이것은 보여줍니다",
+        "answer": "This shows"
+      },
+      {
+        "id": 19,
+        "situation": "우리가 침례를 미루어서는 안 된다는 것을.",
+        "answer": "we must not delay baptism."
+      },
+      {
+        "id": 20,
+        "situation": "초대교회도 침례를 미루지 않았습니다.",
+        "answer": "The early Church did not delay baptism."
+      },
+      {
+        "id": 21,
+        "situation": "사도행전 8:26~31 빌립은 에디오피아 내시를 침례 주었습니다",
+        "answer": "Acts 8:26–31 Philip baptized the Ethiopian eunuch"
+      },
+      {
+        "id": 22,
+        "situation": "길에서 즉시.",
+        "answer": "right away on the road."
+      },
+      {
+        "id": 23,
+        "situation": "이것은 침례가 즉시 행해져야 함을 보여줍니다.",
+        "answer": "This shows that baptism should be done immediately."
+      },
+      {
+        "id": 24,
+        "situation": "사도행전 10:47 사도 베드로는 고넬료에게 침례를 주었습니다",
+        "answer": "Acts 10:47 Apostle Peter baptized Cornelius"
+      },
+      {
+        "id": 25,
+        "situation": "즉시로.",
+        "answer": "right away."
+      },
+      {
+        "id": 26,
+        "situation": "성경에는 침례를 미룬 사례가 없습니다.",
+        "answer": "The Bible never shows delayed baptism."
+      },
+      {
+        "id": 27,
+        "situation": "사도행전 16:29~33 바울은 간수의 가족에게 침례를 주었습니다",
+        "answer": "Acts 16:29–33 Paul baptized the jailer's family"
+      },
+      {
+        "id": 28,
+        "situation": "즉시로.",
+        "answer": "immediately."
+      },
+      {
+        "id": 29,
+        "situation": "이것은 침례가 매우 긴급하다는 것을 보여줍니다.",
+        "answer": "This shows baptism is urgent."
+      },
+      {
+        "id": 30,
+        "situation": "루디아도 즉시 침례를 받았습니다.",
+        "answer": "Lydia was also baptized right away."
+      },
+      {
+        "id": 31,
+        "situation": "사도행전 16:13~15 바울은 루디아에게 침례를 주었습니다",
+        "answer": "Acts 16:13–15 Paul baptized Lydia"
+      },
+      {
+        "id": 32,
+        "situation": "즉시로.",
+        "answer": "immediately."
+      },
+      {
+        "id": 33,
+        "situation": "어떤 사람들은 말합니다",
+        "answer": "Some people say"
+      },
+      {
+        "id": 34,
+        "situation": "그들은 다시 침례 받을 필요가 없다고.",
+        "answer": "they do not need baptism again."
+      },
+      {
+        "id": 35,
+        "situation": "그들은 이미 침례를 받았다고 말합니다",
+        "answer": "They say they were already baptized"
+      },
+      {
+        "id": 36,
+        "situation": "다른 교회에서.",
+        "answer": "in another church."
+      },
+      {
+        "id": 37,
+        "situation": "사도행전 19:3~5 바울은 사람들에게 다시 침례를 주었습니다.",
+        "answer": "Acts 19:3–5 Paul baptized people again."
+      },
+      {
+        "id": 38,
+        "situation": "진리가 없는 침례는 우리를 구원할 수 없습니다.",
+        "answer": "Baptism without truth cannot save us."
+      },
+      {
+        "id": 39,
+        "situation": "그러므로 우리는 다시 침례를 받아야 합니다",
+        "answer": "So we must be baptized again"
+      },
+      {
+        "id": 40,
+        "situation": "진리를 가지고.",
+        "answer": "with the truth."
+      },
+      {
+        "id": 41,
+        "situation": "하나님께서 어떤 축복을 약속하셨습니까",
+        "answer": "What blessing does God promise"
+      },
+      {
+        "id": 42,
+        "situation": "침례를 통해서?",
+        "answer": "through baptism?"
+      },
+      {
+        "id": 43,
+        "situation": "사도행전 2:38 우리는 죄 사함을 받습니다",
+        "answer": "Acts 2:38 We receive forgiveness of sins"
+      },
+      {
+        "id": 44,
+        "situation": "그리고 성령을",
+        "answer": "and the Holy Spirit"
+      },
+      {
+        "id": 45,
+        "situation": "침례를 통해서.",
+        "answer": "through the baptism."
+      },
+      {
+        "id": 46,
+        "situation": "구원받아 천국에 들어가기 위해서,",
+        "answer": "To be saved and enter heaven,"
+      },
+      {
+        "id": 47,
+        "situation": "우리는 침례를 받아야 합니다.",
+        "answer": "we must be baptized."
+      },
+      {
+        "id": 48,
+        "situation": "마가복음 16:16 믿고 침례를 받는 사람은",
+        "answer": "Mark 16:16 Those who believe and are baptized"
+      },
+      {
+        "id": 49,
+        "situation": "구원을 얻습니다.",
+        "answer": "will be saved."
+      },
+      {
+        "id": 50,
+        "situation": "하나님께서는 침례를 통해 구원을 주십니다.",
+        "answer": "God gives salvation through baptism."
+      },
+      {
+        "id": 51,
+        "situation": "그는 죄 사함을 주십니다",
+        "answer": "He gives forgiveness of sins"
+      },
+      {
+        "id": 52,
+        "situation": "믿고 순종하는 자들에게.",
+        "answer": "to those who believe and obey."
+      },
+      {
+        "id": 53,
+        "situation": "하나님의 축복을 받읍시다",
+        "answer": "Let us receive God's blessing"
+      },
+      {
+        "id": 54,
+        "situation": "침례를 통해.",
+        "answer": "through baptism."
+      }
+    ]
+  },
+  {
+    "chapter": 10,
+    "title": "The Bible Is Fact",
+    "cards": [
+      {
+        "id": 1,
+        "situation": "하나님께서는 우리에게 성경을 주셨습니다",
+        "answer": "God gave us the Bible"
+      },
+      {
+        "id": 2,
+        "situation": "하늘나라로 인도하시기 위해.",
+        "answer": "to lead us to heaven."
+      },
+      {
+        "id": 3,
+        "situation": "하나님께서는 많은 표적들을 두셨습니다",
+        "answer": "God put many signs"
+      },
+      {
+        "id": 4,
+        "situation": "성경 안에.",
+        "answer": "in the Bible."
+      },
+      {
+        "id": 5,
+        "situation": "그 표적들 가운데 일부는",
+        "answer": "Some of these signs"
+      },
+      {
+        "id": 6,
+        "situation": "과학적 사실입니다.",
+        "answer": "are scientific facts."
+      },
+      {
+        "id": 7,
+        "situation": "욥기 26:7 하나님께서는 땅을 매달았다",
+        "answer": "Job 26:7 God suspends the earth"
+      },
+      {
+        "id": 8,
+        "situation": "허공에.",
+        "answer": "in space."
+      },
+      {
+        "id": 9,
+        "situation": "오래전",
+        "answer": "Long ago,"
+      },
+      {
+        "id": 10,
+        "situation": "사람들은 이 사실을 알지 못했습니다.",
+        "answer": "people did not know this."
+      },
+      {
+        "id": 11,
+        "situation": "아이작 뉴턴은 발견했습니다",
+        "answer": "Isaac Newton found"
+      },
+      {
+        "id": 12,
+        "situation": "만유인력의 법칙을",
+        "answer": "the law of gravity"
+      },
+      {
+        "id": 13,
+        "situation": "17세기에.",
+        "answer": "in the 17th century."
+      },
+      {
+        "id": 14,
+        "situation": "그때 사람들은 이해했습니다",
+        "answer": "Then people understood"
+      },
+      {
+        "id": 15,
+        "situation": "지구가 허공에 매달려 있다는 것을.",
+        "answer": "the earth hangs in space."
+      },
+      {
+        "id": 16,
+        "situation": "그러나 욥기는 이것을 기록했습니다",
+        "answer": "But the book of Job said this"
+      },
+      {
+        "id": 17,
+        "situation": "3,500년 전에.",
+        "answer": "3,500 years ago."
+      },
+      {
+        "id": 18,
+        "situation": "이것은 보여줍니다",
+        "answer": "This shows"
+      },
+      {
+        "id": 19,
+        "situation": "성경이 사실이라는 것을.",
+        "answer": "the Bible is fact."
+      },
+      {
+        "id": 20,
+        "situation": "욥기 36:27~28 하나님께서 물을 끌어올리신다",
+        "answer": "Job 36:27–28 God draws up water,"
+      },
+      {
+        "id": 21,
+        "situation": "그것이 그 후에 비가 되어",
+        "answer": "which then becomes rain"
+      },
+      {
+        "id": 22,
+        "situation": "하늘에서 떨어진다.",
+        "answer": "that falls from the sky."
+      },
+      {
+        "id": 23,
+        "situation": "이것은 물의 순환을 설명하는 말씀입니다.",
+        "answer": "This describes the water cycle."
+      },
+      {
+        "id": 24,
+        "situation": "사람들은 이것을 배웠습니다",
+        "answer": "People learned this"
+      },
+      {
+        "id": 25,
+        "situation": "17세기에.",
+        "answer": "in the 17th century."
+      },
+      {
+        "id": 26,
+        "situation": "페로와 마리오트라는 과학자들이",
+        "answer": "Scientists named Perrault and Mariotte"
+      },
+      {
+        "id": 27,
+        "situation": "이것을 설명했습니다.",
+        "answer": "explained it."
+      },
+      {
+        "id": 28,
+        "situation": "그러나 성경은 이미 이것을 기록했습니다",
+        "answer": "But the Bible already wrote this"
+      },
+      {
+        "id": 29,
+        "situation": "오래전에.",
+        "answer": "long before."
+      },
+      {
+        "id": 30,
+        "situation": "성경에는 또한 있습니다",
+        "answer": "The Bible also has"
+      },
+      {
+        "id": 31,
+        "situation": "많은 예언들이.",
+        "answer": "many prophecies."
+      },
+      {
+        "id": 32,
+        "situation": "이제 한 예언을 보겠습니다",
+        "answer": "Let us see one prophecy"
+      },
+      {
+        "id": 33,
+        "situation": "고레스에 대한.",
+        "answer": "about Cyrus."
+      },
+      {
+        "id": 34,
+        "situation": "에스라 1:1~3 고레스는 하나님을 찬양했습니다",
+        "answer": "Ezra 1:1–3 Cyrus praised God"
+      },
+      {
+        "id": 35,
+        "situation": "그리고 성전을 다시 세우라고 명령했습니다",
+        "answer": "and ordered the rebuilding of the temple"
+      },
+      {
+        "id": 36,
+        "situation": "예루살렘에서.",
+        "answer": "in Jerusalem."
+      },
+      {
+        "id": 37,
+        "situation": "그는 하나님께서 그에게 주셨다고 말했습니다",
+        "answer": "He said God gave him"
+      },
+      {
+        "id": 38,
+        "situation": "모든 나라를.",
+        "answer": "all the kingdoms."
+      },
+      {
+        "id": 39,
+        "situation": "그는 명령하기도 했습니다",
+        "answer": "He even ordered"
+      },
+      {
+        "id": 40,
+        "situation": "성전을 다시 지으라고.",
+        "answer": "the temple to be rebuilt."
+      },
+      {
+        "id": 41,
+        "situation": "그는 왜 이렇게 했을까요?",
+        "answer": "Why did he do this?"
+      },
+      {
+        "id": 42,
+        "situation": "고레스는 자기의 이름을 보았습니다",
+        "answer": "Cyrus saw his name"
+      },
+      {
+        "id": 43,
+        "situation": "성경 속에서.",
+        "answer": "in the Bible."
+      },
+      {
+        "id": 44,
+        "situation": "이사야 45:1~3 하나님께서는 고레스 이름을 언급했습니다",
+        "answer": "Isaiah 45:1–3 God mentioned Cyrus' name"
+      },
+      {
+        "id": 45,
+        "situation": "그가 태어나기도 전에.",
+        "answer": "before he was born."
+      },
+      {
+        "id": 46,
+        "situation": "고레스는 놀랐습니다",
+        "answer": "Cyrus was amazed"
+      },
+      {
+        "id": 47,
+        "situation": "그리고 하나님께 영광을 돌렸습니다.",
+        "answer": "and gave glory to God."
+      },
+      {
+        "id": 48,
+        "situation": "이제 살펴보겠습니다",
+        "answer": "Let us look at"
+      },
+      {
+        "id": 49,
+        "situation": "또 다른 예언을.",
+        "answer": "another prophecy."
+      },
+      {
+        "id": 50,
+        "situation": "다니엘 8:20~22 역사에 대해 예언하고 있습니다",
+        "answer": "Daniel 8:20–22 It prophesies about the history"
+      },
+      {
+        "id": 51,
+        "situation": "메대와 바사 그리고 그리스의.",
+        "answer": "of the Media-Persia and Greece."
+      },
+      {
+        "id": 52,
+        "situation": "성경은 예언했습니다",
+        "answer": "The Bible prophesies that"
+      },
+      {
+        "id": 53,
+        "situation": "메대 바사와 그리스가 일어날 것이라고.",
+        "answer": "Media-Persia and Greece would rise."
+      },
+      {
+        "id": 54,
+        "situation": "또한 말했습니다",
+        "answer": "It also said"
+      },
+      {
+        "id": 55,
+        "situation": "그리스가 나뉠 것이라고도",
+        "answer": "Greece would break"
+      },
+      {
+        "id": 56,
+        "situation": "네 나라로.",
+        "answer": "into four parts."
+      },
+      {
+        "id": 57,
+        "situation": "이 일은 그대로 이루어졌습니다",
+        "answer": "This happened exactly"
+      },
+      {
+        "id": 58,
+        "situation": "성경이 말한 것처럼.",
+        "answer": "as the Bible said."
+      },
+      {
+        "id": 59,
+        "situation": "이 예언들은 보여줍니다",
+        "answer": "These prophecies show"
+      },
+      {
+        "id": 60,
+        "situation": "성경이 사실임을.",
+        "answer": "the Bible is fact."
+      },
+      {
+        "id": 61,
+        "situation": "어떤 예언들이 남아 있을까요",
+        "answer": "What prophecies remain"
+      },
+      {
+        "id": 62,
+        "situation": "미래에?",
+        "answer": "in the future?"
+      },
+      {
+        "id": 63,
+        "situation": "요한계시록 21:1 성경은 예언합니다",
+        "answer": "Revelation 21:1 The Bible prophesies that"
+      },
+      {
+        "id": 64,
+        "situation": "천국이 곧 올 것이라고.",
+        "answer": "the kingdom of heaven will come soon."
+      },
+      {
+        "id": 65,
+        "situation": "천국에는",
+        "answer": "In heaven"
+      },
+      {
+        "id": 66,
+        "situation": "죽음이 없습니다",
+        "answer": "there is no death,"
+      },
+      {
+        "id": 67,
+        "situation": "슬픔도 없고, 아픔도 없습니다.",
+        "answer": "no sorrow, and no pain."
+      },
+      {
+        "id": 68,
+        "situation": "이 예언도 이루어질 것입니다.",
+        "answer": "This prophecy will also be fulfilled."
+      },
+      {
+        "id": 69,
+        "situation": "우리는 하나님을 믿어야 합니다.",
+        "answer": "We must believe in God."
+      },
+      {
+        "id": 70,
+        "situation": "하나님을 믿읍시다.",
+        "answer": "Let us believe in God."
+      },
+      {
+        "id": 71,
+        "situation": "하나님 말씀을 따릅시다.",
+        "answer": "Let us follow God's word."
+      },
+      {
+        "id": 72,
+        "situation": "그러면 우리는 들어갈 수 있습니다",
+        "answer": "Then we can enter"
+      },
+      {
+        "id": 73,
+        "situation": "영원한 천국에.",
+        "answer": "the eternal kingdom of heaven."
       }
     ]
   }
