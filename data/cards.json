@@ -2,7 +2,7 @@
   {
     "chapter": 1,
     "title": "주말 계획과 스포츠",
-    "studyDate": "2026-06-02",
+    "studyDate": "2026-05-25",
     "cards": [
       {
         "id": 1,
@@ -147,6 +147,163 @@
         "situation": "좋은 생각이야. 고마워, 세라.",
         "answer": "That sounds like a plan. Thanks, Sarah.",
         "note": "'That sounds like a plan'은 상대방의 제안에 동의할 때 쓰는 관용 표현으로 '좋은 생각이야, 그렇게 하자'는 뜻입니다."
+      }
+    ]
+  },
+  {
+    "chapter": 2,
+    "title": "전국 곳곳에서 봄 축제가 열렸어요",
+    "studyDate": "2026-06-02",
+    "cards": [
+      {
+        "id": 1,
+        "situation": "대한민국 전역에서 봄 축제가 열리고 있습니다.",
+        "answer": "Spring festivals are taking place across South Korea.",
+        "note": "'take place'는 '열리다, 개최되다'는 표현입니다. 'across'는 '~ 전역에'라는 뜻으로, 넓은 범위를 나타냅니다."
+      },
+      {
+        "id": 2,
+        "situation": "사람들은 따뜻한 날씨와 봄꽃을 즐기러 밖으로 향하고 있습니다.",
+        "answer": "People are heading out to enjoy the warm weather and spring flowers.",
+        "note": "'head out'은 '밖으로 나가다, 향하다'는 뜻입니다. 'to enjoy'는 목적을 나타내는 to부정사입니다."
+      },
+      {
+        "id": 3,
+        "situation": "서울은 강변에서 대규모 벚꽃 축제가 열리고 있습니다.",
+        "answer": "In Seoul, a large cherry blossom festival is taking place by the river.",
+        "note": "'cherry blossom'은 '벚꽃'을 뜻합니다. 'by the river'는 '강변에서'라는 표현입니다. 'large'는 '크고 대규모의'를 의미합니다."
+      },
+      {
+        "id": 4,
+        "situation": "많은 방문객이 분홍색과 흰색 꽃 아래를 걷습니다.",
+        "answer": "Many visitors walk under the pink and white blossoms.",
+        "note": "'visitor'는 '방문객'이라는 뜻입니다. 'under'는 '~ 아래에'라는 전치사입니다. 'blossom'은 나무에 핀 꽃을 뜻합니다."
+      },
+      {
+        "id": 5,
+        "situation": "그들은 사진을 찍고 길거리 음식을 먹어봅니다.",
+        "answer": "They take photos and try street food.",
+        "note": "'take photos'는 '사진을 찍다'는 표현입니다. 'try'는 '시도하다, 먹어보다'의 뜻으로 음식을 처음 맛볼 때 씁니다."
+      },
+      {
+        "id": 6,
+        "situation": "대전에서는 과학 테마 공원이 봄꽃 행사를 주최하고 있습니다.",
+        "answer": "In Daejeon, a science park is hosting a spring flower event.",
+        "note": "'host'는 '주최하다'는 동사입니다. 현재진행형 'is hosting'으로 지금 진행 중인 행사를 나타냅니다."
+      },
+      {
+        "id": 7,
+        "situation": "가족들이 꽃을 보고 과학에 대해 배우러 옵니다.",
+        "answer": "Families come to see flowers and learn about science.",
+        "note": "'come to + 동사원형'은 '~하러 오다'는 목적을 나타냅니다. 'learn about'은 '~에 대해 배우다'는 표현입니다."
+      },
+      {
+        "id": 8,
+        "situation": "어린이들은 재미있는 게임과 공연에 참여합니다.",
+        "answer": "Children join in fun games and performances.",
+        "note": "'join in'은 '~에 참여하다'는 표현입니다. 'performance'는 '공연'을 뜻하며 복수형으로 쓰였습니다."
+      },
+      {
+        "id": 9,
+        "situation": "대구에서는 대형 공원에서 꽃 축제가 열리고 있습니다.",
+        "answer": "In Daegu, a flower festival is being held in a large park.",
+        "note": "'be held'는 '열리다, 개최되다'는 수동태 표현입니다. 'is being held'는 현재진행형 수동태로 지금 개최 중임을 나타냅니다."
+      },
+      {
+        "id": 10,
+        "situation": "밝은 색의 튤립과 장미가 그 지역을 가득 채우고 있습니다.",
+        "answer": "Bright tulips and roses fill the area.",
+        "note": "'fill'은 '채우다'는 동사입니다. 'bright'는 '밝은'이라는 형용사로 선명하고 생생한 색을 나타냅니다."
+      },
+      {
+        "id": 11,
+        "situation": "지역 밴드들이 오후에 음악을 연주합니다.",
+        "answer": "Local bands play music in the afternoon.",
+        "note": "'local'은 '지역의'라는 형용사입니다. 'play music'은 '음악을 연주하다'는 표현입니다. 'in the afternoon'은 '오후에'를 뜻합니다."
+      },
+      {
+        "id": 12,
+        "situation": "부산에서는 해변 축제가 봄철의 시작을 알립니다.",
+        "answer": "In Busan, a beach festival marks the start of the spring season.",
+        "note": "'mark'는 '표시하다, 알리다'는 뜻입니다. 'the start of ~'는 '~의 시작'이라는 표현입니다."
+      },
+      {
+        "id": 13,
+        "situation": "사람들은 해안을 따라 걸으며 바다를 구경합니다.",
+        "answer": "People walk along the shore and watch the sea.",
+        "note": "'along'은 '~을 따라'라는 전치사입니다. 'shore'는 '해안, 물가'를 뜻합니다. 'watch'는 '(움직이는 것을) 보다'는 뜻입니다."
+      },
+      {
+        "id": 14,
+        "situation": "푸드 트럭들이 간식과 음료를 제공합니다.",
+        "answer": "Food trucks serve snacks and drinks.",
+        "note": "'serve'는 '제공하다, 차려내다'는 동사입니다. 'snack'은 '간식', 'drink'는 '음료'를 뜻합니다."
+      },
+      {
+        "id": 15,
+        "situation": "전주에서는 한옥 마을이 봄 축제를 주최합니다.",
+        "answer": "In Jeonju, a traditional village hosts a spring fair.",
+        "note": "'traditional'은 '전통적인'이라는 형용사입니다. 'fair'는 '축제, 박람회'를 뜻하며 'festival'과 비슷한 의미로 쓰입니다."
+      },
+      {
+        "id": 16,
+        "situation": "방문객들은 전통 한복을 입어보고 지역 음식을 즐길 수 있습니다.",
+        "answer": "Visitors can try on traditional hanbok and enjoy local food.",
+        "note": "'try on'은 '(옷을) 입어보다'는 표현입니다. 'can + 동사원형'은 가능성이나 허가를 나타냅니다."
+      },
+      {
+        "id": 17,
+        "situation": "그들은 또한 민속 음악과 무용 공연을 관람합니다.",
+        "answer": "They also watch folk music and dance performances.",
+        "note": "'also'는 '또한'이라는 부사로 추가 정보를 더할 때 씁니다. 'folk music'은 '민속 음악'을 뜻합니다."
+      },
+      {
+        "id": 18,
+        "situation": "춘천에서는 호수 축제가 많은 관광객을 불러모읍니다.",
+        "answer": "In Chuncheon, a lake festival brings many tourists.",
+        "note": "'bring'은 '데려오다, 불러모으다'는 뜻입니다. 'tourist'는 '관광객'을 뜻하며 'visitor'와 비슷하지만 관광 목적임을 강조합니다."
+      },
+      {
+        "id": 19,
+        "situation": "사람들은 자전거를 타고 보트를 탑니다.",
+        "answer": "People ride bikes and take boat rides.",
+        "note": "'ride'는 '타다'는 동사입니다. 'take a ride'는 '(탈것을) 타다, 탑승하다'는 표현입니다. 'bike'는 '자전거'를 뜻합니다."
+      },
+      {
+        "id": 20,
+        "situation": "그 도시는 또한 밤에 조명 쇼를 개최합니다.",
+        "answer": "The city also hosts light shows at night.",
+        "note": "'at night'는 '밤에'라는 시간 표현입니다. 'light show'는 '조명 쇼'로 화려한 빛을 이용한 공연을 말합니다."
+      },
+      {
+        "id": 21,
+        "situation": "이러한 행사들은 지역 상권에 도움을 줍니다.",
+        "answer": "These events help local businesses.",
+        "note": "'these'는 '이들, 이러한'으로 앞서 언급된 것을 가리킵니다. 'business'는 '사업체, 상권'을 뜻합니다."
+      },
+      {
+        "id": 22,
+        "situation": "호텔과 상점들은 더 많은 손님을 끌어모읍니다.",
+        "answer": "Hotels and shops attract more customers.",
+        "note": "'attract'는 '끌어들이다, 매료시키다'는 동사입니다. 'customer'는 '손님, 고객'을 뜻합니다."
+      },
+      {
+        "id": 23,
+        "situation": "이번 주 날씨는 온화하고 쾌적합니다.",
+        "answer": "The weather is mild and pleasant this week.",
+        "note": "'mild'는 '온화한', 'pleasant'는 '쾌적한, 즐거운'이라는 형용사입니다. 둘 다 좋은 날씨를 표현할 때 씁니다."
+      },
+      {
+        "id": 24,
+        "situation": "다음 주말에도 더 많은 축제가 계획되어 있습니다.",
+        "answer": "More festivals are planned for next weekend.",
+        "note": "'be planned'는 '계획되다'는 수동태 표현입니다. 'next weekend'는 '다음 주말'을 뜻합니다."
+      },
+      {
+        "id": 25,
+        "situation": "당국은 방문객들을 위한 안전 조치가 마련되어 있다고 말합니다.",
+        "answer": "Officials say safety measures are in place for visitors.",
+        "note": "'official'은 '공무원, 관계자'를 뜻합니다. 'safety measure'는 '안전 조치', 'be in place'는 '마련되어 있다'는 표현입니다."
       }
     ]
   }
