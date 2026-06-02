@@ -458,6 +458,43 @@
 
       function validateDailyCards(raw) {
         if (!Array.isArray(raw)) throw new Error("JSON 최상위는 배열이어야 합니다.");
+
+        // chapter 포맷(truth.json 스타일) 자동 감지: 첫 항목에 정수 chapter 필드가 있으면 flatten
+        if (raw.length > 0 && raw[0] && Number.isInteger(raw[0].chapter)) {
+          const out = [];
+          raw.forEach((ch, ci) => {
+            if (!ch || typeof ch !== "object") throw new Error(`챕터 ${ci}: 객체가 아닙니다.`);
+            if (!Number.isInteger(ch.chapter)) throw new Error(`챕터 ${ci}: chapter는 정수여야 합니다.`);
+            const studyDate =
+              typeof ch.studyDate === "string" && /^\d{4}-\d{2}-\d{2}$/.test(ch.studyDate.trim())
+                ? ch.studyDate.trim()
+                : todayKey();
+            if (!Array.isArray(ch.cards) || ch.cards.length === 0)
+              throw new Error(`챕터 ${ch.chapter}: cards는 비어 있지 않은 배열이어야 합니다.`);
+            ch.cards.forEach((card, i) => {
+              if (!card || typeof card !== "object") throw new Error(`챕터 ${ch.chapter} 카드 ${i}: 객체가 아닙니다.`);
+              const situation = card.situation;
+              const answer = card.answer;
+              if (typeof situation !== "string" || !situation.trim())
+                throw new Error(`챕터 ${ch.chapter} 카드 ${i}: situation은 비어 있지 않은 문자열이어야 합니다.`);
+              if (typeof answer !== "string" || !answer.trim())
+                throw new Error(`챕터 ${ch.chapter} 카드 ${i}: answer은 비어 있지 않은 문자열이어야 합니다.`);
+              const id = card.id != null ? `ch${ch.chapter}-${card.id}` : `ch${ch.chapter}-idx${i}`;
+              out.push({
+                id,
+                round: ch.chapter,
+                studyDate,
+                situation: situation.trim(),
+                answer: answer.trim(),
+                note: typeof card.note === "string" ? card.note.trim() : "",
+              });
+            });
+          });
+          if (out.length === 0) throw new Error("카드가 한 장도 없습니다.");
+          return out;
+        }
+
+        // 기존 flat 포맷
         const out = [];
         raw.forEach((row, i) => {
           if (!row || typeof row !== "object") throw new Error(`항목 ${i}: 객체가 아닙니다.`);
@@ -489,6 +526,7 @@
             studyDate: studyDate.trim(),
             situation: situation.trim(),
             answer: answer.trim(),
+            note: typeof row.note === "string" ? row.note.trim() : "",
           });
         });
         if (out.length === 0) throw new Error("카드가 한 장도 없습니다.");
@@ -531,6 +569,7 @@
               localId: card.id,
               situation: situation.trim(),
               answer: answer.trim(),
+              note: typeof card.note === "string" ? card.note.trim() : "",
             };
           });
           return {
@@ -926,16 +965,24 @@
             ${frontHint}`
           : `${englishBlock}
             ${frontHint}`;
+        const noteBlock = card.note
+          ? `<div class="note-block">
+              <div class="label">메모</div>
+              <div class="note-body">${escapeHtml(card.note)}</div>
+            </div>`
+          : "";
         const backBlock = koFirst
           ? `<div class="label">한국어</div>
             <div class="situation">${escapeHtml(card.situation)}</div>
             <div class="answer-block">
               ${englishBlock}
+              ${noteBlock}
             </div>`
           : `${englishBlock}
             <div class="answer-block">
               <div class="label">한국어</div>
               <div class="situation">${escapeHtml(card.situation)}</div>
+              ${noteBlock}
             </div>`;
         return revealed ? backBlock : frontBlock;
       }
@@ -2005,11 +2052,11 @@
       }
 
       async function startDailyMode() {
-        let cards;
+        let groups;
         try {
           const res = await fetch(DAILY_DATA_URL);
           if (!res.ok) throw new Error(`HTTP ${res.status}`);
-          cards = validateDailyCards(await res.json());
+          groups = validateTruthChapters(await res.json());
         } catch (e) {
           app.innerHTML = `
             <div class="error">
@@ -2021,10 +2068,12 @@
             </div>`;
           return;
         }
-
-        const progress = loadProgress(cards);
-        const state = getOrCreateDailyState(cards, progress);
-        renderDaily(state, cards, progress);
+        if (groups.length === 1) {
+          const state = createTruthStudyState(groups[0]);
+          renderTruthStudy(state, groups);
+        } else {
+          renderTruthChapterPicker(groups);
+        }
       }
 
       async function startTruthMode() {
