@@ -1,37 +1,153 @@
 [
   {
-    "id": "r1-1",
-    "round": 1,
-    "studyDate": "2026-04-16",
-    "situation": "이 근처에 카페가 있나요?",
-    "answer": "Is there a cafe near here?"
-  },
-  {
-    "id": "r1-2",
-    "round": 1,
-    "studyDate": "2026-04-16",
-    "situation": "'가장 가까운 카페가 어디인가요?",
-    "answer": "Where is the nearest cafe?"
-  },
-  {
-    "id": "r1-3",
-    "round": 1,
-    "studyDate": "2026-04-16",
-    "situation": "커피숍이 어디에 있는지 알려주실 수 있나요?",
-    "answer": "Can you tell me where the coffee shop is?"
-  },
-  {
-    "id": "r1-4",
-    "round": 1,
-    "studyDate": "2026-04-16",
-    "situation": "저는 카페을 찾고 있어요.",
-    "answer": "I'm looking for a cafe."
-  },
-  {
-    "id": "r1-5",
-    "round": 1,
-    "studyDate": "2026-04-16",
-    "situation": "실례합니다. 카페가 여기서 먼가요?",
-    "answer": "Excuse me. Is the cafe far from here?"
+    "chapter": 1,
+    "title": "주말 계획과 스포츠",
+    "studyDate": "2026-06-02",
+    "cards": [
+      {
+        "id": 1,
+        "situation": "안녕, 마크. 이번 주말에 뭐 해?",
+        "answer": "Hi, Mark. What are you doing this weekend?",
+        "note": "현재진행형(be + ~ing)으로 가까운 미래의 계획을 물어볼 수 있습니다."
+      },
+      {
+        "id": 2,
+        "situation": "안녕, 세라. 체육관에 갈 거야. 나는 수영을 정말 좋아하거든.",
+        "answer": "Hi, Sarah. I'm going to the gym. I love swimming.",
+        "note": "'be going to'는 이미 계획된 미래를 말할 때 씁니다. 'love'는 'like'보다 강한 좋아함을 나타냅니다."
+      },
+      {
+        "id": 3,
+        "situation": "아, 정말? 수영하러 얼마나 자주 가?",
+        "answer": "Oh, really? How often do you go swimming?",
+        "note": "'How often'은 빈도를 물어볼 때 씁니다. 'go + ~ing'는 활동을 하러 가다는 표현입니다."
+      },
+      {
+        "id": 4,
+        "situation": "나는 보통 일주일에 세 번 수영해. 아주 좋은 운동이야.",
+        "answer": "I usually swim three times a week. It's a great workout.",
+        "note": "'usually'는 빈도부사로 일반적인 습관을 표현합니다. 'three times a week'는 일주일에 세 번을 뜻합니다."
+      },
+      {
+        "id": 5,
+        "situation": "멋지다. 수영장이 네 집 근처에 있어?",
+        "answer": "That sounds wonderful. Is the swimming pool near your house?",
+        "note": "'That sounds + 형용사'는 상대방의 말에 반응할 때 쓰는 표현으로 '~하게 들리다'의 뜻입니다."
+      },
+      {
+        "id": 6,
+        "situation": "응, 그래. 버스로 10분밖에 안 걸려.",
+        "answer": "Yes, it is. It only takes ten minutes by bus.",
+        "note": "'It takes + 시간'은 시간이 걸린다는 표현입니다. 'only'를 붙여 짧음을 강조합니다."
+      },
+      {
+        "id": 7,
+        "situation": "아주 편리하네. 나도 수영하는 법을 배우고 싶어.",
+        "answer": "That's very convenient. I want to learn how to swim too.",
+        "note": "'learn how to + 동사원형'은 '~하는 방법을 배우다'는 뜻입니다. 'too'는 문장 끝에 붙어 '~도'를 나타냅니다."
+      },
+      {
+        "id": 8,
+        "situation": "꼭 해봐. 수영은 건강에 아주 좋아.",
+        "answer": "You should. Swimming is great for your health.",
+        "note": "'You should'는 상대방에게 권유하거나 추천할 때 씁니다. 'be great for'는 '~에 좋다'는 표현입니다."
+      },
+      {
+        "id": 9,
+        "situation": "하지만 나는 물을 조금 무서워해. 초보자에게는 어렵니?",
+        "answer": "But I'm a little afraid of water. Is it hard for beginners?",
+        "note": "'be afraid of + 명사'는 '~을 두려워하다'는 표현입니다. 'hard for + 사람'은 '~에게 어렵다'는 뜻입니다."
+      },
+      {
+        "id": 10,
+        "situation": "전혀 안 그래. 체육관에 있는 코치님들이 정말 친절하셔.",
+        "answer": "Not at all. The coaches at the gym are really friendly.",
+        "note": "'Not at all'은 상대방의 걱정을 완전히 부정할 때 씁니다. '전혀 그렇지 않다'는 뜻입니다."
+      },
+      {
+        "id": 11,
+        "situation": "다행이다. 어쩌면 다음 달에 해볼 수도 있겠어.",
+        "answer": "That's good to hear. Maybe I can try it next month.",
+        "note": "'good to hear'는 '듣기 좋은 소식이다, 다행이다'는 표현입니다. 'maybe'는 가능성을 나타냅니다."
+      },
+      {
+        "id": 12,
+        "situation": "잘됐다. 그나저나, 너는 무슨 스포츠를 좋아해?",
+        "answer": "Great. By the way, what sports do you like?",
+        "note": "'By the way'는 화제를 바꿀 때 쓰는 표현으로 '그나저나, 그런데'의 뜻입니다."
+      },
+      {
+        "id": 13,
+        "situation": "나는 테니스를 정말 좋아해. 친구들이랑 테니스를 쳐.",
+        "answer": "I really like tennis. I play tennis with my friends.",
+        "note": "스포츠를 '하다'고 할 때 'play'를 씁니다. play tennis / play basketball처럼 씁니다."
+      },
+      {
+        "id": 14,
+        "situation": "와, 테니스 재미있겠다. 테니스 친 지는 얼마나 됐어?",
+        "answer": "Wow, tennis sounds exciting. How long have you been playing?",
+        "note": "'How long have you been + ~ing'는 과거부터 현재까지 계속된 동작의 기간을 물어볼 때 씁니다."
+      },
+      {
+        "id": 15,
+        "situation": "작년에 테니스를 배우기 시작했어. 정말 재미있어.",
+        "answer": "I started learning tennis last year. It's really fun.",
+        "note": "'start + ~ing'는 '~하기 시작하다'는 표현입니다. 'last year'는 작년을 뜻합니다."
+      },
+      {
+        "id": 16,
+        "situation": "보통 어디서 테니스를 치니?",
+        "answer": "Where do you usually play tennis?",
+        "note": "'Where do you usually + 동사원형'은 장소와 빈도를 함께 묻는 표현입니다."
+      },
+      {
+        "id": 17,
+        "situation": "우리는 보통 공원 근처에 있는 야외 코트에서 쳐.",
+        "answer": "We usually play at the outdoor courts near the park.",
+        "note": "'near'는 '~ 근처에'라는 전치사입니다. 'at + 장소'는 특정 장소에서 활동할 때 씁니다."
+      },
+      {
+        "id": 18,
+        "situation": "좋네. 테니스는 달리기를 많이 해야 하지, 맞지?",
+        "answer": "That's nice. You have to run a lot in tennis, right?",
+        "note": "'have to + 동사원형'은 '~해야 한다'는 의무를 나타냅니다. 'right?'는 동의를 구하는 부가 표현입니다."
+      },
+      {
+        "id": 19,
+        "situation": "응, 힘든 운동이야. 경기를 할 때 항상 땀을 많이 흘려.",
+        "answer": "Yes, it's a tough workout. I always sweat a lot when I play.",
+        "note": "'sweat a lot'은 '땀을 많이 흘리다'는 표현입니다. 'when I play'처럼 when절로 상황을 설명합니다."
+      },
+      {
+        "id": 20,
+        "situation": "상상이 가네. 건강을 유지하는 데 확실히 도움이 되겠다.",
+        "answer": "I can imagine. It must be good for staying active.",
+        "note": "'I can imagine'은 공감할 때 쓰는 표현입니다. 'stay active'는 '활동적인 상태를 유지하다'는 뜻입니다."
+      },
+      {
+        "id": 21,
+        "situation": "정말 그래. 마크, 너는 테니스 칠 줄 알아?",
+        "answer": "It really is. Do you know how to play tennis, Mark?",
+        "note": "'know how to + 동사원형'은 '~할 줄 알다, ~하는 방법을 알다'는 표현입니다."
+      },
+      {
+        "id": 22,
+        "situation": "규칙은 알지만, 별로 잘하지는 못해.",
+        "answer": "I know the rules, but I'm not very good at it.",
+        "note": "'be good at + 명사/동명사'는 '~을 잘하다'는 표현입니다. 'not very good at'은 '별로 잘하지 못하다'는 뜻입니다."
+      },
+      {
+        "id": 23,
+        "situation": "언제 한번 같이 연습하면 돼. 내가 도와줄 수 있어.",
+        "answer": "We can practice together sometime. I can help you.",
+        "note": "'sometime'은 '언제 한번, 조만간'이라는 뜻입니다. 'can'은 가능성이나 제안을 나타냅니다."
+      },
+      {
+        "id": 24,
+        "situation": "좋은 생각이야. 고마워, 세라.",
+        "answer": "That sounds like a plan. Thanks, Sarah.",
+        "note": "'That sounds like a plan'은 상대방의 제안에 동의할 때 쓰는 관용 표현으로 '좋은 생각이야, 그렇게 하자'는 뜻입니다."
+      }
+    ]
   }
 ]
