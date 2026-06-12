@@ -451,5 +451,156 @@
         "note": "'first step'은 '첫걸음, 첫 번째 단계'를 뜻합니다. 'into'는 '~ 안으로'라는 전치사입니다. 'real world'는 '실제 세상, 사회'를 뜻합니다."
       }
     ]
+  },
+  {
+    "chapter": 4,
+    "title": "아이폰 vs 갤럭시",
+    "studyDate": "2026-06-15",
+    "cards": [
+      {
+        "id": 1,
+        "situation": "안녕, 토마스! 그거 새 휴대폰이야?",
+        "answer": "Hi, Thomas! Is that a new phone?",
+        "note": "'Is that a ~?'는 상대방이 갖고 있는 물건에 대해 물어볼 때 쓰는 표현입니다. 'new'는 '새로운'이라는 뜻입니다."
+      },
+      {
+        "id": 2,
+        "situation": "응, 맞아. 지난주에 새 아이폰을 샀어.",
+        "answer": "Yes, it is. I bought a new iPhone last week.",
+        "note": "'Yes, it is.'는 'Is that a new phone?'에 대한 간결한 긍정 응답입니다. 'buy'의 과거형은 'bought'입니다. 'last week'는 '지난주'를 뜻합니다."
+      },
+      {
+        "id": 3,
+        "situation": "오, 멋지다! 나도 아이폰을 좋아하지만, 갤럭시 폰을 더 선호해.",
+        "answer": "Oh, nice! I like iPhones, but I prefer Galaxy phones.",
+        "note": "'prefer'는 '더 좋아하다, 선호하다'는 동사로 'like ~ better'와 같은 뜻입니다. 'but'은 상반되는 내용을 연결합니다."
+      },
+      {
+        "id": 4,
+        "situation": "정말? 왜 갤럭시 폰을 좋아해?",
+        "answer": "Really? Why do you like Galaxy phones?",
+        "note": "'Really?'는 놀람이나 관심을 나타낼 때 씁니다. 'Why do you + 동사원형?'은 이유를 물어보는 표현입니다."
+      },
+      {
+        "id": 5,
+        "situation": "나는 삼성페이 기능이 너무 좋아. 정말 편리해.",
+        "answer": "I love the Samsung Pay feature. It's very convenient.",
+        "note": "'love'는 'like'보다 강한 좋아함을 나타냅니다. 'feature'는 '기능'이라는 뜻입니다. 'convenient'는 '편리한'이라는 형용사입니다."
+      },
+      {
+        "id": 6,
+        "situation": "그건 맞아. 내 친구들도 항상 삼성페이를 사용해.",
+        "answer": "That's true. My friends use Samsung Pay all the time.",
+        "note": "'That's true.'는 상대방의 말에 동의할 때 쓰는 표현입니다. 'all the time'은 '항상, 늘'이라는 뜻의 관용표현입니다."
+      },
+      {
+        "id": 7,
+        "situation": "응, 지갑을 가지고 다닐 필요가 없어.",
+        "answer": "Yes, I don't need to carry my wallet with me.",
+        "note": "'don't need to + 동사원형'은 '~할 필요가 없다'는 표현입니다. 'carry'는 '가지고 다니다, 휴대하다', 'wallet'은 '지갑'을 뜻합니다."
+      },
+      {
+        "id": 8,
+        "situation": "그거 좋게 들리네, 하지만 나는 아이폰 카메라가 아주 좋아.",
+        "answer": "That sounds great, but I love the iPhone camera.",
+        "note": "'That sounds + 형용사'는 상대방의 말에 반응할 때 쓰는 표현으로 '~하게 들리다'의 뜻입니다. 'great'은 '아주 좋은'이라는 뜻입니다."
+      },
+      {
+        "id": 9,
+        "situation": "아이폰 카메라는 좋아. 색감이 아주 멋져 보여.",
+        "answer": "The iPhone camera is good. The colors look great.",
+        "note": "'look + 형용사'는 '~처럼 보이다'는 표현입니다. 'color'는 '색깔, 색감'이라는 뜻입니다."
+      },
+      {
+        "id": 10,
+        "situation": "맞아. 나는 소셜 미디어를 위해 사진을 많이 찍어.",
+        "answer": "Exactly. I take a lot of photos for social media.",
+        "note": "'Exactly.'는 상대방의 말에 완전히 동의할 때 쓰는 표현으로 '맞아, 정확히'의 뜻입니다. 'take a photo'는 '사진을 찍다', 'a lot of'는 '많은'을 뜻합니다."
+      },
+      {
+        "id": 11,
+        "situation": "이해해. 갤럭시 폰도 화면이 아주 좋아.",
+        "answer": "I understand. Galaxy phones also have a very good screen.",
+        "note": "'I understand.'는 상대방의 말을 이해했음을 나타냅니다. 'also'는 '또한'이라는 부사입니다. 'screen'은 '화면'을 뜻합니다."
+      },
+      {
+        "id": 12,
+        "situation": "응, 화면이 크고 선명해. 영상을 보기에 좋아.",
+        "answer": "Yes, the screen is big and clear. It's good for watching videos.",
+        "note": "'clear'는 '선명한, 깨끗한'이라는 형용사입니다. 'be good for + ~ing'는 '~하기에 좋다'는 표현입니다."
+      },
+      {
+        "id": 13,
+        "situation": "맞아. 나는 매일 휴대폰으로 영화를 많이 봐.",
+        "answer": "Right. I watch a lot of movies on my phone every day.",
+        "note": "'Right.'는 상대방의 말에 동의할 때 쓰는 표현입니다. 'on my phone'은 '휴대폰으로'라는 뜻으로, 기기를 통해 무언가를 할 때 'on'을 씁니다. 'every day'는 '매일'을 뜻합니다."
+      },
+      {
+        "id": 14,
+        "situation": "나는 또한 아이폰의 단순한 디자인이 좋아. 깔끔해 보이거든.",
+        "answer": "I also like the simple design of the iPhone. It looks clean.",
+        "note": "'also'는 '또한'으로 추가 정보를 더할 때 씁니다. 'simple'은 '단순한', 'clean'은 '깔끔한'이라는 형용사입니다. 'look + 형용사'는 '~처럼 보이다'를 뜻합니다."
+      },
+      {
+        "id": 15,
+        "situation": "디자인은 아름답지만, 갤럭시는 꾸미기가 쉬워.",
+        "answer": "The design is beautiful, but Galaxy phones are easy to customize.",
+        "note": "'beautiful'은 '아름다운'이라는 형용사입니다. 'be easy to + 동사원형'은 '~하기 쉽다'는 표현입니다. 'customize'는 '사용자 취향에 맞게 바꾸다'라는 뜻입니다."
+      },
+      {
+        "id": 16,
+        "situation": "커스터마이즈라는 게 무슨 뜻이야?",
+        "answer": "What do you mean by \"customize\"?",
+        "note": "'What do you mean by ~?'는 특정 단어나 표현의 뜻을 물어볼 때 씁니다. '~라는 게 무슨 뜻이야?'의 뜻입니다."
+      },
+      {
+        "id": 17,
+        "situation": "화면의 모습과 아이콘들을 쉽게 바꿀 수 있어.",
+        "answer": "I can change the look of the screen and the icons easily.",
+        "note": "'can + 동사원형'은 '~할 수 있다'는 가능을 나타냅니다. 'change'는 '바꾸다', 'look'은 '모습, 모양'이라는 뜻입니다. 'easily'는 '쉽게'라는 부사입니다."
+      },
+      {
+        "id": 18,
+        "situation": "아, 그렇구나. 아이폰은 그런 걸 설정할 수 있는 옵션이 그렇게 많지 않아.",
+        "answer": "Oh, I see. iPhones don't have as many options for that.",
+        "note": "'I see.'는 '아, 그렇구나, 알겠어'라는 뜻으로 이해했음을 나타냅니다. 'as many'는 '그만큼 많은'이라는 비교 표현으로, 부정문에서는 '그만큼 많지 않다'는 뜻이 됩니다."
+      },
+      {
+        "id": 19,
+        "situation": "응, 하지만 아이폰은 아이패드와 연결이 아주 잘 되잖아.",
+        "answer": "Yes, but iPhones connect very well with iPads.",
+        "note": "'connect with'는 '~와 연결되다'는 표현입니다. 'very well'은 '아주 잘'이라는 뜻입니다. 'but'은 앞 내용과 상반되는 내용을 이을 때 씁니다."
+      },
+      {
+        "id": 20,
+        "situation": "그게 내가 아이폰을 쓰는 이유야. 나는 아이패드랑 맥을 가지고 있거든.",
+        "answer": "That's why I use one. I have an iPad and a Mac.",
+        "note": "'That's why ~'는 '그것이 ~한 이유이다'는 표현입니다. 'one'은 앞에서 언급한 'iPhone'을 대신하는 대명사입니다."
+      },
+      {
+        "id": 21,
+        "situation": "모든 기기에 같은 브랜드를 사용하는 건 편리하지.",
+        "answer": "It's convenient to use the same brand for all your devices.",
+        "note": "'It's + 형용사 + to + 동사원형'은 '~하는 것은 ~하다'는 표현입니다. 'convenient'는 '편리한', 'device'는 '기기'를 뜻합니다."
+      },
+      {
+        "id": 22,
+        "situation": "응, 그게 내 일을 훨씬 더 쉽게 만들어 줘.",
+        "answer": "Yes, it makes my work much easier.",
+        "note": "'make + 목적어 + 형용사'는 '~을 ~하게 만들다'는 표현입니다. 'much'는 비교급 앞에서 '훨씬'을 뜻합니다. 'easier'는 'easy'의 비교급입니다."
+      },
+      {
+        "id": 23,
+        "situation": "두 폰 모두 장점이 있어. 그냥 네가 무엇을 필요로 하느냐에 달린 거야.",
+        "answer": "Both phones have good points. It just depends on what you need.",
+        "note": "'both'는 '둘 다의'라는 형용사입니다. 'depend on'은 '~에 달려 있다'는 표현입니다. 'what you need'는 '네가 필요한 것'이라는 간접의문문입니다."
+      },
+      {
+        "id": 24,
+        "situation": "네 말이 맞아. 우리 둘 다 우리에게 완벽한 휴대폰을 가지고 있네.",
+        "answer": "You're right. We both have the perfect phone for us.",
+        "note": "'You're right.'는 상대방의 말이 맞을 때 쓰는 표현으로 '네 말이 맞아'의 뜻입니다. 'perfect'는 '완벽한'이라는 형용사입니다. 'both'는 '둘 다'를 뜻합니다."
+      }
+    ]
   }
 ]
