@@ -8,145 +8,385 @@
         "id": 1,
         "situation": "안녕, 마크. 이번 주말에 뭐 해?",
         "answer": "Hi, Mark. What are you doing this weekend?",
-        "note": "현재진행형(be + ~ing)으로 가까운 미래의 계획을 물어볼 수 있습니다."
+        "note": "현재진행형(be + ~ing)으로 가까운 미래의 계획을 물어볼 수 있습니다.",
+        "examples": [
+          {
+            "situation": "안녕, 지나. 오늘 저녁에 뭐 해?",
+            "answer": "Hi, Jina. What are you doing this evening?"
+          },
+          {
+            "situation": "안녕, 톰. 내일 오후에 뭐 해?",
+            "answer": "Hi, Tom. What are you doing tomorrow afternoon?"
+          }
+        ]
       },
       {
         "id": 2,
         "situation": "안녕, 세라. 체육관에 갈 거야. 나는 수영을 정말 좋아하거든.",
         "answer": "Hi, Sarah. I'm going to the gym. I love swimming.",
-        "note": "'be going to'는 이미 계획된 미래를 말할 때 씁니다. 'love'는 'like'보다 강한 좋아함을 나타냅니다."
+        "note": "'be going to'는 이미 계획된 미래를 말할 때 씁니다. 'love'는 'like'보다 강한 좋아함을 나타냅니다.",
+        "examples": [
+          {
+            "situation": "이번 주말에 나는 제주도에 갈 거야. 나는 여행을 정말 좋아하거든.",
+            "answer": "This weekend, I'm going to Jeju Island. I love traveling."
+          },
+          {
+            "situation": "내일 나는 서점에 갈 거야. 나는 책 읽는 걸 정말 좋아하거든.",
+            "answer": "Tomorrow, I'm going to the bookstore. I love reading books."
+          }
+        ]
       },
       {
         "id": 3,
         "situation": "아, 정말? 수영하러 얼마나 자주 가?",
         "answer": "Oh, really? How often do you go swimming?",
-        "note": "'How often'은 빈도를 물어볼 때 씁니다. 'go + ~ing'는 활동을 하러 가다는 표현입니다."
+        "note": "'How often'은 빈도를 물어볼 때 씁니다. 'go + ~ing'는 활동을 하러 가다는 표현입니다.",
+        "examples": [
+          {
+            "situation": "와, 정말? 쇼핑하러 얼마나 자주 가?",
+            "answer": "Wow, really? How often do you go shopping?"
+          },
+          {
+            "situation": "오, 정말? 하이킹하러 얼마나 자주 가?",
+            "answer": "Oh, really? How often do you go hiking?"
+          }
+        ]
       },
       {
         "id": 4,
         "situation": "나는 보통 일주일에 세 번 수영해. 아주 좋은 운동이야.",
         "answer": "I usually swim three times a week. It's a great workout.",
-        "note": "'usually'는 빈도부사로 일반적인 습관을 표현합니다. 'three times a week'는 일주일에 세 번을 뜻합니다."
+        "note": "'usually'는 빈도부사로 일반적인 습관을 표현합니다. 'three times a week'는 일주일에 세 번을 뜻합니다.",
+        "examples": [
+          {
+            "situation": "나는 보통 일주일에 두 번 요가를 해. 스트레스 해소에 좋아.",
+            "answer": "I usually do yoga twice a week. It's great for stress relief."
+          },
+          {
+            "situation": "나는 보통 한 달에 한 번 미용실에 가. 습관이 됐어.",
+            "answer": "I usually go to the hair salon once a month. It's become a habit."
+          }
+        ]
       },
       {
         "id": 5,
         "situation": "멋지다. 수영장이 네 집 근처에 있어?",
         "answer": "That sounds wonderful. Is the swimming pool near your house?",
-        "note": "'That sounds + 형용사'는 상대방의 말에 반응할 때 쓰는 표현으로 '~하게 들리다'의 뜻입니다."
+        "note": "'That sounds + 형용사'는 상대방의 말에 반응할 때 쓰는 표현으로 '~하게 들리다'의 뜻입니다.",
+        "examples": [
+          {
+            "situation": "재미있겠다. 그 레스토랑 음식은 어때?",
+            "answer": "That sounds fun. How is the food at that restaurant?"
+          },
+          {
+            "situation": "피곤하겠다. 괜찮아?",
+            "answer": "That sounds tiring. Are you okay?"
+          }
+        ]
       },
       {
         "id": 6,
         "situation": "응, 그래. 버스로 10분밖에 안 걸려.",
         "answer": "Yes, it is. It only takes ten minutes by bus.",
-        "note": "'It takes + 시간'은 시간이 걸린다는 표현입니다. 'only'를 붙여 짧음을 강조합니다."
+        "note": "'It takes + 시간'은 시간이 걸린다는 표현입니다. 'only'를 붙여 짧음을 강조합니다.",
+        "examples": [
+          {
+            "situation": "걸어서 5분밖에 안 걸려. 아주 가까워.",
+            "answer": "It only takes five minutes on foot. It's very close."
+          },
+          {
+            "situation": "지하철로 20분밖에 안 걸려. 생각보다 빠르지?",
+            "answer": "It only takes twenty minutes by subway. Faster than you think, right?"
+          }
+        ]
       },
       {
         "id": 7,
         "situation": "아주 편리하네. 나도 수영하는 법을 배우고 싶어.",
         "answer": "That's very convenient. I want to learn how to swim too.",
-        "note": "'learn how to + 동사원형'은 '~하는 방법을 배우다'는 뜻입니다. 'too'는 문장 끝에 붙어 '~도'를 나타냅니다."
+        "note": "'learn how to + 동사원형'은 '~하는 방법을 배우다'는 뜻입니다. 'too'는 문장 끝에 붙어 '~도'를 나타냅니다.",
+        "examples": [
+          {
+            "situation": "나는 요리하는 법을 배우고 싶어. 직접 밥을 만들어 먹고 싶거든.",
+            "answer": "I want to learn how to cook. I want to make my own meals."
+          },
+          {
+            "situation": "나도 사진 찍는 법을 배우고 싶어. 카메라가 있거든.",
+            "answer": "I want to learn how to take photos too. I have a camera."
+          }
+        ]
       },
       {
         "id": 8,
         "situation": "꼭 해봐. 수영은 건강에 아주 좋아.",
         "answer": "You should. Swimming is great for your health.",
-        "note": "'You should'는 상대방에게 권유하거나 추천할 때 씁니다. 'be great for'는 '~에 좋다'는 표현입니다."
+        "note": "'You should'는 상대방에게 권유하거나 추천할 때 씁니다. 'be great for'는 '~에 좋다'는 표현입니다.",
+        "examples": [
+          {
+            "situation": "그 카페 꼭 가봐. 거기 케이크는 디저트로 아주 좋아.",
+            "answer": "You should visit that cafe. Their cake is great for dessert."
+          },
+          {
+            "situation": "그 영화 꼭 봐. 스트레스 해소에 아주 좋아.",
+            "answer": "You should watch that movie. It's great for relieving stress."
+          }
+        ]
       },
       {
         "id": 9,
         "situation": "하지만 나는 물을 조금 무서워해. 초보자에게는 어렵니?",
         "answer": "But I'm a little afraid of water. Is it hard for beginners?",
-        "note": "'be afraid of + 명사'는 '~을 두려워하다'는 표현입니다. 'hard for + 사람'은 '~에게 어렵다'는 뜻입니다."
+        "note": "'be afraid of + 명사'는 '~을 두려워하다'는 표현입니다. 'hard for + 사람'은 '~에게 어렵다'는 뜻입니다.",
+        "examples": [
+          {
+            "situation": "나는 높은 곳을 조금 무서워해. 롤러코스터가 어린이에게는 무섭지 않아?",
+            "answer": "I'm a little afraid of heights. Isn't the roller coaster scary for children?"
+          },
+          {
+            "situation": "나는 발표를 조금 무서워해. 외국어로 말하는 게 어른들에게도 어려운 거야?",
+            "answer": "I'm a little afraid of presentations. Is speaking in a foreign language hard for adults too?"
+          }
+        ]
       },
       {
         "id": 10,
         "situation": "전혀 안 그래. 체육관에 있는 코치님들이 정말 친절하셔.",
         "answer": "Not at all. The coaches at the gym are really friendly.",
-        "note": "'Not at all'은 상대방의 걱정을 완전히 부정할 때 씁니다. '전혀 그렇지 않다'는 뜻입니다."
+        "note": "'Not at all'은 상대방의 걱정을 완전히 부정할 때 씁니다. '전혀 그렇지 않다'는 뜻입니다.",
+        "examples": [
+          {
+            "situation": "전혀 귀찮지 않아. 언제든지 질문해도 돼.",
+            "answer": "Not at all. You can ask me questions anytime."
+          },
+          {
+            "situation": "전혀 비싸지 않아. 그 식당은 정말 저렴해.",
+            "answer": "Not at all. That restaurant is really affordable."
+          }
+        ]
       },
       {
         "id": 11,
         "situation": "다행이다. 어쩌면 다음 달에 해볼 수도 있겠어.",
         "answer": "That's good to hear. Maybe I can try it next month.",
-        "note": "'good to hear'는 '듣기 좋은 소식이다, 다행이다'는 표현입니다. 'maybe'는 가능성을 나타냅니다."
+        "note": "'good to hear'는 '듣기 좋은 소식이다, 다행이다'는 표현입니다. 'maybe'는 가능성을 나타냅니다.",
+        "examples": [
+          {
+            "situation": "다행이다. 어쩌면 이번 주말에 같이 갈 수도 있겠어.",
+            "answer": "That's good to hear. Maybe we can go together this weekend."
+          },
+          {
+            "situation": "다행이다. 어쩌면 내년 여름에 해외여행을 갈 수도 있겠어.",
+            "answer": "That's good to hear. Maybe I can travel abroad next summer."
+          }
+        ]
       },
       {
         "id": 12,
         "situation": "잘됐다. 그나저나, 너는 무슨 스포츠를 좋아해?",
         "answer": "Great. By the way, what sports do you like?",
-        "note": "'By the way'는 화제를 바꿀 때 쓰는 표현으로 '그나저나, 그런데'의 뜻입니다."
+        "note": "'By the way'는 화제를 바꿀 때 쓰는 표현으로 '그나저나, 그런데'의 뜻입니다.",
+        "examples": [
+          {
+            "situation": "알겠어. 그나저나, 오늘 점심 먹었어?",
+            "answer": "Got it. By the way, did you have lunch today?"
+          },
+          {
+            "situation": "좋아. 그나저나, 새 직장은 어때?",
+            "answer": "Great. By the way, how is your new job?"
+          }
+        ]
       },
       {
         "id": 13,
         "situation": "나는 테니스를 정말 좋아해. 친구들이랑 테니스를 쳐.",
         "answer": "I really like tennis. I play tennis with my friends.",
-        "note": "스포츠를 '하다'고 할 때 'play'를 씁니다. play tennis / play basketball처럼 씁니다."
+        "note": "스포츠를 '하다'고 할 때 'play'를 씁니다. play tennis / play basketball처럼 씁니다.",
+        "examples": [
+          {
+            "situation": "나는 축구를 정말 좋아해. 주말마다 형이랑 축구를 해.",
+            "answer": "I really like soccer. I play soccer with my brother every weekend."
+          },
+          {
+            "situation": "나는 배드민턴을 정말 좋아해. 가족들이랑 배드민턴을 쳐.",
+            "answer": "I really like badminton. I play badminton with my family."
+          }
+        ]
       },
       {
         "id": 14,
         "situation": "와, 테니스 재미있겠다. 테니스 친 지는 얼마나 됐어?",
         "answer": "Wow, tennis sounds exciting. How long have you been playing?",
-        "note": "'How long have you been + ~ing'는 과거부터 현재까지 계속된 동작의 기간을 물어볼 때 씁니다."
+        "note": "'How long have you been + ~ing'는 과거부터 현재까지 계속된 동작의 기간을 물어볼 때 씁니다.",
+        "examples": [
+          {
+            "situation": "와, 그 회사에서 일한 지는 얼마나 됐어?",
+            "answer": "Wow, how long have you been working at that company?"
+          },
+          {
+            "situation": "오, 한국어를 배운 지는 얼마나 됐어?",
+            "answer": "Oh, how long have you been learning Korean?"
+          }
+        ]
       },
       {
         "id": 15,
         "situation": "작년에 테니스를 배우기 시작했어. 정말 재미있어.",
         "answer": "I started learning tennis last year. It's really fun.",
-        "note": "'start + ~ing'는 '~하기 시작하다'는 표현입니다. 'last year'는 작년을 뜻합니다."
+        "note": "'start + ~ing'는 '~하기 시작하다'는 표현입니다. 'last year'는 작년을 뜻합니다.",
+        "examples": [
+          {
+            "situation": "작년에 기타를 배우기 시작했어. 정말 보람 있어.",
+            "answer": "I started learning guitar last year. It's really rewarding."
+          },
+          {
+            "situation": "3개월 전에 달리기를 시작했어. 몸이 훨씬 좋아졌어.",
+            "answer": "I started running three months ago. I feel much better now."
+          }
+        ]
       },
       {
         "id": 16,
         "situation": "보통 어디서 테니스를 치니?",
         "answer": "Where do you usually play tennis?",
-        "note": "'Where do you usually + 동사원형'은 장소와 빈도를 함께 묻는 표현입니다."
+        "note": "'Where do you usually + 동사원형'은 장소와 빈도를 함께 묻는 표현입니다.",
+        "examples": [
+          {
+            "situation": "보통 어디서 점심을 먹어?",
+            "answer": "Where do you usually eat lunch?"
+          },
+          {
+            "situation": "보통 어디서 공부해?",
+            "answer": "Where do you usually study?"
+          }
+        ]
       },
       {
         "id": 17,
         "situation": "우리는 보통 공원 근처에 있는 야외 코트에서 쳐.",
         "answer": "We usually play at the outdoor courts near the park.",
-        "note": "'near'는 '~ 근처에'라는 전치사입니다. 'at + 장소'는 특정 장소에서 활동할 때 씁니다."
+        "note": "'near'는 '~ 근처에'라는 전치사입니다. 'at + 장소'는 특정 장소에서 활동할 때 씁니다.",
+        "examples": [
+          {
+            "situation": "나는 주로 학교 근처에 있는 도서관에서 공부해.",
+            "answer": "I usually study at the library near my school."
+          },
+          {
+            "situation": "우리 가족은 집 근처에 있는 식당에서 외식해.",
+            "answer": "My family usually dines out at the restaurant near our house."
+          }
+        ]
       },
       {
         "id": 18,
         "situation": "좋네. 테니스는 달리기를 많이 해야 하지, 맞지?",
         "answer": "That's nice. You have to run a lot in tennis, right?",
-        "note": "'have to + 동사원형'은 '~해야 한다'는 의무를 나타냅니다. 'right?'는 동의를 구하는 부가 표현입니다."
+        "note": "'have to + 동사원형'은 '~해야 한다'는 의무를 나타냅니다. 'right?'는 동의를 구하는 부가 표현입니다.",
+        "examples": [
+          {
+            "situation": "직장에 갈 때는 정장을 입어야 하지, 맞지?",
+            "answer": "You have to wear formal clothes to work, right?"
+          },
+          {
+            "situation": "비행기를 탈 때는 일찍 공항에 도착해야 하지, 맞지?",
+            "answer": "You have to arrive at the airport early when taking a flight, right?"
+          }
+        ]
       },
       {
         "id": 19,
         "situation": "응, 힘든 운동이야. 경기를 할 때 항상 땀을 많이 흘려.",
         "answer": "Yes, it's a tough workout. I always sweat a lot when I play.",
-        "note": "'sweat a lot'은 '땀을 많이 흘리다'는 표현입니다. 'when I play'처럼 when절로 상황을 설명합니다."
+        "note": "'sweat a lot'은 '땀을 많이 흘리다'는 표현입니다. 'when I play'처럼 when절로 상황을 설명합니다.",
+        "examples": [
+          {
+            "situation": "나는 발표할 때 항상 긴장을 많이 해.",
+            "answer": "I always get very nervous when I give a presentation."
+          },
+          {
+            "situation": "나는 매운 음식을 먹을 때 항상 땀을 많이 흘려.",
+            "answer": "I always sweat a lot when I eat spicy food."
+          }
+        ]
       },
       {
         "id": 20,
         "situation": "상상이 가네. 건강을 유지하는 데 확실히 도움이 되겠다.",
         "answer": "I can imagine. It must be good for staying active.",
-        "note": "'I can imagine'은 공감할 때 쓰는 표현입니다. 'stay active'는 '활동적인 상태를 유지하다'는 뜻입니다."
+        "note": "'I can imagine'은 공감할 때 쓰는 표현입니다. 'stay active'는 '활동적인 상태를 유지하다'는 뜻입니다.",
+        "examples": [
+          {
+            "situation": "상상이 가네. 혼자 사는 게 얼마나 힘들지.",
+            "answer": "I can imagine. Living alone must be very challenging."
+          },
+          {
+            "situation": "상상이 가네. 세계 여행을 하면 정말 신나겠다.",
+            "answer": "I can imagine. Traveling around the world must be so exciting."
+          }
+        ]
       },
       {
         "id": 21,
         "situation": "정말 그래. 마크, 너는 테니스 칠 줄 알아?",
         "answer": "It really is. Do you know how to play tennis, Mark?",
-        "note": "'know how to + 동사원형'은 '~할 줄 알다, ~하는 방법을 알다'는 표현입니다."
+        "note": "'know how to + 동사원형'은 '~할 줄 알다, ~하는 방법을 알다'는 표현입니다.",
+        "examples": [
+          {
+            "situation": "너는 자전거 탈 줄 알아?",
+            "answer": "Do you know how to ride a bike?"
+          },
+          {
+            "situation": "너는 스페인어로 말할 줄 알아?",
+            "answer": "Do you know how to speak Spanish?"
+          }
+        ]
       },
       {
         "id": 22,
         "situation": "규칙은 알지만, 별로 잘하지는 못해.",
         "answer": "I know the rules, but I'm not very good at it.",
-        "note": "'be good at + 명사/동명사'는 '~을 잘하다'는 표현입니다. 'not very good at'은 '별로 잘하지 못하다'는 뜻입니다."
+        "note": "'be good at + 명사/동명사'는 '~을 잘하다'는 표현입니다. 'not very good at'은 '별로 잘하지 못하다'는 뜻입니다.",
+        "examples": [
+          {
+            "situation": "나는 요리를 좋아하지만, 별로 잘하지는 못해.",
+            "answer": "I like cooking, but I'm not very good at it."
+          },
+          {
+            "situation": "나는 그림 그리기에 별로 소질이 없어. 하지만 계속 연습 중이야.",
+            "answer": "I'm not very good at drawing. But I keep practicing."
+          }
+        ]
       },
       {
         "id": 23,
         "situation": "언제 한번 같이 연습하면 돼. 내가 도와줄 수 있어.",
         "answer": "We can practice together sometime. I can help you.",
-        "note": "'sometime'은 '언제 한번, 조만간'이라는 뜻입니다. 'can'은 가능성이나 제안을 나타냅니다."
+        "note": "'sometime'은 '언제 한번, 조만간'이라는 뜻입니다. 'can'은 가능성이나 제안을 나타냅니다.",
+        "examples": [
+          {
+            "situation": "언제 한번 같이 저녁 먹자. 내가 맛있는 곳 알아.",
+            "answer": "We can have dinner together sometime. I know a good place."
+          },
+          {
+            "situation": "언제 한번 같이 그 영화 보러 가자. 정말 재미있대.",
+            "answer": "We can watch that movie together sometime. I heard it's really good."
+          }
+        ]
       },
       {
         "id": 24,
         "situation": "좋은 생각이야. 고마워, 세라.",
         "answer": "That sounds like a plan. Thanks, Sarah.",
-        "note": "'That sounds like a plan'은 상대방의 제안에 동의할 때 쓰는 관용 표현으로 '좋은 생각이야, 그렇게 하자'는 뜻입니다."
+        "note": "'That sounds like a plan'은 상대방의 제안에 동의할 때 쓰는 관용 표현으로 '좋은 생각이야, 그렇게 하자'는 뜻입니다.",
+        "examples": [
+          {
+            "situation": "좋아, 그렇게 하자! 다음 주 토요일에 만나.",
+            "answer": "That sounds like a plan! See you next Saturday."
+          },
+          {
+            "situation": "좋은 생각이야. 그럼 오후 2시에 카페에서 만나자.",
+            "answer": "That sounds like a plan. Let's meet at the cafe at 2 p.m."
+          }
+        ]
       }
     ]
   },
@@ -159,151 +399,401 @@
         "id": 1,
         "situation": "대한민국 전역에서 봄 축제가 열리고 있습니다.",
         "answer": "Spring festivals are taking place across South Korea.",
-        "note": "'take place'는 '열리다, 개최되다'는 표현입니다. 'across'는 '~ 전역에'라는 뜻으로, 넓은 범위를 나타냅니다."
+        "note": "'take place'는 '열리다, 개최되다'는 표현입니다. 'across'는 '~ 전역에'라는 뜻으로, 넓은 범위를 나타냅니다.",
+        "examples": [
+          {
+            "situation": "전국 곳곳에서 마라톤 대회가 열리고 있습니다.",
+            "answer": "Marathon races are taking place across the country."
+          },
+          {
+            "situation": "유럽 전역에서 환경 캠페인이 진행되고 있습니다.",
+            "answer": "Environmental campaigns are taking place across Europe."
+          }
+        ]
       },
       {
         "id": 2,
         "situation": "사람들은 따뜻한 날씨와 봄꽃을 즐기러 밖으로 향하고 있습니다.",
         "answer": "People are heading out to enjoy the warm weather and spring flowers.",
-        "note": "'head out'은 '밖으로 나가다, 향하다'는 뜻입니다. 'to enjoy'는 목적을 나타내는 to부정사입니다."
+        "note": "'head out'은 '밖으로 나가다, 향하다'는 뜻입니다. 'to enjoy'는 목적을 나타내는 to부정사입니다.",
+        "examples": [
+          {
+            "situation": "관광객들은 야경을 즐기러 거리로 향하고 있습니다.",
+            "answer": "Tourists are heading out to enjoy the night view."
+          },
+          {
+            "situation": "학생들은 신선한 공기를 마시러 공원으로 향하고 있습니다.",
+            "answer": "Students are heading out to enjoy the fresh air in the park."
+          }
+        ]
       },
       {
         "id": 3,
         "situation": "서울은 강변에서 대규모 벚꽃 축제가 열리고 있습니다.",
         "answer": "In Seoul, a large cherry blossom festival is taking place by the river.",
-        "note": "'cherry blossom'은 '벚꽃'을 뜻합니다. 'by the river'는 '강변에서'라는 표현입니다. 'large'는 '크고 대규모의'를 의미합니다."
+        "note": "'cherry blossom'은 '벚꽃'을 뜻합니다. 'by the river'는 '강변에서'라는 표현입니다. 'large'는 '크고 대규모의'를 의미합니다.",
+        "examples": [
+          {
+            "situation": "교토에서는 강변에서 불꽃놀이 행사가 열리고 있습니다.",
+            "answer": "In Kyoto, a large fireworks event is taking place by the river."
+          },
+          {
+            "situation": "런던에서는 템스강변에서 대규모 음악 축제가 열리고 있습니다.",
+            "answer": "In London, a large music festival is taking place by the river."
+          }
+        ]
       },
       {
         "id": 4,
         "situation": "많은 방문객이 분홍색과 흰색 꽃 아래를 걷습니다.",
         "answer": "Many visitors walk under the pink and white blossoms.",
-        "note": "'visitor'는 '방문객'이라는 뜻입니다. 'under'는 '~ 아래에'라는 전치사입니다. 'blossom'은 나무에 핀 꽃을 뜻합니다."
+        "note": "'visitor'는 '방문객'이라는 뜻입니다. 'under'는 '~ 아래에'라는 전치사입니다. 'blossom'은 나무에 핀 꽃을 뜻합니다.",
+        "examples": [
+          {
+            "situation": "많은 방문객이 고대 아치 아래를 걸으며 사진을 찍습니다.",
+            "answer": "Many visitors walk under the ancient arch and take photos."
+          },
+          {
+            "situation": "아이들이 화려한 풍선 아래를 걸으며 즐거워합니다.",
+            "answer": "Children walk under the colorful balloons and have fun."
+          }
+        ]
       },
       {
         "id": 5,
         "situation": "그들은 사진을 찍고 길거리 음식을 먹어봅니다.",
         "answer": "They take photos and try street food.",
-        "note": "'take photos'는 '사진을 찍다'는 표현입니다. 'try'는 '시도하다, 먹어보다'의 뜻으로 음식을 처음 맛볼 때 씁니다."
+        "note": "'take photos'는 '사진을 찍다'는 표현입니다. 'try'는 '시도하다, 먹어보다'의 뜻으로 음식을 처음 맛볼 때 씁니다.",
+        "examples": [
+          {
+            "situation": "관광객들은 기념품을 사고 현지 디저트를 먹어봅니다.",
+            "answer": "Tourists buy souvenirs and try local desserts."
+          },
+          {
+            "situation": "우리는 야시장에서 사진을 찍고 다양한 요리를 먹어봤습니다.",
+            "answer": "We took photos and tried various dishes at the night market."
+          }
+        ]
       },
       {
         "id": 6,
         "situation": "대전에서는 과학 테마 공원이 봄꽃 행사를 주최하고 있습니다.",
         "answer": "In Daejeon, a science park is hosting a spring flower event.",
-        "note": "'host'는 '주최하다'는 동사입니다. 현재진행형 'is hosting'으로 지금 진행 중인 행사를 나타냅니다."
+        "note": "'host'는 '주최하다'는 동사입니다. 현재진행형 'is hosting'으로 지금 진행 중인 행사를 나타냅니다.",
+        "examples": [
+          {
+            "situation": "인천에서는 공항 전시관이 항공 문화 행사를 주최하고 있습니다.",
+            "answer": "In Incheon, an airport gallery is hosting an aviation culture event."
+          },
+          {
+            "situation": "파리에서는 박물관이 현대 미술 전시회를 주최하고 있습니다.",
+            "answer": "In Paris, a museum is hosting a contemporary art exhibition."
+          }
+        ]
       },
       {
         "id": 7,
         "situation": "가족들이 꽃을 보고 과학에 대해 배우러 옵니다.",
         "answer": "Families come to see flowers and learn about science.",
-        "note": "'come to + 동사원형'은 '~하러 오다'는 목적을 나타냅니다. 'learn about'은 '~에 대해 배우다'는 표현입니다."
+        "note": "'come to + 동사원형'은 '~하러 오다'는 목적을 나타냅니다. 'learn about'은 '~에 대해 배우다'는 표현입니다.",
+        "examples": [
+          {
+            "situation": "학생들이 역사를 배우러 박물관에 옵니다.",
+            "answer": "Students come to visit the museum and learn about history."
+          },
+          {
+            "situation": "많은 사람들이 전통문화에 대해 배우러 민속촌에 옵니다.",
+            "answer": "Many people come to learn about traditional culture at the folk village."
+          }
+        ]
       },
       {
         "id": 8,
         "situation": "어린이들은 재미있는 게임과 공연에 참여합니다.",
         "answer": "Children join in fun games and performances.",
-        "note": "'join in'은 '~에 참여하다'는 표현입니다. 'performance'는 '공연'을 뜻하며 복수형으로 쓰였습니다."
+        "note": "'join in'은 '~에 참여하다'는 표현입니다. 'performance'는 '공연'을 뜻하며 복수형으로 쓰였습니다.",
+        "examples": [
+          {
+            "situation": "주민들이 지역 퍼레이드와 행진에 참여합니다.",
+            "answer": "Residents join in the local parade and march."
+          },
+          {
+            "situation": "관람객들이 댄스 공연에 참여해 함께 춤을 춥니다.",
+            "answer": "Audience members join in the dance performances and dance together."
+          }
+        ]
       },
       {
         "id": 9,
         "situation": "대구에서는 대형 공원에서 꽃 축제가 열리고 있습니다.",
         "answer": "In Daegu, a flower festival is being held in a large park.",
-        "note": "'be held'는 '열리다, 개최되다'는 수동태 표현입니다. 'is being held'는 현재진행형 수동태로 지금 개최 중임을 나타냅니다."
+        "note": "'be held'는 '열리다, 개최되다'는 수동태 표현입니다. 'is being held'는 현재진행형 수동태로 지금 개최 중임을 나타냅니다.",
+        "examples": [
+          {
+            "situation": "광주에서는 대형 전시관에서 비엔날레가 열리고 있습니다.",
+            "answer": "In Gwangju, a biennale is being held in a large exhibition hall."
+          },
+          {
+            "situation": "도쿄에서는 국립 경기장에서 국제 스포츠 대회가 열리고 있습니다.",
+            "answer": "In Tokyo, an international sports competition is being held in the national stadium."
+          }
+        ]
       },
       {
         "id": 10,
         "situation": "밝은 색의 튤립과 장미가 그 지역을 가득 채우고 있습니다.",
         "answer": "Bright tulips and roses fill the area.",
-        "note": "'fill'은 '채우다'는 동사입니다. 'bright'는 '밝은'이라는 형용사로 선명하고 생생한 색을 나타냅니다."
+        "note": "'fill'은 '채우다'는 동사입니다. 'bright'는 '밝은'이라는 형용사로 선명하고 생생한 색을 나타냅니다.",
+        "examples": [
+          {
+            "situation": "밝은 조명과 장식들이 광장을 가득 채우고 있습니다.",
+            "answer": "Bright lights and decorations fill the plaza."
+          },
+          {
+            "situation": "형형색색의 연들이 하늘을 가득 채우고 있습니다.",
+            "answer": "Bright kites of all colors fill the sky."
+          }
+        ]
       },
       {
         "id": 11,
         "situation": "지역 밴드들이 오후에 음악을 연주합니다.",
         "answer": "Local bands play music in the afternoon.",
-        "note": "'local'은 '지역의'라는 형용사입니다. 'play music'은 '음악을 연주하다'는 표현입니다. 'in the afternoon'은 '오후에'를 뜻합니다."
+        "note": "'local'은 '지역의'라는 형용사입니다. 'play music'은 '음악을 연주하다'는 표현입니다. 'in the afternoon'은 '오후에'를 뜻합니다.",
+        "examples": [
+          {
+            "situation": "지역 농부들이 오전에 시장에서 채소를 판매합니다.",
+            "answer": "Local farmers sell vegetables at the market in the morning."
+          },
+          {
+            "situation": "지역 예술가들이 오후에 광장에서 그림을 전시합니다.",
+            "answer": "Local artists display paintings in the plaza in the afternoon."
+          }
+        ]
       },
       {
         "id": 12,
         "situation": "부산에서는 해변 축제가 봄철의 시작을 알립니다.",
         "answer": "In Busan, a beach festival marks the start of the spring season.",
-        "note": "'mark'는 '표시하다, 알리다'는 뜻입니다. 'the start of ~'는 '~의 시작'이라는 표현입니다."
+        "note": "'mark'는 '표시하다, 알리다'는 뜻입니다. 'the start of ~'는 '~의 시작'이라는 표현입니다.",
+        "examples": [
+          {
+            "situation": "새해 카운트다운 행사가 새로운 해의 시작을 알립니다.",
+            "answer": "The New Year's countdown event marks the start of a new year."
+          },
+          {
+            "situation": "개막식 공연이 국제 영화제의 시작을 알립니다.",
+            "answer": "The opening performance marks the start of the international film festival."
+          }
+        ]
       },
       {
         "id": 13,
         "situation": "사람들은 해안을 따라 걸으며 바다를 구경합니다.",
         "answer": "People walk along the shore and watch the sea.",
-        "note": "'along'은 '~을 따라'라는 전치사입니다. 'shore'는 '해안, 물가'를 뜻합니다. 'watch'는 '(움직이는 것을) 보다'는 뜻입니다."
+        "note": "'along'은 '~을 따라'라는 전치사입니다. 'shore'는 '해안, 물가'를 뜻합니다. 'watch'는 '(움직이는 것을) 보다'는 뜻입니다.",
+        "examples": [
+          {
+            "situation": "관광객들은 강을 따라 걸으며 오가는 배들을 구경합니다.",
+            "answer": "Tourists walk along the river and watch the passing boats."
+          },
+          {
+            "situation": "주민들은 산책로를 따라 걸으며 석양을 구경합니다.",
+            "answer": "Residents walk along the path and watch the sunset."
+          }
+        ]
       },
       {
         "id": 14,
         "situation": "푸드 트럭들이 간식과 음료를 제공합니다.",
         "answer": "Food trucks serve snacks and drinks.",
-        "note": "'serve'는 '제공하다, 차려내다'는 동사입니다. 'snack'은 '간식', 'drink'는 '음료'를 뜻합니다."
+        "note": "'serve'는 '제공하다, 차려내다'는 동사입니다. 'snack'은 '간식', 'drink'는 '음료'를 뜻합니다.",
+        "examples": [
+          {
+            "situation": "자원봉사자들이 행사장에서 물과 간식을 제공합니다.",
+            "answer": "Volunteers serve water and snacks at the event."
+          },
+          {
+            "situation": "카페 직원들이 손님들에게 커피와 디저트를 제공합니다.",
+            "answer": "Cafe staff serve coffee and desserts to customers."
+          }
+        ]
       },
       {
         "id": 15,
         "situation": "전주에서는 한옥 마을이 봄 축제를 주최합니다.",
         "answer": "In Jeonju, a traditional village hosts a spring fair.",
-        "note": "'traditional'은 '전통적인'이라는 형용사입니다. 'fair'는 '축제, 박람회'를 뜻하며 'festival'과 비슷한 의미로 쓰입니다."
+        "note": "'traditional'은 '전통적인'이라는 형용사입니다. 'fair'는 '축제, 박람회'를 뜻하며 'festival'과 비슷한 의미로 쓰입니다.",
+        "examples": [
+          {
+            "situation": "경주에서는 전통 사찰이 문화 박람회를 주최합니다.",
+            "answer": "In Gyeongju, a traditional temple hosts a cultural fair."
+          },
+          {
+            "situation": "에든버러에서는 전통 성이 역사 박람회를 주최합니다.",
+            "answer": "In Edinburgh, a traditional castle hosts a history fair."
+          }
+        ]
       },
       {
         "id": 16,
         "situation": "방문객들은 전통 한복을 입어보고 지역 음식을 즐길 수 있습니다.",
         "answer": "Visitors can try on traditional hanbok and enjoy local food.",
-        "note": "'try on'은 '(옷을) 입어보다'는 표현입니다. 'can + 동사원형'은 가능성이나 허가를 나타냅니다."
+        "note": "'try on'은 '(옷을) 입어보다'는 표현입니다. 'can + 동사원형'은 가능성이나 허가를 나타냅니다.",
+        "examples": [
+          {
+            "situation": "관람객들은 전시된 의상을 입어보고 기념사진을 찍을 수 있습니다.",
+            "answer": "Visitors can try on the displayed costumes and take commemorative photos."
+          },
+          {
+            "situation": "고객들은 새로운 운동화를 신어보고 사이즈를 확인할 수 있습니다.",
+            "answer": "Customers can try on new sneakers and check the size."
+          }
+        ]
       },
       {
         "id": 17,
         "situation": "그들은 또한 민속 음악과 무용 공연을 관람합니다.",
         "answer": "They also watch folk music and dance performances.",
-        "note": "'also'는 '또한'이라는 부사로 추가 정보를 더할 때 씁니다. 'folk music'은 '민속 음악'을 뜻합니다."
+        "note": "'also'는 '또한'이라는 부사로 추가 정보를 더할 때 씁니다. 'folk music'은 '민속 음악'을 뜻합니다.",
+        "examples": [
+          {
+            "situation": "관광객들은 또한 전통 무술 시범 공연을 관람합니다.",
+            "answer": "Tourists also watch traditional martial arts performances."
+          },
+          {
+            "situation": "그들은 또한 거리 예술가들의 공연을 관람하며 즐거워합니다.",
+            "answer": "They also watch performances by street artists and enjoy themselves."
+          }
+        ]
       },
       {
         "id": 18,
         "situation": "춘천에서는 호수 축제가 많은 관광객을 불러모읍니다.",
         "answer": "In Chuncheon, a lake festival brings many tourists.",
-        "note": "'bring'은 '데려오다, 불러모으다'는 뜻입니다. 'tourist'는 '관광객'을 뜻하며 'visitor'와 비슷하지만 관광 목적임을 강조합니다."
+        "note": "'bring'은 '데려오다, 불러모으다'는 뜻입니다. 'tourist'는 '관광객'을 뜻하며 'visitor'와 비슷하지만 관광 목적임을 강조합니다.",
+        "examples": [
+          {
+            "situation": "제주도에서는 해녀 문화 축제가 많은 관광객을 불러모읍니다.",
+            "answer": "In Jeju, a haenyeo culture festival brings many tourists."
+          },
+          {
+            "situation": "바르셀로나에서는 국제 음악 축제가 많은 관광객을 불러모읍니다.",
+            "answer": "In Barcelona, an international music festival brings many tourists."
+          }
+        ]
       },
       {
         "id": 19,
         "situation": "사람들은 자전거를 타고 보트를 탑니다.",
         "answer": "People ride bikes and take boat rides.",
-        "note": "'ride'는 '타다'는 동사입니다. 'take a ride'는 '(탈것을) 타다, 탑승하다'는 표현입니다. 'bike'는 '자전거'를 뜻합니다."
+        "note": "'ride'는 '타다'는 동사입니다. 'take a ride'는 '(탈것을) 타다, 탑승하다'는 표현입니다. 'bike'는 '자전거'를 뜻합니다.",
+        "examples": [
+          {
+            "situation": "아이들은 공원에서 자전거를 타고 킥보드를 탑니다.",
+            "answer": "Children ride bikes and take scooter rides in the park."
+          },
+          {
+            "situation": "관광객들은 말을 타고 마차를 탑니다.",
+            "answer": "Tourists ride horses and take carriage rides."
+          }
+        ]
       },
       {
         "id": 20,
         "situation": "그 도시는 또한 밤에 조명 쇼를 개최합니다.",
         "answer": "The city also hosts light shows at night.",
-        "note": "'at night'는 '밤에'라는 시간 표현입니다. 'light show'는 '조명 쇼'로 화려한 빛을 이용한 공연을 말합니다."
+        "note": "'at night'는 '밤에'라는 시간 표현입니다. 'light show'는 '조명 쇼'로 화려한 빛을 이용한 공연을 말합니다.",
+        "examples": [
+          {
+            "situation": "그 광장은 또한 밤에 음악 공연을 개최합니다.",
+            "answer": "The plaza also hosts music concerts at night."
+          },
+          {
+            "situation": "레스토랑들은 밤에 야외 테이블을 운영합니다.",
+            "answer": "Restaurants operate outdoor tables at night."
+          }
+        ]
       },
       {
         "id": 21,
         "situation": "이러한 행사들은 지역 상권에 도움을 줍니다.",
         "answer": "These events help local businesses.",
-        "note": "'these'는 '이들, 이러한'으로 앞서 언급된 것을 가리킵니다. 'business'는 '사업체, 상권'을 뜻합니다."
+        "note": "'these'는 '이들, 이러한'으로 앞서 언급된 것을 가리킵니다. 'business'는 '사업체, 상권'을 뜻합니다.",
+        "examples": [
+          {
+            "situation": "이러한 프로그램들은 지역 농가에 도움을 줍니다.",
+            "answer": "These programs help local farms."
+          },
+          {
+            "situation": "이러한 정책들은 중소 상공인들에게 도움을 줍니다.",
+            "answer": "These policies help local small businesses."
+          }
+        ]
       },
       {
         "id": 22,
         "situation": "호텔과 상점들은 더 많은 손님을 끌어모읍니다.",
         "answer": "Hotels and shops attract more customers.",
-        "note": "'attract'는 '끌어들이다, 매료시키다'는 동사입니다. 'customer'는 '손님, 고객'을 뜻합니다."
+        "note": "'attract'는 '끌어들이다, 매료시키다'는 동사입니다. 'customer'는 '손님, 고객'을 뜻합니다.",
+        "examples": [
+          {
+            "situation": "특별 할인 행사는 더 많은 고객을 끌어모읍니다.",
+            "answer": "Special discount events attract more customers."
+          },
+          {
+            "situation": "화려한 야간 조명이 더 많은 방문객을 끌어모읍니다.",
+            "answer": "Colorful night lighting attracts more visitors."
+          }
+        ]
       },
       {
         "id": 23,
         "situation": "이번 주 날씨는 온화하고 쾌적합니다.",
         "answer": "The weather is mild and pleasant this week.",
-        "note": "'mild'는 '온화한', 'pleasant'는 '쾌적한, 즐거운'이라는 형용사입니다. 둘 다 좋은 날씨를 표현할 때 씁니다."
+        "note": "'mild'는 '온화한', 'pleasant'는 '쾌적한, 즐거운'이라는 형용사입니다. 둘 다 좋은 날씨를 표현할 때 씁니다.",
+        "examples": [
+          {
+            "situation": "오늘 오후 날씨는 온화하고 쾌적합니다.",
+            "answer": "The weather is mild and pleasant this afternoon."
+          },
+          {
+            "situation": "축제 기간 동안 날씨가 온화하고 쾌적할 것으로 예상됩니다.",
+            "answer": "The weather is expected to be mild and pleasant during the festival."
+          }
+        ]
       },
       {
         "id": 24,
         "situation": "다음 주말에도 더 많은 축제가 계획되어 있습니다.",
         "answer": "More festivals are planned for next weekend.",
-        "note": "'be planned'는 '계획되다'는 수동태 표현입니다. 'next weekend'는 '다음 주말'을 뜻합니다."
+        "note": "'be planned'는 '계획되다'는 수동태 표현입니다. 'next weekend'는 '다음 주말'을 뜻합니다.",
+        "examples": [
+          {
+            "situation": "다음 달에도 더 많은 공연이 계획되어 있습니다.",
+            "answer": "More performances are planned for next month."
+          },
+          {
+            "situation": "내년 봄에도 다양한 문화 행사가 계획되어 있습니다.",
+            "answer": "Various cultural events are planned for next spring."
+          }
+        ]
       },
       {
         "id": 25,
         "situation": "당국은 방문객들을 위한 안전 조치가 마련되어 있다고 말합니다.",
         "answer": "Officials say safety measures are in place for visitors.",
-        "note": "'official'은 '공무원, 관계자'를 뜻합니다. 'safety measure'는 '안전 조치', 'be in place'는 '마련되어 있다'는 표현입니다."
+        "note": "'official'은 '공무원, 관계자'를 뜻합니다. 'safety measure'는 '안전 조치', 'be in place'는 '마련되어 있다'는 표현입니다.",
+        "examples": [
+          {
+            "situation": "주최 측은 참가자들을 위한 응급 처치 시스템이 마련되어 있다고 말합니다.",
+            "answer": "Organizers say emergency care systems are in place for participants."
+          },
+          {
+            "situation": "시 관계자는 행사 기간 동안 교통 통제가 마련되어 있다고 말합니다.",
+            "answer": "City officials say traffic controls are in place during the event."
+          }
+        ]
       }
     ]
   },
@@ -316,139 +806,369 @@
         "id": 1,
         "situation": "나는 대학교 때문에 큰 도시로 이사했어요.",
         "answer": "I moved to a big city for college.",
-        "note": "'move'는 '이사하다'는 동사입니다. 'for college'는 '대학교 때문에, 대학교를 위해'라는 목적을 나타냅니다."
+        "note": "'move'는 '이사하다'는 동사입니다. 'for college'는 '대학교 때문에, 대학교를 위해'라는 목적을 나타냅니다.",
+        "examples": [
+          {
+            "situation": "나는 새 직장 때문에 다른 도시로 이사했어요.",
+            "answer": "I moved to another city for a new job."
+          },
+          {
+            "situation": "그는 가족 때문에 시골로 이사했어요.",
+            "answer": "He moved to the countryside for his family."
+          }
+        ]
       },
       {
         "id": 2,
         "situation": "혼자 사는 것은 돈이 아주 많이 들어요.",
         "answer": "Living alone is very expensive.",
-        "note": "'Living alone'처럼 동명사(~ing)가 문장의 주어로 쓰일 수 있습니다. 'expensive'는 '비싼, 돈이 많이 드는'이라는 뜻입니다."
+        "note": "'Living alone'처럼 동명사(~ing)가 문장의 주어로 쓰일 수 있습니다. 'expensive'는 '비싼, 돈이 많이 드는'이라는 뜻입니다.",
+        "examples": [
+          {
+            "situation": "매일 운동하는 것은 정말 중요해요.",
+            "answer": "Exercising every day is very important."
+          },
+          {
+            "situation": "새로운 언어를 배우는 것은 시간이 많이 걸려요.",
+            "answer": "Learning a new language is very time-consuming."
+          }
+        ]
       },
       {
         "id": 3,
         "situation": "부모님께서 매달 제게 돈을 보내주셨어요.",
         "answer": "My parents sent me money every month.",
-        "note": "'send + 사람 + 물건'은 '(사람)에게 (물건)을 보내다'는 4형식 표현입니다. 'every month'는 '매달'을 뜻합니다."
+        "note": "'send + 사람 + 물건'은 '(사람)에게 (물건)을 보내다'는 4형식 표현입니다. 'every month'는 '매달'을 뜻합니다.",
+        "examples": [
+          {
+            "situation": "선생님께서 저에게 숙제를 이메일로 보내주셨어요.",
+            "answer": "My teacher sent me the homework by email."
+          },
+          {
+            "situation": "친구가 저에게 생일 선물을 보내줬어요.",
+            "answer": "My friend sent me a birthday gift."
+          }
+        ]
       },
       {
         "id": 4,
         "situation": "그 점에 대해서 마음이 조금 안 좋았어요.",
         "answer": "I felt a bit bad about that.",
-        "note": "'feel bad about'은 '~에 대해 미안하게 여기다, 마음이 불편하다'는 표현입니다. 'a bit'은 '조금'이라는 뜻입니다."
+        "note": "'feel bad about'은 '~에 대해 미안하게 여기다, 마음이 불편하다'는 표현입니다. 'a bit'은 '조금'이라는 뜻입니다.",
+        "examples": [
+          {
+            "situation": "약속을 취소한 것에 대해 마음이 조금 안 좋았어요.",
+            "answer": "I felt a bit bad about canceling the appointment."
+          },
+          {
+            "situation": "거짓말을 한 것에 대해 마음이 불편했어요.",
+            "answer": "I felt bad about telling a lie."
+          }
+        ]
       },
       {
         "id": 5,
         "situation": "제 스스로 돈을 좀 벌고 싶었어요.",
         "answer": "I wanted to earn some money of my own.",
-        "note": "'earn'은 '(돈을) 벌다'는 동사입니다. 'of one's own'은 '자신만의, 스스로의'라는 표현으로 independence를 강조합니다."
+        "note": "'earn'은 '(돈을) 벌다'는 동사입니다. 'of one's own'은 '자신만의, 스스로의'라는 표현으로 independence를 강조합니다.",
+        "examples": [
+          {
+            "situation": "저는 제 스스로 방을 갖고 싶었어요.",
+            "answer": "I wanted to have a room of my own."
+          },
+          {
+            "situation": "그녀는 자신만의 사업을 시작하고 싶었어요.",
+            "answer": "She wanted to start a business of her own."
+          }
+        ]
       },
       {
         "id": 6,
         "situation": "그래서 작은 카페에서 일자리를 구했어요.",
         "answer": "So, I got a job at a small cafe.",
-        "note": "'get a job'은 '일자리를 구하다, 취직하다'는 표현입니다. 'at + 장소'는 특정 장소에서 일할 때 씁니다."
+        "note": "'get a job'은 '일자리를 구하다, 취직하다'는 표현입니다. 'at + 장소'는 특정 장소에서 일할 때 씁니다.",
+        "examples": [
+          {
+            "situation": "졸업 후에 병원에서 일자리를 구했어요.",
+            "answer": "After graduation, I got a job at a hospital."
+          },
+          {
+            "situation": "그는 동네 서점에서 일자리를 구했어요.",
+            "answer": "He got a job at a local bookstore."
+          }
+        ]
       },
       {
         "id": 7,
         "situation": "처음에는 그 일이 단순하다고 생각했어요.",
         "answer": "At first, I thought the job was simple.",
-        "note": "'at first'는 '처음에는'이라는 표현으로, 나중에 달라지는 상황을 암시할 때 씁니다. 'simple'은 '단순한, 쉬운'을 뜻합니다."
+        "note": "'at first'는 '처음에는'이라는 표현으로, 나중에 달라지는 상황을 암시할 때 씁니다. 'simple'은 '단순한, 쉬운'을 뜻합니다.",
+        "examples": [
+          {
+            "situation": "처음에는 그 수업이 재미없다고 생각했어요.",
+            "answer": "At first, I thought the class was boring."
+          },
+          {
+            "situation": "처음에는 새 동네가 낯설게 느껴졌어요.",
+            "answer": "At first, the new neighborhood felt unfamiliar."
+          }
+        ]
       },
       {
         "id": 8,
         "situation": "그저 커피를 만들고 테이블을 닦기만 하면 됐거든요.",
         "answer": "I just had to make coffee and clean tables.",
-        "note": "'have to + 동사원형'은 '~해야 한다'는 의무를 나타냅니다. 'just'는 '그저, 단지'라는 뜻으로 단순함을 강조합니다."
+        "note": "'have to + 동사원형'은 '~해야 한다'는 의무를 나타냅니다. 'just'는 '그저, 단지'라는 뜻으로 단순함을 강조합니다.",
+        "examples": [
+          {
+            "situation": "저는 그냥 문서를 출력하기만 하면 됐어요.",
+            "answer": "I just had to print the documents."
+          },
+          {
+            "situation": "우리는 그저 시간에 맞춰 도착하기만 하면 됐어요.",
+            "answer": "We just had to arrive on time."
+          }
+        ]
       },
       {
         "id": 9,
         "situation": "하지만 현실은 꽤 달랐어요.",
         "answer": "But the reality was quite different.",
-        "note": "'but'은 앞 내용과 반대되는 내용을 이을 때 씁니다. 'quite'는 '꽤, 상당히'라는 뜻으로 정도를 강조합니다."
+        "note": "'but'은 앞 내용과 반대되는 내용을 이을 때 씁니다. 'quite'는 '꽤, 상당히'라는 뜻으로 정도를 강조합니다.",
+        "examples": [
+          {
+            "situation": "하지만 결과는 꽤 놀라웠어요.",
+            "answer": "But the result was quite surprising."
+          },
+          {
+            "situation": "하지만 그 영화는 예고편과 꽤 달랐어요.",
+            "answer": "But the movie was quite different from the trailer."
+          }
+        ]
       },
       {
         "id": 10,
         "situation": "카페는 항상 사람들로 가득 찼어요.",
         "answer": "The cafe was always full of people.",
-        "note": "'be full of'는 '~로 가득 차다'는 표현입니다. 'always'는 빈도부사로 동사 앞 또는 be동사 뒤에 위치합니다."
+        "note": "'be full of'는 '~로 가득 차다'는 표현입니다. 'always'는 빈도부사로 동사 앞 또는 be동사 뒤에 위치합니다.",
+        "examples": [
+          {
+            "situation": "그 도서관은 항상 학생들로 가득 찼어요.",
+            "answer": "The library was always full of students."
+          },
+          {
+            "situation": "그녀의 방은 책으로 가득 차 있었어요.",
+            "answer": "Her room was full of books."
+          }
+        ]
       },
       {
         "id": 11,
         "situation": "첫날에 실수를 많이 했어요.",
         "answer": "I made many mistakes on my first day.",
-        "note": "'make a mistake'는 '실수하다'는 표현입니다. 'on my first day'는 '첫날에'라는 뜻으로 'on'은 특정 날에 쓰입니다."
+        "note": "'make a mistake'는 '실수하다'는 표현입니다. 'on my first day'는 '첫날에'라는 뜻으로 'on'은 특정 날에 쓰입니다.",
+        "examples": [
+          {
+            "situation": "발표 중에 실수를 몇 번 했어요.",
+            "answer": "I made a few mistakes during the presentation."
+          },
+          {
+            "situation": "시험에서 같은 실수를 반복하지 않으려고 노력했어요.",
+            "answer": "I tried not to make the same mistake on the test."
+          }
+        ]
       },
       {
         "id": 12,
         "situation": "심지어 주문을 몇 개 잊어버리기도 했어요.",
         "answer": "I even forgot some orders.",
-        "note": "'even'은 '심지어'라는 뜻으로 놀라운 사실을 강조할 때 씁니다. 'forget'의 과거형은 'forgot'입니다."
+        "note": "'even'은 '심지어'라는 뜻으로 놀라운 사실을 강조할 때 씁니다. 'forget'의 과거형은 'forgot'입니다.",
+        "examples": [
+          {
+            "situation": "심지어 친구의 생일도 잊어버렸어요.",
+            "answer": "I even forgot my friend's birthday."
+          },
+          {
+            "situation": "그는 심지어 자기 열쇠도 집에 두고 왔어요.",
+            "answer": "He even forgot his keys at home."
+          }
+        ]
       },
       {
         "id": 13,
         "situation": "다리는 아프고 정신이 하나도 없었어요.",
         "answer": "My legs were sore, and I felt overwhelmed.",
-        "note": "'sore'는 '(근육 등이) 아픈'을 뜻합니다. 'overwhelmed'는 '(너무 많은 일 등으로) 어찌할 바를 모르는, 압도된'이라는 뜻입니다."
+        "note": "'sore'는 '(근육 등이) 아픈'을 뜻합니다. 'overwhelmed'는 '(너무 많은 일 등으로) 어찌할 바를 모르는, 압도된'이라는 뜻입니다.",
+        "examples": [
+          {
+            "situation": "등산 다음 날 온몸이 쑤셨어요.",
+            "answer": "My whole body was sore the day after hiking."
+          },
+          {
+            "situation": "마감이 너무 많아서 완전히 압도된 기분이었어요.",
+            "answer": "I felt overwhelmed because there were too many deadlines."
+          }
+        ]
       },
       {
         "id": 14,
         "situation": "거의 포기할 뻔했어요. 하지만 계속 나아갔고 매일 열심히 일했어요.",
         "answer": "I almost gave up. But I kept going and worked hard every day.",
-        "note": "'almost'는 '거의'라는 뜻입니다. 'give up'은 '포기하다', 'keep going'은 '계속해 나가다'는 표현입니다."
+        "note": "'almost'는 '거의'라는 뜻입니다. 'give up'은 '포기하다', 'keep going'은 '계속해 나가다'는 표현입니다.",
+        "examples": [
+          {
+            "situation": "거의 포기할 뻔했지만, 끝까지 해냈어요.",
+            "answer": "I almost gave up, but I made it to the end."
+          },
+          {
+            "situation": "힘들었지만 계속 나아가기로 결심했어요.",
+            "answer": "It was tough, but I decided to keep going."
+          }
+        ]
       },
       {
         "id": 15,
         "situation": "천천히, 저는 제 일에 훨씬 능숙해졌어요.",
         "answer": "Slowly, I became much better at my job.",
-        "note": "'become better at'은 '~을 더 잘하게 되다, ~에 더 능숙해지다'는 표현입니다. 'much'는 비교급 앞에서 '훨씬'을 뜻합니다."
+        "note": "'become better at'은 '~을 더 잘하게 되다, ~에 더 능숙해지다'는 표현입니다. 'much'는 비교급 앞에서 '훨씬'을 뜻합니다.",
+        "examples": [
+          {
+            "situation": "연습하면서 영어 말하기가 훨씬 능숙해졌어요.",
+            "answer": "I became much better at speaking English with practice."
+          },
+          {
+            "situation": "몇 주 후에는 요리하는 것이 훨씬 능숙해졌어요.",
+            "answer": "After a few weeks, I became much better at cooking."
+          }
+        ]
       },
       {
         "id": 16,
         "situation": "지난 금요일에 첫 급여를 받았어요.",
         "answer": "Last Friday, I got my first paycheck.",
-        "note": "'last + 요일/주/달'은 '지난 ~'을 뜻합니다. 'paycheck'는 '급여, 봉급'을 뜻합니다. 'get'의 과거형은 'got'입니다."
+        "note": "'last + 요일/주/달'은 '지난 ~'을 뜻합니다. 'paycheck'는 '급여, 봉급'을 뜻합니다. 'get'의 과거형은 'got'입니다.",
+        "examples": [
+          {
+            "situation": "지난 월요일에 면접을 봤어요.",
+            "answer": "Last Monday, I had a job interview."
+          },
+          {
+            "situation": "지난달에 드디어 운전면허를 땄어요.",
+            "answer": "Last month, I finally got my driver's license."
+          }
+        ]
       },
       {
         "id": 17,
         "situation": "많은 돈은 아니었어요. 하지만 제 자신이 정말 자랑스러웠어요.",
         "answer": "It wasn't much. But I felt very proud of myself.",
-        "note": "'proud of'는 '~을 자랑스러워하는'이라는 표현입니다. 'myself'는 '나 자신'을 뜻하는 재귀대명사입니다."
+        "note": "'proud of'는 '~을 자랑스러워하는'이라는 표현입니다. 'myself'는 '나 자신'을 뜻하는 재귀대명사입니다.",
+        "examples": [
+          {
+            "situation": "첫 번째 글을 완성하고 나서 스스로가 자랑스러웠어요.",
+            "answer": "I felt proud of myself after finishing my first essay."
+          },
+          {
+            "situation": "엄마는 내 성적표를 보시고 나를 자랑스러워하셨어요.",
+            "answer": "My mom was very proud of me when she saw my report card."
+          }
+        ]
       },
       {
         "id": 18,
         "situation": "돈을 버는 게 쉽지 않다는 걸 마침내 깨달았어요.",
         "answer": "I finally realized that earning money is not easy.",
-        "note": "'realize'는 '깨닫다'는 동사입니다. 'finally'는 '마침내'라는 부사입니다. 'realize + that절'로 깨달은 내용을 이어씁니다."
+        "note": "'realize'는 '깨닫다'는 동사입니다. 'finally'는 '마침내'라는 부사입니다. 'realize + that절'로 깨달은 내용을 이어씁니다.",
+        "examples": [
+          {
+            "situation": "마침내 내가 틀렸다는 걸 깨달았어요.",
+            "answer": "I finally realized that I was wrong."
+          },
+          {
+            "situation": "시간이 지나서야 그 경험이 얼마나 소중했는지 깨달았어요.",
+            "answer": "I realized that the experience was so valuable after some time."
+          }
+        ]
       },
       {
         "id": 19,
         "situation": "열심히 일하는 것의 가치를 배웠어요.",
         "answer": "I learned the value of hard work.",
-        "note": "'value'는 '가치'를 뜻합니다. 'hard work'는 '노력, 근면, 노고'를 뜻합니다. 'the value of'는 '~의 가치'라는 표현입니다."
+        "note": "'value'는 '가치'를 뜻합니다. 'hard work'는 '노력, 근면, 노고'를 뜻합니다. 'the value of'는 '~의 가치'라는 표현입니다.",
+        "examples": [
+          {
+            "situation": "시간의 가치를 일찍부터 배웠어요.",
+            "answer": "I learned the value of time from an early age."
+          },
+          {
+            "situation": "그 여행을 통해 우정의 가치를 깨달았어요.",
+            "answer": "Through that trip, I learned the value of friendship."
+          }
+        ]
       },
       {
         "id": 20,
         "situation": "부모님께 좋은 저녁 식사를 대접해 드렸어요.",
         "answer": "I bought a nice dinner for my parents.",
-        "note": "'buy + 물건 + for + 사람'은 '(사람)을 위해 (물건)을 사다'는 표현입니다. 'nice'는 '좋은, 멋진'이라는 뜻입니다."
+        "note": "'buy + 물건 + for + 사람'은 '(사람)을 위해 (물건)을 사다'는 표현입니다. 'nice'는 '좋은, 멋진'이라는 뜻입니다.",
+        "examples": [
+          {
+            "situation": "친구 생일에 케이크를 사줬어요.",
+            "answer": "I bought a cake for my friend's birthday."
+          },
+          {
+            "situation": "동생을 위해 새 교과서를 사줬어요.",
+            "answer": "I bought a new textbook for my younger sibling."
+          }
+        ]
       },
       {
         "id": 21,
         "situation": "부모님은 제가 얼마나 많이 성장했는지 보시고 매우 기뻐하셨어요.",
         "answer": "They were very happy to see how much I had grown.",
-        "note": "'happy to + 동사원형'은 '~해서 기쁜'이라는 감정의 원인을 나타냅니다. 'how much I had grown'은 간접의문문으로 '내가 얼마나 성장했는지'를 뜻합니다."
+        "note": "'happy to + 동사원형'은 '~해서 기쁜'이라는 감정의 원인을 나타냅니다. 'how much I had grown'은 간접의문문으로 '내가 얼마나 성장했는지'를 뜻합니다.",
+        "examples": [
+          {
+            "situation": "나는 친구를 다시 만나게 되어 정말 기뻤어요.",
+            "answer": "I was very happy to see my friend again."
+          },
+          {
+            "situation": "선생님은 내 실력이 얼마나 늘었는지 보시고 기뻐하셨어요.",
+            "answer": "My teacher was happy to see how much my skills had improved."
+          }
+        ]
       },
       {
         "id": 22,
         "situation": "이제 저는 진짜 어른이 된 기분이에요.",
         "answer": "Now, I feel like a real adult.",
-        "note": "'feel like + 명사'는 '~처럼 느끼다, ~가 된 기분이다'는 표현입니다. 'real'은 '진짜의, 진정한'이라는 뜻입니다."
+        "note": "'feel like + 명사'는 '~처럼 느끼다, ~가 된 기분이다'는 표현입니다. 'real'은 '진짜의, 진정한'이라는 뜻입니다.",
+        "examples": [
+          {
+            "situation": "이 드레스를 입으면 공주가 된 기분이에요.",
+            "answer": "When I wear this dress, I feel like a princess."
+          },
+          {
+            "situation": "그 칭찬을 들었을 때 전문가가 된 기분이었어요.",
+            "answer": "When I heard that compliment, I felt like a real professional."
+          }
+        ]
       },
       {
         "id": 23,
         "situation": "이 일이 진짜 사회로 나아가는 제 첫걸음이었어요.",
         "answer": "This job was my first step into the real world.",
-        "note": "'first step'은 '첫걸음, 첫 번째 단계'를 뜻합니다. 'into'는 '~ 안으로'라는 전치사입니다. 'real world'는 '실제 세상, 사회'를 뜻합니다."
+        "note": "'first step'은 '첫걸음, 첫 번째 단계'를 뜻합니다. 'into'는 '~ 안으로'라는 전치사입니다. 'real world'는 '실제 세상, 사회'를 뜻합니다.",
+        "examples": [
+          {
+            "situation": "그 인턴십이 커리어로 나아가는 제 첫걸음이었어요.",
+            "answer": "That internship was my first step into my career."
+          },
+          {
+            "situation": "이 프로젝트가 창업의 세계로 들어가는 첫걸음이었어요.",
+            "answer": "This project was my first step into the world of entrepreneurship."
+          }
+        ]
       }
     ]
   },
@@ -461,145 +1181,776 @@
         "id": 1,
         "situation": "안녕, 토마스! 그거 새 휴대폰이야?",
         "answer": "Hi, Thomas! Is that a new phone?",
-        "note": "'Is that a ~?'는 상대방이 갖고 있는 물건에 대해 물어볼 때 쓰는 표현입니다. 'new'는 '새로운'이라는 뜻입니다."
+        "note": "'Is that a ~?'는 상대방이 갖고 있는 물건에 대해 물어볼 때 쓰는 표현입니다. 'new'는 '새로운'이라는 뜻입니다.",
+        "examples": [
+          {
+            "situation": "안녕, 제시카! 그거 새 가방이야?",
+            "answer": "Hi, Jessica! Is that a new bag?"
+          },
+          {
+            "situation": "안녕, 마이클! 그거 새 노트북이야?",
+            "answer": "Hi, Michael! Is that a new laptop?"
+          }
+        ]
       },
       {
         "id": 2,
         "situation": "응, 맞아. 지난주에 새 아이폰을 샀어.",
         "answer": "Yes, it is. I bought a new iPhone last week.",
-        "note": "'Yes, it is.'는 'Is that a new phone?'에 대한 간결한 긍정 응답입니다. 'buy'의 과거형은 'bought'입니다. 'last week'는 '지난주'를 뜻합니다."
+        "note": "'Yes, it is.'는 'Is that a new phone?'에 대한 간결한 긍정 응답입니다. 'buy'의 과거형은 'bought'입니다. 'last week'는 '지난주'를 뜻합니다.",
+        "examples": [
+          {
+            "situation": "응, 맞아. 지난주에 새 운동화를 샀어.",
+            "answer": "Yes, it is. I bought new sneakers last week."
+          },
+          {
+            "situation": "응, 맞아. 지난달에 새 카메라를 샀어.",
+            "answer": "Yes, it is. I bought a new camera last month."
+          }
+        ]
       },
       {
         "id": 3,
         "situation": "오, 멋지다! 나도 아이폰을 좋아하지만, 갤럭시 폰을 더 선호해.",
         "answer": "Oh, nice! I like iPhones, but I prefer Galaxy phones.",
-        "note": "'prefer'는 '더 좋아하다, 선호하다'는 동사로 'like ~ better'와 같은 뜻입니다. 'but'은 상반되는 내용을 연결합니다."
+        "note": "'prefer'는 '더 좋아하다, 선호하다'는 동사로 'like ~ better'와 같은 뜻입니다. 'but'은 상반되는 내용을 연결합니다.",
+        "examples": [
+          {
+            "situation": "나도 커피를 좋아하지만, 녹차를 더 선호해.",
+            "answer": "I like coffee, but I prefer green tea."
+          },
+          {
+            "situation": "나도 버스를 좋아하지만, 지하철을 더 선호해.",
+            "answer": "I like buses, but I prefer the subway."
+          }
+        ]
       },
       {
         "id": 4,
         "situation": "정말? 왜 갤럭시 폰을 좋아해?",
         "answer": "Really? Why do you like Galaxy phones?",
-        "note": "'Really?'는 놀람이나 관심을 나타낼 때 씁니다. 'Why do you + 동사원형?'은 이유를 물어보는 표현입니다."
+        "note": "'Really?'는 놀람이나 관심을 나타낼 때 씁니다. 'Why do you + 동사원형?'은 이유를 물어보는 표현입니다.",
+        "examples": [
+          {
+            "situation": "정말? 왜 그 식당을 좋아해?",
+            "answer": "Really? Why do you like that restaurant?"
+          },
+          {
+            "situation": "정말? 왜 혼자 여행하는 걸 좋아해?",
+            "answer": "Really? Why do you like traveling alone?"
+          }
+        ]
       },
       {
         "id": 5,
         "situation": "나는 삼성페이 기능이 너무 좋아. 정말 편리해.",
         "answer": "I love the Samsung Pay feature. It's very convenient.",
-        "note": "'love'는 'like'보다 강한 좋아함을 나타냅니다. 'feature'는 '기능'이라는 뜻입니다. 'convenient'는 '편리한'이라는 형용사입니다."
+        "note": "'love'는 'like'보다 강한 좋아함을 나타냅니다. 'feature'는 '기능'이라는 뜻입니다. 'convenient'는 '편리한'이라는 형용사입니다.",
+        "examples": [
+          {
+            "situation": "나는 자동 번역 기능이 너무 좋아. 정말 편리해.",
+            "answer": "I love the auto-translate feature. It's very convenient."
+          },
+          {
+            "situation": "나는 이 앱의 야간 모드 기능이 너무 좋아. 눈이 편해.",
+            "answer": "I love the night mode feature of this app. It's easy on the eyes."
+          }
+        ]
       },
       {
         "id": 6,
         "situation": "그건 맞아. 내 친구들도 항상 삼성페이를 사용해.",
         "answer": "That's true. My friends use Samsung Pay all the time.",
-        "note": "'That's true.'는 상대방의 말에 동의할 때 쓰는 표현입니다. 'all the time'은 '항상, 늘'이라는 뜻의 관용표현입니다."
+        "note": "'That's true.'는 상대방의 말에 동의할 때 쓰는 표현입니다. 'all the time'은 '항상, 늘'이라는 뜻의 관용표현입니다.",
+        "examples": [
+          {
+            "situation": "그건 맞아. 우리 오빠도 항상 이어폰을 끼고 다녀.",
+            "answer": "That's true. My brother wears earphones all the time."
+          },
+          {
+            "situation": "그건 맞아. 내 동료들도 항상 그 메신저를 사용해.",
+            "answer": "That's true. My coworkers use that messenger app all the time."
+          }
+        ]
       },
       {
         "id": 7,
         "situation": "응, 지갑을 가지고 다닐 필요가 없어.",
         "answer": "Yes, I don't need to carry my wallet with me.",
-        "note": "'don't need to + 동사원형'은 '~할 필요가 없다'는 표현입니다. 'carry'는 '가지고 다니다, 휴대하다', 'wallet'은 '지갑'을 뜻합니다."
+        "note": "'don't need to + 동사원형'은 '~할 필요가 없다'는 표현입니다. 'carry'는 '가지고 다니다, 휴대하다', 'wallet'은 '지갑'을 뜻합니다.",
+        "examples": [
+          {
+            "situation": "배달 앱을 쓰면 직접 요리할 필요가 없어.",
+            "answer": "If you use a delivery app, you don't need to cook yourself."
+          },
+          {
+            "situation": "전자책이 있으면 무거운 책을 가지고 다닐 필요가 없어.",
+            "answer": "If you have an e-book, you don't need to carry heavy books with you."
+          }
+        ]
       },
       {
         "id": 8,
         "situation": "그거 좋게 들리네, 하지만 나는 아이폰 카메라가 아주 좋아.",
         "answer": "That sounds great, but I love the iPhone camera.",
-        "note": "'That sounds + 형용사'는 상대방의 말에 반응할 때 쓰는 표현으로 '~하게 들리다'의 뜻입니다. 'great'은 '아주 좋은'이라는 뜻입니다."
+        "note": "'That sounds + 형용사'는 상대방의 말에 반응할 때 쓰는 표현으로 '~하게 들리다'의 뜻입니다. 'great'은 '아주 좋은'이라는 뜻입니다.",
+        "examples": [
+          {
+            "situation": "그거 재미있겠다, 하지만 나는 혼자 여행하는 게 좋아.",
+            "answer": "That sounds fun, but I love traveling alone."
+          },
+          {
+            "situation": "그거 맛있겠다, 하지만 나는 매운 음식은 잘 못 먹어.",
+            "answer": "That sounds delicious, but I can't eat spicy food well."
+          }
+        ]
       },
       {
         "id": 9,
         "situation": "아이폰 카메라는 좋아. 색감이 아주 멋져 보여.",
         "answer": "The iPhone camera is good. The colors look great.",
-        "note": "'look + 형용사'는 '~처럼 보이다'는 표현입니다. 'color'는 '색깔, 색감'이라는 뜻입니다."
+        "note": "'look + 형용사'는 '~처럼 보이다'는 표현입니다. 'color'는 '색깔, 색감'이라는 뜻입니다.",
+        "examples": [
+          {
+            "situation": "저 케이크 진짜 맛있어 보여. 색깔도 예뻐.",
+            "answer": "That cake looks really delicious. The colors look pretty."
+          },
+          {
+            "situation": "네 새 재킷 멋져 보여. 색깔이 너한테 잘 어울려.",
+            "answer": "Your new jacket looks cool. The color looks great on you."
+          }
+        ]
       },
       {
         "id": 10,
         "situation": "맞아. 나는 소셜 미디어를 위해 사진을 많이 찍어.",
         "answer": "Exactly. I take a lot of photos for social media.",
-        "note": "'Exactly.'는 상대방의 말에 완전히 동의할 때 쓰는 표현으로 '맞아, 정확히'의 뜻입니다. 'take a photo'는 '사진을 찍다', 'a lot of'는 '많은'을 뜻합니다."
+        "note": "'Exactly.'는 상대방의 말에 완전히 동의할 때 쓰는 표현으로 '맞아, 정확히'의 뜻입니다. 'take a photo'는 '사진을 찍다', 'a lot of'는 '많은'을 뜻합니다.",
+        "examples": [
+          {
+            "situation": "맞아. 나는 여행할 때 사진을 많이 찍어.",
+            "answer": "Exactly. I take a lot of photos when I travel."
+          },
+          {
+            "situation": "맞아. 우리 엄마는 요리할 때마다 사진을 많이 찍어.",
+            "answer": "Exactly. My mom takes a lot of photos every time she cooks."
+          }
+        ]
       },
       {
         "id": 11,
         "situation": "이해해. 갤럭시 폰도 화면이 아주 좋아.",
         "answer": "I understand. Galaxy phones also have a very good screen.",
-        "note": "'I understand.'는 상대방의 말을 이해했음을 나타냅니다. 'also'는 '또한'이라는 부사입니다. 'screen'은 '화면'을 뜻합니다."
+        "note": "'I understand.'는 상대방의 말을 이해했음을 나타냅니다. 'also'는 '또한'이라는 부사입니다. 'screen'은 '화면'을 뜻합니다.",
+        "examples": [
+          {
+            "situation": "이해해. 그 노트북도 배터리가 아주 좋아.",
+            "answer": "I understand. That laptop also has a very good battery."
+          },
+          {
+            "situation": "이해해. 이 호텔도 조식이 아주 좋아.",
+            "answer": "I understand. This hotel also has a very good breakfast."
+          }
+        ]
       },
       {
         "id": 12,
         "situation": "응, 화면이 크고 선명해. 영상을 보기에 좋아.",
         "answer": "Yes, the screen is big and clear. It's good for watching videos.",
-        "note": "'clear'는 '선명한, 깨끗한'이라는 형용사입니다. 'be good for + ~ing'는 '~하기에 좋다'는 표현입니다."
+        "note": "'clear'는 '선명한, 깨끗한'이라는 형용사입니다. 'be good for + ~ing'는 '~하기에 좋다'는 표현입니다.",
+        "examples": [
+          {
+            "situation": "이 공원은 조용하고 넓어. 달리기에 좋아.",
+            "answer": "This park is quiet and wide. It's good for running."
+          },
+          {
+            "situation": "이 카페는 분위기가 밝고 조용해. 공부하기에 좋아.",
+            "answer": "This cafe is bright and quiet. It's good for studying."
+          }
+        ]
       },
       {
         "id": 13,
         "situation": "맞아. 나는 매일 휴대폰으로 영화를 많이 봐.",
         "answer": "Right. I watch a lot of movies on my phone every day.",
-        "note": "'Right.'는 상대방의 말에 동의할 때 쓰는 표현입니다. 'on my phone'은 '휴대폰으로'라는 뜻으로, 기기를 통해 무언가를 할 때 'on'을 씁니다. 'every day'는 '매일'을 뜻합니다."
+        "note": "'Right.'는 상대방의 말에 동의할 때 쓰는 표현입니다. 'on my phone'은 '휴대폰으로'라는 뜻으로, 기기를 통해 무언가를 할 때 'on'을 씁니다. 'every day'는 '매일'을 뜻합니다.",
+        "examples": [
+          {
+            "situation": "맞아. 나는 매일 태블릿으로 뉴스를 많이 읽어.",
+            "answer": "Right. I read a lot of news on my tablet every day."
+          },
+          {
+            "situation": "맞아. 나는 매일 노트북으로 강의를 많이 들어.",
+            "answer": "Right. I watch a lot of lectures on my laptop every day."
+          }
+        ]
       },
       {
         "id": 14,
         "situation": "나는 또한 아이폰의 단순한 디자인이 좋아. 깔끔해 보이거든.",
         "answer": "I also like the simple design of the iPhone. It looks clean.",
-        "note": "'also'는 '또한'으로 추가 정보를 더할 때 씁니다. 'simple'은 '단순한', 'clean'은 '깔끔한'이라는 형용사입니다. 'look + 형용사'는 '~처럼 보이다'를 뜻합니다."
+        "note": "'also'는 '또한'으로 추가 정보를 더할 때 씁니다. 'simple'은 '단순한', 'clean'은 '깔끔한'이라는 형용사입니다. 'look + 형용사'는 '~처럼 보이다'를 뜻합니다.",
+        "examples": [
+          {
+            "situation": "나는 또한 그 카페의 단순한 인테리어가 좋아. 세련돼 보이거든.",
+            "answer": "I also like the simple interior of that cafe. It looks stylish."
+          },
+          {
+            "situation": "나는 또한 이 웹사이트의 단순한 레이아웃이 좋아. 사용하기 편해 보이거든.",
+            "answer": "I also like the simple layout of this website. It looks easy to use."
+          }
+        ]
       },
       {
         "id": 15,
         "situation": "디자인은 아름답지만, 갤럭시는 꾸미기가 쉬워.",
         "answer": "The design is beautiful, but Galaxy phones are easy to customize.",
-        "note": "'beautiful'은 '아름다운'이라는 형용사입니다. 'be easy to + 동사원형'은 '~하기 쉽다'는 표현입니다. 'customize'는 '사용자 취향에 맞게 바꾸다'라는 뜻입니다."
+        "note": "'beautiful'은 '아름다운'이라는 형용사입니다. 'be easy to + 동사원형'은 '~하기 쉽다'는 표현입니다. 'customize'는 '사용자 취향에 맞게 바꾸다'라는 뜻입니다.",
+        "examples": [
+          {
+            "situation": "그 레시피는 복잡해 보이지만, 따라 하기가 쉬워.",
+            "answer": "That recipe looks complicated, but it's easy to follow."
+          },
+          {
+            "situation": "그 소프트웨어는 기능이 많지만, 배우기가 쉬워.",
+            "answer": "That software has many features, but it's easy to learn."
+          }
+        ]
       },
       {
         "id": 16,
         "situation": "커스터마이즈라는 게 무슨 뜻이야?",
         "answer": "What do you mean by \"customize\"?",
-        "note": "'What do you mean by ~?'는 특정 단어나 표현의 뜻을 물어볼 때 씁니다. '~라는 게 무슨 뜻이야?'의 뜻입니다."
+        "note": "'What do you mean by ~?'는 특정 단어나 표현의 뜻을 물어볼 때 씁니다. '~라는 게 무슨 뜻이야?'의 뜻입니다.",
+        "examples": [
+          {
+            "situation": "\"유연 근무\"라는 게 무슨 뜻이야?",
+            "answer": "What do you mean by \"flexible hours\"?"
+          },
+          {
+            "situation": "\"클라우드 저장\"이라는 게 무슨 뜻이야?",
+            "answer": "What do you mean by \"cloud storage\"?"
+          }
+        ]
       },
       {
         "id": 17,
         "situation": "화면의 모습과 아이콘들을 쉽게 바꿀 수 있어.",
         "answer": "I can change the look of the screen and the icons easily.",
-        "note": "'can + 동사원형'은 '~할 수 있다'는 가능을 나타냅니다. 'change'는 '바꾸다', 'look'은 '모습, 모양'이라는 뜻입니다. 'easily'는 '쉽게'라는 부사입니다."
+        "note": "'can + 동사원형'은 '~할 수 있다'는 가능을 나타냅니다. 'change'는 '바꾸다', 'look'은 '모습, 모양'이라는 뜻입니다. 'easily'는 '쉽게'라는 부사입니다.",
+        "examples": [
+          {
+            "situation": "이 앱으로 사진의 밝기와 색감을 쉽게 바꿀 수 있어.",
+            "answer": "I can change the brightness and color of photos easily with this app."
+          },
+          {
+            "situation": "이 웹사이트에서 배경과 글꼴을 쉽게 바꿀 수 있어.",
+            "answer": "I can change the background and font easily on this website."
+          }
+        ]
       },
       {
         "id": 18,
         "situation": "아, 그렇구나. 아이폰은 그런 걸 설정할 수 있는 옵션이 그렇게 많지 않아.",
         "answer": "Oh, I see. iPhones don't have as many options for that.",
-        "note": "'I see.'는 '아, 그렇구나, 알겠어'라는 뜻으로 이해했음을 나타냅니다. 'as many'는 '그만큼 많은'이라는 비교 표현으로, 부정문에서는 '그만큼 많지 않다'는 뜻이 됩니다."
+        "note": "'I see.'는 '아, 그렇구나, 알겠어'라는 뜻으로 이해했음을 나타냅니다. 'as many'는 '그만큼 많은'이라는 비교 표현으로, 부정문에서는 '그만큼 많지 않다'는 뜻이 됩니다.",
+        "examples": [
+          {
+            "situation": "아, 그렇구나. 그 작은 카페는 메뉴가 그렇게 많지 않아.",
+            "answer": "Oh, I see. That small cafe doesn't have as many menu items."
+          },
+          {
+            "situation": "아, 그렇구나. 이 도시는 대중교통 노선이 그렇게 많지 않아.",
+            "answer": "Oh, I see. This city doesn't have as many public transit routes."
+          }
+        ]
       },
       {
         "id": 19,
         "situation": "응, 하지만 아이폰은 아이패드와 연결이 아주 잘 되잖아.",
         "answer": "Yes, but iPhones connect very well with iPads.",
-        "note": "'connect with'는 '~와 연결되다'는 표현입니다. 'very well'은 '아주 잘'이라는 뜻입니다. 'but'은 앞 내용과 상반되는 내용을 이을 때 씁니다."
+        "note": "'connect with'는 '~와 연결되다'는 표현입니다. 'very well'은 '아주 잘'이라는 뜻입니다. 'but'은 앞 내용과 상반되는 내용을 이을 때 씁니다.",
+        "examples": [
+          {
+            "situation": "음식은 별로지만, 이 카페는 근처 공원과 연결이 아주 잘 돼.",
+            "answer": "The food isn't great, but this cafe connects very well with the nearby park."
+          },
+          {
+            "situation": "좀 비싸지만, 이 블루투스 스피커는 다른 기기와 연결이 아주 잘 돼.",
+            "answer": "It's a bit expensive, but this Bluetooth speaker connects very well with other devices."
+          }
+        ]
       },
       {
         "id": 20,
         "situation": "그게 내가 아이폰을 쓰는 이유야. 나는 아이패드랑 맥을 가지고 있거든.",
         "answer": "That's why I use one. I have an iPad and a Mac.",
-        "note": "'That's why ~'는 '그것이 ~한 이유이다'는 표현입니다. 'one'은 앞에서 언급한 'iPhone'을 대신하는 대명사입니다."
+        "note": "'That's why ~'는 '그것이 ~한 이유이다'는 표현입니다. 'one'은 앞에서 언급한 'iPhone'을 대신하는 대명사입니다.",
+        "examples": [
+          {
+            "situation": "그게 내가 자전거를 타는 이유야. 집이랑 회사가 가까이 있거든.",
+            "answer": "That's why I ride a bike. My home and office are close to each other."
+          },
+          {
+            "situation": "그게 내가 그 앱을 쓰는 이유야. 메모와 일정 관리를 한 곳에서 할 수 있거든.",
+            "answer": "That's why I use that app. I can manage notes and schedules in one place."
+          }
+        ]
       },
       {
         "id": 21,
         "situation": "모든 기기에 같은 브랜드를 사용하는 건 편리하지.",
         "answer": "It's convenient to use the same brand for all your devices.",
-        "note": "'It's + 형용사 + to + 동사원형'은 '~하는 것은 ~하다'는 표현입니다. 'convenient'는 '편리한', 'device'는 '기기'를 뜻합니다."
+        "note": "'It's + 형용사 + to + 동사원형'은 '~하는 것은 ~하다'는 표현입니다. 'convenient'는 '편리한', 'device'는 '기기'를 뜻합니다.",
+        "examples": [
+          {
+            "situation": "집 근처에서 쇼핑하는 건 편리해.",
+            "answer": "It's convenient to shop near your home."
+          },
+          {
+            "situation": "음식 배달 앱을 사용하는 건 편리하지만, 직접 요리하는 게 더 건강해.",
+            "answer": "It's convenient to use a food delivery app, but cooking yourself is healthier."
+          }
+        ]
       },
       {
         "id": 22,
         "situation": "응, 그게 내 일을 훨씬 더 쉽게 만들어 줘.",
         "answer": "Yes, it makes my work much easier.",
-        "note": "'make + 목적어 + 형용사'는 '~을 ~하게 만들다'는 표현입니다. 'much'는 비교급 앞에서 '훨씬'을 뜻합니다. 'easier'는 'easy'의 비교급입니다."
+        "note": "'make + 목적어 + 형용사'는 '~을 ~하게 만들다'는 표현입니다. 'much'는 비교급 앞에서 '훨씬'을 뜻합니다. 'easier'는 'easy'의 비교급입니다.",
+        "examples": [
+          {
+            "situation": "규칙적인 운동은 내 하루를 훨씬 더 활기차게 만들어 줘.",
+            "answer": "Regular exercise makes my day much more energetic."
+          },
+          {
+            "situation": "좋은 수면은 다음 날 공부를 훨씬 더 효율적으로 만들어 줘.",
+            "answer": "Good sleep makes studying the next day much more efficient."
+          }
+        ]
       },
       {
         "id": 23,
         "situation": "두 폰 모두 장점이 있어. 그냥 네가 무엇을 필요로 하느냐에 달린 거야.",
         "answer": "Both phones have good points. It just depends on what you need.",
-        "note": "'both'는 '둘 다의'라는 형용사입니다. 'depend on'은 '~에 달려 있다'는 표현입니다. 'what you need'는 '네가 필요한 것'이라는 간접의문문입니다."
+        "note": "'both'는 '둘 다의'라는 형용사입니다. 'depend on'은 '~에 달려 있다'는 표현입니다. 'what you need'는 '네가 필요한 것'이라는 간접의문문입니다.",
+        "examples": [
+          {
+            "situation": "두 옵션 모두 장점이 있어. 그냥 네가 무엇을 원하느냐에 달린 거야.",
+            "answer": "Both options have good points. It just depends on what you want."
+          },
+          {
+            "situation": "버스와 지하철 둘 다 좋아. 그냥 네가 어디를 가느냐에 달린 거야.",
+            "answer": "Both the bus and subway are fine. It just depends on where you're going."
+          }
+        ]
       },
       {
         "id": 24,
         "situation": "네 말이 맞아. 우리 둘 다 우리에게 완벽한 휴대폰을 가지고 있네.",
         "answer": "You're right. We both have the perfect phone for us.",
-        "note": "'You're right.'는 상대방의 말이 맞을 때 쓰는 표현으로 '네 말이 맞아'의 뜻입니다. 'perfect'는 '완벽한'이라는 형용사입니다. 'both'는 '둘 다'를 뜻합니다."
+        "note": "'You're right.'는 상대방의 말이 맞을 때 쓰는 표현으로 '네 말이 맞아'의 뜻입니다. 'perfect'는 '완벽한'이라는 형용사입니다. 'both'는 '둘 다'를 뜻합니다.",
+        "examples": [
+          {
+            "situation": "네 말이 맞아. 우리 둘 다 우리에게 완벽한 직업을 가지고 있네.",
+            "answer": "You're right. We both have the perfect job for us."
+          },
+          {
+            "situation": "네 말이 맞아. 우리 둘 다 우리에게 완벽한 여행 스타일이 있네.",
+            "answer": "You're right. We both have the perfect travel style for us."
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "chapter": 5,
+    "title": "버거 하우스 배달 주문 문제",
+    "studyDate": "2026-06-22",
+    "cards": [
+      {
+        "id": 1,
+        "situation": "안녕하세요, 버거 하우스입니다. 무엇을 도와드릴까요?",
+        "answer": "Hello, this is Burger House. How can I help you?",
+        "note": "전화에서 자신이나 장소를 소개할 때 'This is ~'를 씁니다. 'How can I help you?'는 고객을 응대할 때 쓰는 공손한 표현입니다.",
+        "examples": [
+          {
+            "situation": "안녕하세요, 여기는 시티 호텔입니다. 무엇을 도와드릴까요?",
+            "answer": "Hello, this is City Hotel. How can I help you?"
+          },
+          {
+            "situation": "안녕하세요, 여기는 고객 서비스 센터입니다. 무엇을 도와드릴까요?",
+            "answer": "Hello, this is the customer service center. How can I help you?"
+          }
+        ]
+      },
+      {
+        "id": 2,
+        "situation": "안녕하세요, 방금 음식을 주문했는데, 제 주문에 문제가 좀 있어서요.",
+        "answer": "Hi, I just ordered some food, but there's a problem with my order.",
+        "note": "'just'는 '방금, 막'이라는 뜻으로 최근에 일어난 일을 강조합니다. 'there's a problem with ~'는 '~에 문제가 있다'는 표현입니다.",
+        "examples": [
+          {
+            "situation": "안녕하세요, 방금 옷을 주문했는데, 제 주문에 문제가 좀 있어서요.",
+            "answer": "Hi, I just ordered some clothes, but there's a problem with my order."
+          },
+          {
+            "situation": "안녕하세요, 방금 책을 주문했는데, 배송에 문제가 좀 있어서요.",
+            "answer": "Hi, I just ordered a book, but there's a problem with my delivery."
+          }
+        ]
+      },
+      {
+        "id": 3,
+        "situation": "아, 그 말을 들으니 유감입니다. 어떤 문제가 있으신가요?",
+        "answer": "Oh, I'm sorry to hear that. What seems to be the problem?",
+        "note": "'I'm sorry to hear that.'은 상대방의 안 좋은 소식에 공감할 때 쓰는 표현입니다. 'seem to be'는 '~인 것 같다'는 뜻으로 부드럽게 묻는 표현입니다.",
+        "examples": [
+          {
+            "situation": "아, 그 말을 들으니 유감이네요. 어떤 문제가 있으신가요?",
+            "answer": "Oh, I'm sorry to hear that. What seems to be the issue?"
+          },
+          {
+            "situation": "이런, 그 말을 들으니 안타깝습니다. 어떻게 된 건가요?",
+            "answer": "Oh no, I'm sorry to hear that. What seems to have happened?"
+          }
+        ]
+      },
+      {
+        "id": 4,
+        "situation": "치즈버거를 주문했는데, 대신 치킨 샌드위치를 받았어요.",
+        "answer": "I ordered a cheeseburger, but I got a chicken sandwich instead.",
+        "note": "'get'은 여기서 '받다'는 뜻으로 쓰였으며 과거형은 'got'입니다. 'instead'는 '대신에'라는 부사로 문장 끝에 위치합니다.",
+        "examples": [
+          {
+            "situation": "아메리카노를 주문했는데, 대신 라떼를 받았어요.",
+            "answer": "I ordered an Americano, but I got a latte instead."
+          },
+          {
+            "situation": "파란 셔츠를 주문했는데, 대신 빨간 셔츠를 받았어요.",
+            "answer": "I ordered a blue shirt, but I got a red shirt instead."
+          }
+        ]
+      },
+      {
+        "id": 5,
+        "situation": "알겠습니다. 주문을 다시 확인해 보겠습니다.",
+        "answer": "I see. Let me check your order again.",
+        "note": "'I see.'는 '알겠습니다'라는 이해의 표현입니다. 'Let me + 동사원형'은 '제가 ~해 보겠습니다'라는 뜻으로 자발적인 행동을 나타냅니다.",
+        "examples": [
+          {
+            "situation": "알겠습니다. 예약을 다시 확인해 보겠습니다.",
+            "answer": "I see. Let me check your reservation again."
+          },
+          {
+            "situation": "알겠습니다. 배송 상태를 다시 확인해 보겠습니다.",
+            "answer": "I see. Let me check your delivery status again."
+          }
+        ]
+      },
+      {
+        "id": 6,
+        "situation": "제 이름은 사라이고, 제 주소는 그린 아파트 201호입니다.",
+        "answer": "My name is Sarah, and my address is Green Apartments, Unit 201.",
+        "note": "'name'은 '이름', 'address'는 '주소'를 뜻합니다. 'unit'은 아파트의 '호실, 세대'를 나타냅니다.",
+        "examples": [
+          {
+            "situation": "제 이름은 김민준이고, 제 주소는 파크 아파트 305호입니다.",
+            "answer": "My name is Kim Minjun, and my address is Park Apartments, Unit 305."
+          },
+          {
+            "situation": "제 이름은 이수진이고, 제 주소는 블루 아파트 102호입니다.",
+            "answer": "My name is Lee Sujin, and my address is Blue Apartments, Unit 102."
+          }
+        ]
+      },
+      {
+        "id": 7,
+        "situation": "잠시만요. 아, 손님 말씀이 맞네요. 저희가 실수를 했습니다.",
+        "answer": "Give me a second. Oh, you're right. We made a mistake.",
+        "note": "'Give me a second.'는 '잠시만요'라는 관용 표현입니다. 'make a mistake'는 '실수하다'는 표현으로 과거형은 'made a mistake'입니다.",
+        "examples": [
+          {
+            "situation": "잠시만요. 아, 맞네요. 제가 실수를 했습니다.",
+            "answer": "Give me a second. Oh, you're right. I made a mistake."
+          },
+          {
+            "situation": "잠시만요. 아, 손님 말씀이 맞습니다. 저희가 잘못 입력했네요.",
+            "answer": "Give me a second. Oh, you're right. We entered it incorrectly."
+          }
+        ]
+      },
+      {
+        "id": 8,
+        "situation": "제가 정말 배가 고파서요, 가능한 한 빨리 보내주실 수 있나요?",
+        "answer": "I'm really hungry, so could you send it as soon as possible?",
+        "note": "'Could you + 동사원형?'은 'Can you'보다 더 정중한 요청 표현입니다. 'as soon as possible'은 '가능한 한 빨리'라는 관용 표현입니다.",
+        "examples": [
+          {
+            "situation": "손님들이 기다리고 있어서, 가능한 한 빨리 준비해 주실 수 있나요?",
+            "answer": "The guests are waiting, so could you prepare it as soon as possible?"
+          },
+          {
+            "situation": "회의가 곧 시작해서, 가능한 한 빨리 보내주실 수 있나요?",
+            "answer": "The meeting is starting soon, so could you send it as soon as possible?"
+          }
+        ]
+      },
+      {
+        "id": 9,
+        "situation": "주문이 뒤섞여 정말 죄송합니다. 지금 바로 보내드릴게요.",
+        "answer": "We're very sorry for the mix-up. We'll send it right away.",
+        "note": "'be sorry for + 명사'는 '~에 대해 죄송하다'는 사과 표현입니다. 'right away'는 '당장, 즉시'라는 뜻의 관용 표현입니다.",
+        "examples": [
+          {
+            "situation": "불편을 드려서 정말 죄송합니다. 지금 바로 처리해 드릴게요.",
+            "answer": "We're very sorry for the inconvenience. We'll handle it right away."
+          },
+          {
+            "situation": "기다리게 해서 정말 죄송합니다. 지금 바로 확인해 보겠습니다.",
+            "answer": "We're very sorry for the wait. We'll check it right away."
+          }
+        ]
+      },
+      {
+        "id": 10,
+        "situation": "감사합니다. 여기까지 오는 데 얼마나 걸릴까요?",
+        "answer": "Thank you. How long will it take to get here?",
+        "note": "'How long will it take to + 동사원형?'은 '~하는 데 얼마나 걸릴까요?'라는 시간을 묻는 표현입니다. 'get here'는 '여기까지 오다, 도착하다'를 뜻합니다.",
+        "examples": [
+          {
+            "situation": "감사합니다. 공항까지 가는 데 얼마나 걸릴까요?",
+            "answer": "Thank you. How long will it take to get to the airport?"
+          },
+          {
+            "situation": "알겠어요. 수리가 완료되는 데 얼마나 걸릴까요?",
+            "answer": "I see. How long will it take to finish the repair?"
+          }
+        ]
+      },
+      {
+        "id": 11,
+        "situation": "20분 정도 걸릴 거예요. 괜찮으신가요?",
+        "answer": "It'll take about twenty minutes. Is that okay with you?",
+        "note": "'It takes + 시간'은 '(시간이) 걸리다'는 표현입니다. 'about'은 '약, 대략'이라는 뜻입니다. 'Is that okay with you?'는 상대방에게 괜찮은지 확인하는 표현입니다.",
+        "examples": [
+          {
+            "situation": "30분 정도 걸릴 거예요. 괜찮으신가요?",
+            "answer": "It'll take about thirty minutes. Is that okay with you?"
+          },
+          {
+            "situation": "한 시간 정도 걸릴 거예요. 괜찮으신가요?",
+            "answer": "It'll take about an hour. Is that okay with you?"
+          }
+        ]
+      },
+      {
+        "id": 12,
+        "situation": "괜찮습니다. 이 치킨 샌드위치를 기사님께 다시 돌려드려야 하나요?",
+        "answer": "That's fine. Should I give this chicken sandwich back to the driver?",
+        "note": "'Should I + 동사원형?'은 '~해야 하나요?'라는 의무나 확인을 물어보는 표현입니다. 'give back'은 '돌려주다'라는 뜻입니다.",
+        "examples": [
+          {
+            "situation": "괜찮습니다. 이 상품을 직접 반납해야 하나요?",
+            "answer": "That's fine. Should I return this item myself?"
+          },
+          {
+            "situation": "알겠습니다. 잘못 배달된 물건을 문 앞에 놓아야 하나요?",
+            "answer": "That's fine. Should I leave the wrong delivery at the door?"
+          }
+        ]
+      },
+      {
+        "id": 13,
+        "situation": "네, 부탁드립니다. 잘못 온 주문 음식을 기사님께 그냥 주시면 됩니다.",
+        "answer": "Yes, please. Just give the wrong order to the driver.",
+        "note": "'please'는 요청할 때 붙이는 정중한 표현입니다. 'wrong'은 '잘못된'이라는 형용사입니다. 'give + 물건 + to + 사람'은 '(사람)에게 (물건)을 주다'는 표현입니다.",
+        "examples": [
+          {
+            "situation": "네, 부탁드립니다. 잘못 배달된 상품을 그냥 반품 박스에 넣어 주세요.",
+            "answer": "Yes, please. Just put the wrong item in the return box."
+          },
+          {
+            "situation": "네, 맞습니다. 잘못 온 소포를 그냥 기사님께 주시면 됩니다.",
+            "answer": "Yes, that's right. Just give the wrong package to the driver."
+          }
+        ]
+      },
+      {
+        "id": 14,
+        "situation": "알겠습니다. 새로 배달 오는 것에 추가 비용을 내야 하나요?",
+        "answer": "Okay. Do I need to pay anything extra for the new delivery?",
+        "note": "'need to + 동사원형'은 '~해야 한다'는 필요를 나타냅니다. 'anything extra'는 '추가로 무언가'라는 뜻입니다. 'delivery'는 '배달'을 뜻합니다.",
+        "examples": [
+          {
+            "situation": "알겠습니다. 교환을 위해 추가 비용을 내야 하나요?",
+            "answer": "I see. Do I need to pay anything extra for the exchange?"
+          },
+          {
+            "situation": "그렇군요. 빠른 배송을 위해 추가 비용을 내야 하나요?",
+            "answer": "I see. Do I need to pay anything extra for express delivery?"
+          }
+        ]
+      },
+      {
+        "id": 15,
+        "situation": "아니요, 추가 비용은 없습니다. 저희의 실수였습니다.",
+        "answer": "No, there's no extra charge. This was our mistake.",
+        "note": "'there is no + 명사'는 '~가 없다'는 표현입니다. 'charge'는 '요금, 비용'을 뜻합니다. 'mistake'는 '실수'를 뜻합니다.",
+        "examples": [
+          {
+            "situation": "아니요, 추가 비용은 없습니다. 저희 측의 오류였습니다.",
+            "answer": "No, there's no extra charge. This was an error on our side."
+          },
+          {
+            "situation": "전혀요, 추가 요금은 없습니다. 저희가 책임지겠습니다.",
+            "answer": "Not at all, there's no extra charge. We'll take responsibility."
+          }
+        ]
+      },
+      {
+        "id": 16,
+        "situation": "이해했습니다. 그럼 기사님을 기다릴게요.",
+        "answer": "I understand. I'll wait for the driver then.",
+        "note": "'wait for + 사람/사물'은 '~를 기다리다'는 표현입니다. 'then'은 '그러면, 그때'를 뜻하며 결론을 나타낼 때 씁니다.",
+        "examples": [
+          {
+            "situation": "이해했습니다. 그럼 수리 기사를 기다릴게요.",
+            "answer": "I understand. I'll wait for the repair person then."
+          },
+          {
+            "situation": "알겠습니다. 그럼 배달 오기를 기다릴게요.",
+            "answer": "I see. I'll wait for the delivery then."
+          }
+        ]
+      },
+      {
+        "id": 17,
+        "situation": "사과의 뜻으로 무료 음료수도 같이 보내드릴게요.",
+        "answer": "We'll also send a free soda as an apology.",
+        "note": "'also'는 '또한'이라는 부사입니다. 'as an apology'는 '사과의 뜻으로'라는 표현입니다. 'free'는 '무료의', 'soda'는 '탄산음료'를 뜻합니다.",
+        "examples": [
+          {
+            "situation": "사과의 뜻으로 무료 디저트도 같이 보내드릴게요.",
+            "answer": "We'll also send a free dessert as an apology."
+          },
+          {
+            "situation": "불편을 드린 것에 대한 사과로 무료 쿠폰을 보내드리겠습니다.",
+            "answer": "We'll send a free coupon as an apology for the inconvenience."
+          }
+        ]
+      },
+      {
+        "id": 18,
+        "situation": "아, 정말 친절하시네요. 정말 감사합니다.",
+        "answer": "Oh, that's very kind of you. Thank you so much.",
+        "note": "'That's very kind of you.'는 상대방의 친절에 감사할 때 쓰는 관용 표현으로 '정말 친절하시네요'라는 뜻입니다. 'so much'는 '아주 많이'를 뜻합니다.",
+        "examples": [
+          {
+            "situation": "와, 정말 친절하시네요. 정말 감사드립니다.",
+            "answer": "Wow, that's very kind of you. Thank you so much."
+          },
+          {
+            "situation": "어머, 정말 감사해요. 당신은 너무 친절하세요.",
+            "answer": "Oh, thank you so much. You are very kind."
+          }
+        ]
+      },
+      {
+        "id": 19,
+        "situation": "천만에요. 이런 일이 다시는 발생하지 않도록 하겠습니다.",
+        "answer": "You're welcome. We'll make sure this doesn't happen again.",
+        "note": "'You're welcome.'은 감사 인사에 답할 때 쓰는 표현입니다. 'make sure + that절'은 '반드시 ~하도록 하다'는 표현입니다. 'happen'은 '발생하다'를 뜻합니다.",
+        "examples": [
+          {
+            "situation": "천만에요. 앞으로는 이런 일이 없도록 주의하겠습니다.",
+            "answer": "You're welcome. We'll make sure to be more careful from now on."
+          },
+          {
+            "situation": "별말씀을요. 이런 불편이 다시는 생기지 않도록 하겠습니다.",
+            "answer": "You're welcome. We'll make sure this inconvenience doesn't happen again."
+          }
+        ]
+      },
+      {
+        "id": 20,
+        "situation": "그러길 바라요. 저는 이 식당 음식을 정말 좋아해요.",
+        "answer": "I hope so. I really like the food at your restaurant.",
+        "note": "'I hope so.'는 '그러길 바란다'는 표현입니다. 'at'은 특정 장소를 나타내는 전치사로 'at your restaurant'은 '당신 식당에서'를 뜻합니다.",
+        "examples": [
+          {
+            "situation": "그러길 바라요. 저는 이 카페 커피를 정말 좋아해요.",
+            "answer": "I hope so. I really like the coffee at your cafe."
+          },
+          {
+            "situation": "그랬으면 좋겠네요. 저는 이 빵집 빵을 정말 좋아해요.",
+            "answer": "I hope so. I really like the bread at your bakery."
+          }
+        ]
+      },
+      {
+        "id": 21,
+        "situation": "이용해 주셔서 감사합니다. 기사님이 지금 출발하십니다.",
+        "answer": "We appreciate your business. The driver is leaving now.",
+        "note": "'appreciate'는 '감사하다, 고마워하다'는 동사입니다. 'is leaving'은 현재진행형으로 가까운 미래에 일어날 동작을 나타냅니다.",
+        "examples": [
+          {
+            "situation": "이용해 주셔서 감사합니다. 택배 기사님이 지금 출발했습니다.",
+            "answer": "We appreciate your business. The courier has left now."
+          },
+          {
+            "situation": "항상 이용해 주셔서 감사합니다. 수리 기사님이 지금 출발합니다.",
+            "answer": "Thank you for always using us. The repair person is leaving now."
+          }
+        ]
+      },
+      {
+        "id": 22,
+        "situation": "좋아요. 집에서 기다리고 있을게요.",
+        "answer": "Great. I'll be home waiting for it.",
+        "note": "'Great.'는 '좋아요, 잘됐네요'라는 반응 표현입니다. 'I'll be home waiting for it'은 '집에서 기다리고 있을게요'라는 표현으로 'home'이 장소 부사로 쓰였습니다.",
+        "examples": [
+          {
+            "situation": "좋아요. 사무실에서 기다리고 있을게요.",
+            "answer": "Great. I'll be at the office waiting for it."
+          },
+          {
+            "situation": "알겠어요. 카페에서 기다리고 있을게요.",
+            "answer": "Okay. I'll be at the cafe waiting for it."
+          }
+        ]
+      },
+      {
+        "id": 23,
+        "situation": "기다려 주셔서 감사합니다. 좋은 하루 보내세요.",
+        "answer": "Thank you for your patience. Have a nice day.",
+        "note": "'Thank you for + 명사'는 '~에 대해 감사하다'는 표현입니다. 'patience'는 '인내, 기다림'을 뜻합니다. 'Have a nice day.'는 헤어질 때 쓰는 인사 표현입니다.",
+        "examples": [
+          {
+            "situation": "기다려 주셔서 감사합니다. 편안한 저녁 보내세요.",
+            "answer": "Thank you for your patience. Have a nice evening."
+          },
+          {
+            "situation": "협조해 주셔서 감사합니다. 좋은 하루 되세요.",
+            "answer": "Thank you for your cooperation. Have a nice day."
+          }
+        ]
+      },
+      {
+        "id": 24,
+        "situation": "사장님도요. 제 버거를 기대하고 있을게요. 안녕히 계세요!",
+        "answer": "You too. I'm looking forward to my burger. Bye!",
+        "note": "'You too.'는 상대방의 인사에 '당신도요'라고 화답하는 표현입니다. 'look forward to + 명사/동명사'는 '~을 고대하다, 기대하다'는 표현입니다.",
+        "examples": [
+          {
+            "situation": "사장님도요. 제 피자를 기대하고 있을게요. 안녕히 계세요!",
+            "answer": "You too. I'm looking forward to my pizza. Bye!"
+          },
+          {
+            "situation": "당신도요. 다음에 또 오는 것을 기대하고 있을게요. 안녕히 계세요!",
+            "answer": "You too. I'm looking forward to coming again. Goodbye!"
+          }
+        ]
       }
     ]
   }
