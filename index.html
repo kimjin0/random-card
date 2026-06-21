@@ -371,6 +371,25 @@
       color: #f0b8c0;
       font-size: 0.85rem;
     }
+
+    .example-item {
+      padding: 0.55rem 0.75rem;
+      border-radius: 8px;
+      background: #111827;
+      border: 1px solid #2d3a52;
+      font-size: 0.85rem;
+      line-height: 1.5;
+    }
+
+    .example-item .ex-ko {
+      color: var(--muted);
+      margin-bottom: 0.25rem;
+      font-size: 0.8rem;
+    }
+
+    .example-item .ex-en {
+      color: #dbe4f5;
+    }
   </style>
 </head>
 <body>
@@ -570,6 +589,11 @@
               situation: situation.trim(),
               answer: answer.trim(),
               note: typeof card.note === "string" ? card.note.trim() : "",
+              examples: Array.isArray(card.examples)
+                ? card.examples
+                    .filter((e) => e && typeof e.situation === "string" && typeof e.answer === "string")
+                    .map((e) => ({ situation: e.situation.trim(), answer: e.answer.trim() }))
+                : [],
             };
           });
           return {
@@ -971,20 +995,52 @@
               <div class="note-body">${escapeHtml(card.note)}</div>
             </div>`
           : "";
+        const examples = card.examples;
+        const examplesToggle =
+          examples && examples.length
+            ? `<div style="margin-top:0.75rem;">
+                <button type="button" class="ghost" id="btnToggleExamples" style="font-size:0.8rem;color:var(--accent);border-color:#2a3a5c;padding:0.3rem 0.65rem;">예문 ${examples.length}개 보기</button>
+                <div id="examplesBlock" style="display:none;margin-top:0.55rem;flex-direction:column;gap:0.55rem;">
+                  ${examples
+                    .map(
+                      (ex) => `<div class="example-item">
+                    <div class="ex-ko">${escapeHtml(ex.situation)}</div>
+                    <div class="ex-en">${escapeHtml(ex.answer)}</div>
+                  </div>`
+                    )
+                    .join("")}
+                </div>
+              </div>`
+            : "";
         const backBlock = koFirst
           ? `<div class="label">한국어</div>
             <div class="situation">${escapeHtml(card.situation)}</div>
             <div class="answer-block">
               ${englishBlock}
               ${noteBlock}
+              ${examplesToggle}
             </div>`
           : `${englishBlock}
             <div class="answer-block">
               <div class="label">한국어</div>
               <div class="situation">${escapeHtml(card.situation)}</div>
               ${noteBlock}
+              ${examplesToggle}
             </div>`;
         return revealed ? backBlock : frontBlock;
+      }
+
+      function initExamplesToggle() {
+        const btn = document.getElementById("btnToggleExamples");
+        const block = document.getElementById("examplesBlock");
+        if (!btn || !block) return;
+        const total = block.children.length;
+        btn.addEventListener("click", (e) => {
+          e.stopPropagation();
+          const isHidden = block.style.display === "none";
+          block.style.display = isHidden ? "flex" : "none";
+          btn.textContent = isHidden ? "예문 숨기기" : `예문 ${total}개 보기`;
+        });
       }
 
       /** 기본동사: korean / english+note */
@@ -1135,6 +1191,7 @@
             setSavedVoiceUri(uri);
           };
         }
+        initExamplesToggle();
       }
 
       function escapeHtml(s) {
@@ -1822,6 +1879,7 @@
             setSavedVoiceUri(uri);
           };
         }
+        initExamplesToggle();
       }
 
       function createVerbStudyState(verbKey, unit) {

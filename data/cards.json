@@ -602,5 +602,396 @@
         "note": "'You're right.'는 상대방의 말이 맞을 때 쓰는 표현으로 '네 말이 맞아'의 뜻입니다. 'perfect'는 '완벽한'이라는 형용사입니다. 'both'는 '둘 다'를 뜻합니다."
       }
     ]
+  },
+  {
+    "chapter": 5,
+    "title": "버거 하우스 배달 주문 문제",
+    "studyDate": "2026-06-22",
+    "cards": [
+      {
+        "id": 1,
+        "situation": "안녕하세요, 버거 하우스입니다. 무엇을 도와드릴까요?",
+        "answer": "Hello, this is Burger House. How can I help you?",
+        "note": "전화에서 자신이나 장소를 소개할 때 'This is ~'를 씁니다. 'How can I help you?'는 고객을 응대할 때 쓰는 공손한 표현입니다.",
+        "examples": [
+          {
+            "situation": "안녕하세요, 여기는 시티 호텔입니다. 무엇을 도와드릴까요?",
+            "answer": "Hello, this is City Hotel. How can I help you?"
+          },
+          {
+            "situation": "안녕하세요, 여기는 고객 서비스 센터입니다. 무엇을 도와드릴까요?",
+            "answer": "Hello, this is the customer service center. How can I help you?"
+          }
+        ]
+      },
+      {
+        "id": 2,
+        "situation": "안녕하세요, 방금 음식을 주문했는데, 제 주문에 문제가 좀 있어서요.",
+        "answer": "Hi, I just ordered some food, but there's a problem with my order.",
+        "note": "'just'는 '방금, 막'이라는 뜻으로 최근에 일어난 일을 강조합니다. 'there's a problem with ~'는 '~에 문제가 있다'는 표현입니다.",
+        "examples": [
+          {
+            "situation": "안녕하세요, 방금 옷을 주문했는데, 제 주문에 문제가 좀 있어서요.",
+            "answer": "Hi, I just ordered some clothes, but there's a problem with my order."
+          },
+          {
+            "situation": "안녕하세요, 방금 책을 주문했는데, 배송에 문제가 좀 있어서요.",
+            "answer": "Hi, I just ordered a book, but there's a problem with my delivery."
+          }
+        ]
+      },
+      {
+        "id": 3,
+        "situation": "아, 그 말을 들으니 유감입니다. 어떤 문제가 있으신가요?",
+        "answer": "Oh, I'm sorry to hear that. What seems to be the problem?",
+        "note": "'I'm sorry to hear that.'은 상대방의 안 좋은 소식에 공감할 때 쓰는 표현입니다. 'seem to be'는 '~인 것 같다'는 뜻으로 부드럽게 묻는 표현입니다.",
+        "examples": [
+          {
+            "situation": "아, 그 말을 들으니 유감이네요. 어떤 문제가 있으신가요?",
+            "answer": "Oh, I'm sorry to hear that. What seems to be the issue?"
+          },
+          {
+            "situation": "이런, 그 말을 들으니 안타깝습니다. 어떻게 된 건가요?",
+            "answer": "Oh no, I'm sorry to hear that. What seems to have happened?"
+          }
+        ]
+      },
+      {
+        "id": 4,
+        "situation": "치즈버거를 주문했는데, 대신 치킨 샌드위치를 받았어요.",
+        "answer": "I ordered a cheeseburger, but I got a chicken sandwich instead.",
+        "note": "'get'은 여기서 '받다'는 뜻으로 쓰였으며 과거형은 'got'입니다. 'instead'는 '대신에'라는 부사로 문장 끝에 위치합니다.",
+        "examples": [
+          {
+            "situation": "아메리카노를 주문했는데, 대신 라떼를 받았어요.",
+            "answer": "I ordered an Americano, but I got a latte instead."
+          },
+          {
+            "situation": "파란 셔츠를 주문했는데, 대신 빨간 셔츠를 받았어요.",
+            "answer": "I ordered a blue shirt, but I got a red shirt instead."
+          }
+        ]
+      },
+      {
+        "id": 5,
+        "situation": "알겠습니다. 주문을 다시 확인해 보겠습니다.",
+        "answer": "I see. Let me check your order again.",
+        "note": "'I see.'는 '알겠습니다'라는 이해의 표현입니다. 'Let me + 동사원형'은 '제가 ~해 보겠습니다'라는 뜻으로 자발적인 행동을 나타냅니다.",
+        "examples": [
+          {
+            "situation": "알겠습니다. 예약을 다시 확인해 보겠습니다.",
+            "answer": "I see. Let me check your reservation again."
+          },
+          {
+            "situation": "알겠습니다. 배송 상태를 다시 확인해 보겠습니다.",
+            "answer": "I see. Let me check your delivery status again."
+          }
+        ]
+      },
+      {
+        "id": 6,
+        "situation": "제 이름은 사라이고, 제 주소는 그린 아파트 201호입니다.",
+        "answer": "My name is Sarah, and my address is Green Apartments, Unit 201.",
+        "note": "'name'은 '이름', 'address'는 '주소'를 뜻합니다. 'unit'은 아파트의 '호실, 세대'를 나타냅니다.",
+        "examples": [
+          {
+            "situation": "제 이름은 김민준이고, 제 주소는 파크 아파트 305호입니다.",
+            "answer": "My name is Kim Minjun, and my address is Park Apartments, Unit 305."
+          },
+          {
+            "situation": "제 이름은 이수진이고, 제 주소는 블루 아파트 102호입니다.",
+            "answer": "My name is Lee Sujin, and my address is Blue Apartments, Unit 102."
+          }
+        ]
+      },
+      {
+        "id": 7,
+        "situation": "잠시만요. 아, 손님 말씀이 맞네요. 저희가 실수를 했습니다.",
+        "answer": "Give me a second. Oh, you're right. We made a mistake.",
+        "note": "'Give me a second.'는 '잠시만요'라는 관용 표현입니다. 'make a mistake'는 '실수하다'는 표현으로 과거형은 'made a mistake'입니다.",
+        "examples": [
+          {
+            "situation": "잠시만요. 아, 맞네요. 제가 실수를 했습니다.",
+            "answer": "Give me a second. Oh, you're right. I made a mistake."
+          },
+          {
+            "situation": "잠시만요. 아, 손님 말씀이 맞습니다. 저희가 잘못 입력했네요.",
+            "answer": "Give me a second. Oh, you're right. We entered it incorrectly."
+          }
+        ]
+      },
+      {
+        "id": 8,
+        "situation": "제가 정말 배가 고파서요, 가능한 한 빨리 보내주실 수 있나요?",
+        "answer": "I'm really hungry, so could you send it as soon as possible?",
+        "note": "'Could you + 동사원형?'은 'Can you'보다 더 정중한 요청 표현입니다. 'as soon as possible'은 '가능한 한 빨리'라는 관용 표현입니다.",
+        "examples": [
+          {
+            "situation": "손님들이 기다리고 있어서, 가능한 한 빨리 준비해 주실 수 있나요?",
+            "answer": "The guests are waiting, so could you prepare it as soon as possible?"
+          },
+          {
+            "situation": "회의가 곧 시작해서, 가능한 한 빨리 보내주실 수 있나요?",
+            "answer": "The meeting is starting soon, so could you send it as soon as possible?"
+          }
+        ]
+      },
+      {
+        "id": 9,
+        "situation": "주문이 뒤섞여 정말 죄송합니다. 지금 바로 보내드릴게요.",
+        "answer": "We're very sorry for the mix-up. We'll send it right away.",
+        "note": "'be sorry for + 명사'는 '~에 대해 죄송하다'는 사과 표현입니다. 'right away'는 '당장, 즉시'라는 뜻의 관용 표현입니다.",
+        "examples": [
+          {
+            "situation": "불편을 드려서 정말 죄송합니다. 지금 바로 처리해 드릴게요.",
+            "answer": "We're very sorry for the inconvenience. We'll handle it right away."
+          },
+          {
+            "situation": "기다리게 해서 정말 죄송합니다. 지금 바로 확인해 보겠습니다.",
+            "answer": "We're very sorry for the wait. We'll check it right away."
+          }
+        ]
+      },
+      {
+        "id": 10,
+        "situation": "감사합니다. 여기까지 오는 데 얼마나 걸릴까요?",
+        "answer": "Thank you. How long will it take to get here?",
+        "note": "'How long will it take to + 동사원형?'은 '~하는 데 얼마나 걸릴까요?'라는 시간을 묻는 표현입니다. 'get here'는 '여기까지 오다, 도착하다'를 뜻합니다.",
+        "examples": [
+          {
+            "situation": "감사합니다. 공항까지 가는 데 얼마나 걸릴까요?",
+            "answer": "Thank you. How long will it take to get to the airport?"
+          },
+          {
+            "situation": "알겠어요. 수리가 완료되는 데 얼마나 걸릴까요?",
+            "answer": "I see. How long will it take to finish the repair?"
+          }
+        ]
+      },
+      {
+        "id": 11,
+        "situation": "20분 정도 걸릴 거예요. 괜찮으신가요?",
+        "answer": "It'll take about twenty minutes. Is that okay with you?",
+        "note": "'It takes + 시간'은 '(시간이) 걸리다'는 표현입니다. 'about'은 '약, 대략'이라는 뜻입니다. 'Is that okay with you?'는 상대방에게 괜찮은지 확인하는 표현입니다.",
+        "examples": [
+          {
+            "situation": "30분 정도 걸릴 거예요. 괜찮으신가요?",
+            "answer": "It'll take about thirty minutes. Is that okay with you?"
+          },
+          {
+            "situation": "한 시간 정도 걸릴 거예요. 괜찮으신가요?",
+            "answer": "It'll take about an hour. Is that okay with you?"
+          }
+        ]
+      },
+      {
+        "id": 12,
+        "situation": "괜찮습니다. 이 치킨 샌드위치를 기사님께 다시 돌려드려야 하나요?",
+        "answer": "That's fine. Should I give this chicken sandwich back to the driver?",
+        "note": "'Should I + 동사원형?'은 '~해야 하나요?'라는 의무나 확인을 물어보는 표현입니다. 'give back'은 '돌려주다'라는 뜻입니다.",
+        "examples": [
+          {
+            "situation": "괜찮습니다. 이 상품을 직접 반납해야 하나요?",
+            "answer": "That's fine. Should I return this item myself?"
+          },
+          {
+            "situation": "알겠습니다. 잘못 배달된 물건을 문 앞에 놓아야 하나요?",
+            "answer": "That's fine. Should I leave the wrong delivery at the door?"
+          }
+        ]
+      },
+      {
+        "id": 13,
+        "situation": "네, 부탁드립니다. 잘못 온 주문 음식을 기사님께 그냥 주시면 됩니다.",
+        "answer": "Yes, please. Just give the wrong order to the driver.",
+        "note": "'please'는 요청할 때 붙이는 정중한 표현입니다. 'wrong'은 '잘못된'이라는 형용사입니다. 'give + 물건 + to + 사람'은 '(사람)에게 (물건)을 주다'는 표현입니다.",
+        "examples": [
+          {
+            "situation": "네, 부탁드립니다. 잘못 배달된 상품을 그냥 반품 박스에 넣어 주세요.",
+            "answer": "Yes, please. Just put the wrong item in the return box."
+          },
+          {
+            "situation": "네, 맞습니다. 잘못 온 소포를 그냥 기사님께 주시면 됩니다.",
+            "answer": "Yes, that's right. Just give the wrong package to the driver."
+          }
+        ]
+      },
+      {
+        "id": 14,
+        "situation": "알겠습니다. 새로 배달 오는 것에 추가 비용을 내야 하나요?",
+        "answer": "Okay. Do I need to pay anything extra for the new delivery?",
+        "note": "'need to + 동사원형'은 '~해야 한다'는 필요를 나타냅니다. 'anything extra'는 '추가로 무언가'라는 뜻입니다. 'delivery'는 '배달'을 뜻합니다.",
+        "examples": [
+          {
+            "situation": "알겠습니다. 교환을 위해 추가 비용을 내야 하나요?",
+            "answer": "I see. Do I need to pay anything extra for the exchange?"
+          },
+          {
+            "situation": "그렇군요. 빠른 배송을 위해 추가 비용을 내야 하나요?",
+            "answer": "I see. Do I need to pay anything extra for express delivery?"
+          }
+        ]
+      },
+      {
+        "id": 15,
+        "situation": "아니요, 추가 비용은 없습니다. 저희의 실수였습니다.",
+        "answer": "No, there's no extra charge. This was our mistake.",
+        "note": "'there is no + 명사'는 '~가 없다'는 표현입니다. 'charge'는 '요금, 비용'을 뜻합니다. 'mistake'는 '실수'를 뜻합니다.",
+        "examples": [
+          {
+            "situation": "아니요, 추가 비용은 없습니다. 저희 측의 오류였습니다.",
+            "answer": "No, there's no extra charge. This was an error on our side."
+          },
+          {
+            "situation": "전혀요, 추가 요금은 없습니다. 저희가 책임지겠습니다.",
+            "answer": "Not at all, there's no extra charge. We'll take responsibility."
+          }
+        ]
+      },
+      {
+        "id": 16,
+        "situation": "이해했습니다. 그럼 기사님을 기다릴게요.",
+        "answer": "I understand. I'll wait for the driver then.",
+        "note": "'wait for + 사람/사물'은 '~를 기다리다'는 표현입니다. 'then'은 '그러면, 그때'를 뜻하며 결론을 나타낼 때 씁니다.",
+        "examples": [
+          {
+            "situation": "이해했습니다. 그럼 수리 기사를 기다릴게요.",
+            "answer": "I understand. I'll wait for the repair person then."
+          },
+          {
+            "situation": "알겠습니다. 그럼 배달 오기를 기다릴게요.",
+            "answer": "I see. I'll wait for the delivery then."
+          }
+        ]
+      },
+      {
+        "id": 17,
+        "situation": "사과의 뜻으로 무료 음료수도 같이 보내드릴게요.",
+        "answer": "We'll also send a free soda as an apology.",
+        "note": "'also'는 '또한'이라는 부사입니다. 'as an apology'는 '사과의 뜻으로'라는 표현입니다. 'free'는 '무료의', 'soda'는 '탄산음료'를 뜻합니다.",
+        "examples": [
+          {
+            "situation": "사과의 뜻으로 무료 디저트도 같이 보내드릴게요.",
+            "answer": "We'll also send a free dessert as an apology."
+          },
+          {
+            "situation": "불편을 드린 것에 대한 사과로 무료 쿠폰을 보내드리겠습니다.",
+            "answer": "We'll send a free coupon as an apology for the inconvenience."
+          }
+        ]
+      },
+      {
+        "id": 18,
+        "situation": "아, 정말 친절하시네요. 정말 감사합니다.",
+        "answer": "Oh, that's very kind of you. Thank you so much.",
+        "note": "'That's very kind of you.'는 상대방의 친절에 감사할 때 쓰는 관용 표현으로 '정말 친절하시네요'라는 뜻입니다. 'so much'는 '아주 많이'를 뜻합니다.",
+        "examples": [
+          {
+            "situation": "와, 정말 친절하시네요. 정말 감사드립니다.",
+            "answer": "Wow, that's very kind of you. Thank you so much."
+          },
+          {
+            "situation": "어머, 정말 감사해요. 당신은 너무 친절하세요.",
+            "answer": "Oh, thank you so much. You are very kind."
+          }
+        ]
+      },
+      {
+        "id": 19,
+        "situation": "천만에요. 이런 일이 다시는 발생하지 않도록 하겠습니다.",
+        "answer": "You're welcome. We'll make sure this doesn't happen again.",
+        "note": "'You're welcome.'은 감사 인사에 답할 때 쓰는 표현입니다. 'make sure + that절'은 '반드시 ~하도록 하다'는 표현입니다. 'happen'은 '발생하다'를 뜻합니다.",
+        "examples": [
+          {
+            "situation": "천만에요. 앞으로는 이런 일이 없도록 주의하겠습니다.",
+            "answer": "You're welcome. We'll make sure to be more careful from now on."
+          },
+          {
+            "situation": "별말씀을요. 이런 불편이 다시는 생기지 않도록 하겠습니다.",
+            "answer": "You're welcome. We'll make sure this inconvenience doesn't happen again."
+          }
+        ]
+      },
+      {
+        "id": 20,
+        "situation": "그러길 바라요. 저는 이 식당 음식을 정말 좋아해요.",
+        "answer": "I hope so. I really like the food at your restaurant.",
+        "note": "'I hope so.'는 '그러길 바란다'는 표현입니다. 'at'은 특정 장소를 나타내는 전치사로 'at your restaurant'은 '당신 식당에서'를 뜻합니다.",
+        "examples": [
+          {
+            "situation": "그러길 바라요. 저는 이 카페 커피를 정말 좋아해요.",
+            "answer": "I hope so. I really like the coffee at your cafe."
+          },
+          {
+            "situation": "그랬으면 좋겠네요. 저는 이 빵집 빵을 정말 좋아해요.",
+            "answer": "I hope so. I really like the bread at your bakery."
+          }
+        ]
+      },
+      {
+        "id": 21,
+        "situation": "이용해 주셔서 감사합니다. 기사님이 지금 출발하십니다.",
+        "answer": "We appreciate your business. The driver is leaving now.",
+        "note": "'appreciate'는 '감사하다, 고마워하다'는 동사입니다. 'is leaving'은 현재진행형으로 가까운 미래에 일어날 동작을 나타냅니다.",
+        "examples": [
+          {
+            "situation": "이용해 주셔서 감사합니다. 택배 기사님이 지금 출발했습니다.",
+            "answer": "We appreciate your business. The courier has left now."
+          },
+          {
+            "situation": "항상 이용해 주셔서 감사합니다. 수리 기사님이 지금 출발합니다.",
+            "answer": "Thank you for always using us. The repair person is leaving now."
+          }
+        ]
+      },
+      {
+        "id": 22,
+        "situation": "좋아요. 집에서 기다리고 있을게요.",
+        "answer": "Great. I'll be home waiting for it.",
+        "note": "'Great.'는 '좋아요, 잘됐네요'라는 반응 표현입니다. 'I'll be home waiting for it'은 '집에서 기다리고 있을게요'라는 표현으로 'home'이 장소 부사로 쓰였습니다.",
+        "examples": [
+          {
+            "situation": "좋아요. 사무실에서 기다리고 있을게요.",
+            "answer": "Great. I'll be at the office waiting for it."
+          },
+          {
+            "situation": "알겠어요. 카페에서 기다리고 있을게요.",
+            "answer": "Okay. I'll be at the cafe waiting for it."
+          }
+        ]
+      },
+      {
+        "id": 23,
+        "situation": "기다려 주셔서 감사합니다. 좋은 하루 보내세요.",
+        "answer": "Thank you for your patience. Have a nice day.",
+        "note": "'Thank you for + 명사'는 '~에 대해 감사하다'는 표현입니다. 'patience'는 '인내, 기다림'을 뜻합니다. 'Have a nice day.'는 헤어질 때 쓰는 인사 표현입니다.",
+        "examples": [
+          {
+            "situation": "기다려 주셔서 감사합니다. 편안한 저녁 보내세요.",
+            "answer": "Thank you for your patience. Have a nice evening."
+          },
+          {
+            "situation": "협조해 주셔서 감사합니다. 좋은 하루 되세요.",
+            "answer": "Thank you for your cooperation. Have a nice day."
+          }
+        ]
+      },
+      {
+        "id": 24,
+        "situation": "사장님도요. 제 버거를 기대하고 있을게요. 안녕히 계세요!",
+        "answer": "You too. I'm looking forward to my burger. Bye!",
+        "note": "'You too.'는 상대방의 인사에 '당신도요'라고 화답하는 표현입니다. 'look forward to + 명사/동명사'는 '~을 고대하다, 기대하다'는 표현입니다.",
+        "examples": [
+          {
+            "situation": "사장님도요. 제 피자를 기대하고 있을게요. 안녕히 계세요!",
+            "answer": "You too. I'm looking forward to my pizza. Bye!"
+          },
+          {
+            "situation": "당신도요. 다음에 또 오는 것을 기대하고 있을게요. 안녕히 계세요!",
+            "answer": "You too. I'm looking forward to coming again. Goodbye!"
+          }
+        ]
+      }
+    ]
   }
 ]
