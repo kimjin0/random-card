@@ -882,6 +882,29 @@
         localStorage.removeItem(PROGRESS_KEY);
       }
 
+      const WRONG_KEY_PREFIX = "english-card-wrong-ch";
+
+      function loadWrongIds(chapter) {
+        try {
+          const raw = localStorage.getItem(WRONG_KEY_PREFIX + chapter);
+          if (!raw) return new Set();
+          const arr = JSON.parse(raw);
+          return Array.isArray(arr) ? new Set(arr) : new Set();
+        } catch {
+          return new Set();
+        }
+      }
+
+      function saveWrongIds(chapter, wrongIds) {
+        try {
+          if (wrongIds.size === 0) {
+            localStorage.removeItem(WRONG_KEY_PREFIX + chapter);
+          } else {
+            localStorage.setItem(WRONG_KEY_PREFIX + chapter, JSON.stringify([...wrongIds]));
+          }
+        } catch {}
+      }
+
       function resolvePicksFromSession(cards, session) {
         const map = new Map(cards.map((c) => [c.id, c]));
         const picks = session.pickIds.map((id) => map.get(id)).filter(Boolean);
@@ -1732,6 +1755,7 @@
           picks,
           index: 0,
           revealed: false,
+          wrongIds: loadWrongIds(group.chapter),
         };
       }
 
@@ -1742,10 +1766,11 @@
           return;
         }
         const chapterButtons = groups
-          .map(
-            (g) =>
-              `<button type="button" class="primary truth-chapter-btn" data-chapter="${g.chapter}">Chapter ${g.chapter}${g.title ? ` · ${escapeHtml(g.title)}` : ""} (${g.cards.length}문장)</button>`
-          )
+          .map((g) => {
+            const wrongCount = loadWrongIds(g.chapter).size;
+            const wrongBadge = wrongCount > 0 ? ` <span style="display:inline-block;background:#c0392b;color:#fff;border-radius:999px;padding:0.1rem 0.55rem;font-size:0.72rem;font-weight:700;vertical-align:middle;margin-left:0.3rem;letter-spacing:0;">✗ ${wrongCount}</span>` : "";
+            return `<button type="button" class="primary truth-chapter-btn" data-chapter="${g.chapter}">Chapter ${g.chapter}${g.title ? ` · ${escapeHtml(g.title)}` : ""} (${g.cards.length}문장)${wrongBadge}</button>`;
+          })
           .join("");
         app.innerHTML = `
           <div class="gate-panel">
@@ -1781,15 +1806,33 @@
         }
 
         if (index >= picks.length) {
+          const wrongCount = state.wrongIds.size;
           app.innerHTML = `
             <div class="done">
               <h2>Chapter ${state.chapter} 완료</h2>
               <p class="meta">${escapeHtml(state.title || "선택한 챕터")} 학습을 마쳤습니다.</p>
-              <div class="actions" style="justify-content:center;margin-top:1rem;">
-                <button type="button" class="primary" id="btnTruthReplay">챕터 다시 학습</button>
+              ${wrongCount > 0
+                ? `<p class="meta" style="margin-top:0.5rem;">몰랐던 카드 <strong style="color:var(--accent);">${wrongCount}개</strong></p>`
+                : `<p class="meta" style="margin-top:0.5rem;color:var(--success);">모두 알고 계셨네요 👍</p>`}
+              <div class="actions" style="justify-content:center;margin-top:1rem;flex-wrap:wrap;">
+                ${wrongCount > 0 ? `<button type="button" class="primary" id="btnRetryWrong">틀린 카드 ${wrongCount}개 다시보기</button>` : ""}
+                <button type="button" class="ghost" id="btnTruthReplay">챕터 다시 학습</button>
                 <button type="button" class="ghost" id="btnTruthList">챕터 선택</button>
               </div>
             </div>`;
+          if (wrongCount > 0) {
+            document.getElementById("btnRetryWrong").onclick = () => {
+              const wrongPicks = picks.filter((c) => state.wrongIds.has(c.id));
+              renderTruthStudy({
+                chapter: state.chapter,
+                title: state.title,
+                picks: wrongPicks,
+                index: 0,
+                revealed: false,
+                wrongIds: new Set(state.wrongIds),
+              }, groups);
+            };
+          }
           document.getElementById("btnTruthReplay").onclick = () => {
             const group = groups.find((g) => g.chapter === state.chapter);
             if (!group) return;
@@ -1817,6 +1860,12 @@
           <div class="actions">
             <button type="button" class="ghost" id="btnPrevCard" ${index === 0 ? "disabled" : ""}>이전</button>
             <button type="button" class="ghost" id="btnNextCard" ${index >= picks.length - 1 && !revealed ? "disabled" : ""}>${index >= picks.length - 1 && revealed ? "완료" : "다음"}</button>
+            ${revealed
+              ? `<button type="button" class="ghost" id="btnMarkWrong" style="${state.wrongIds.has(card.id) ? "color:var(--accent);border-color:var(--accent-dim);" : ""}">${state.wrongIds.has(card.id) ? "✗ 표시됨" : "몰랐어요 ✗"}</button>`
+              : ""}
+            ${state.wrongIds.size > 0
+              ? `<button type="button" class="ghost" id="btnRetryWrongMid" style="color:var(--accent);border-color:var(--accent-dim);">틀린 카드 ${state.wrongIds.size}개 ↩</button>`
+              : ""}
             <button type="button" class="ghost push-right" id="btnTruthRestart">처음부터 다시</button>
             <button type="button" class="ghost" id="btnTruthList">챕터 선택</button>
           </div>
@@ -1856,6 +1905,32 @@
             state.index += 1;
             state.revealed = false;
             renderTruthStudy(state, groups);
+          };
+        }
+        const btnMarkWrong = document.getElementById("btnMarkWrong");
+        if (btnMarkWrong) {
+          btnMarkWrong.onclick = () => {
+            if (state.wrongIds.has(card.id)) {
+              state.wrongIds.delete(card.id);
+            } else {
+              state.wrongIds.add(card.id);
+            }
+            saveWrongIds(state.chapter, state.wrongIds);
+            renderTruthStudy(state, groups);
+          };
+        }
+        const btnRetryWrongMid = document.getElementById("btnRetryWrongMid");
+        if (btnRetryWrongMid) {
+          btnRetryWrongMid.onclick = () => {
+            const wrongPicks = picks.filter((c) => state.wrongIds.has(c.id));
+            renderTruthStudy({
+              chapter: state.chapter,
+              title: state.title,
+              picks: wrongPicks,
+              index: 0,
+              revealed: false,
+              wrongIds: new Set(state.wrongIds),
+            }, groups);
           };
         }
         document.getElementById("btnTruthRestart").onclick = () => {
