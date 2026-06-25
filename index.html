@@ -445,6 +445,9 @@
        */
       const GOOGLE_TRANSLATE_API_KEY = "";
       const LS_GOOGLE_TRANSLATE_KEY = "english-random-card-google-translate-key";
+      const LS_GEMINI_KEY = "english-card-gemini-key";
+      const GROQ_API_URL = "https://api.groq.com/openai/v1/chat/completions";
+      const GROQ_MODEL = "llama-3.1-8b-instant";
 
       let wordLookupAbort = null;
       let wordDefLookupKey = "";
@@ -1018,53 +1021,71 @@
               <div class="note-body">${escapeHtml(card.note)}</div>
             </div>`
           : "";
-        const examples = card.examples;
-        const examplesToggle =
-          examples && examples.length
-            ? `<div style="margin-top:0.75rem;">
-                <button type="button" class="ghost" id="btnToggleExamples" style="font-size:0.8rem;color:var(--accent);border-color:#2a3a5c;padding:0.3rem 0.65rem;">예문 ${examples.length}개 보기</button>
-                <div id="examplesBlock" style="display:none;margin-top:0.55rem;flex-direction:column;gap:0.55rem;">
-                  ${examples
-                    .map(
-                      (ex) => `<div class="example-item">
-                    <div class="ex-ko">${escapeHtml(ex.situation)}</div>
-                    <div class="ex-en">${escapeHtml(ex.answer)}</div>
-                  </div>`
-                    )
-                    .join("")}
-                </div>
-              </div>`
-            : "";
+        const aiExamplesSection = `<div style="margin-top:0.5rem;">
+              <button type="button" class="ghost" id="btnGenAiExamples" style="font-size:0.8rem;color:var(--accent);border-color:#2a3a5c;padding:0.3rem 0.65rem;">✨ AI 예문 생성</button>
+              <div id="aiExamplesBlock" style="display:none;margin-top:0.55rem;flex-direction:column;gap:0.55rem;"></div>
+            </div>`;
         const backBlock = koFirst
           ? `<div class="label">한국어</div>
             <div class="situation">${escapeHtml(card.situation)}</div>
             <div class="answer-block">
               ${englishBlock}
               ${noteBlock}
-              ${examplesToggle}
+              ${aiExamplesSection}
             </div>`
           : `${englishBlock}
             <div class="answer-block">
               <div class="label">한국어</div>
               <div class="situation">${escapeHtml(card.situation)}</div>
               ${noteBlock}
-              ${examplesToggle}
+              ${aiExamplesSection}
             </div>`;
         return revealed ? backBlock : frontBlock;
       }
 
-      function initExamplesToggle() {
-        const btn = document.getElementById("btnToggleExamples");
-        const block = document.getElementById("examplesBlock");
+      function initAiExamplesBtn(card) {
+        const btn = document.getElementById("btnGenAiExamples");
+        const block = document.getElementById("aiExamplesBlock");
         if (!btn || !block) return;
-        const total = block.children.length;
-        btn.addEventListener("click", (e) => {
+        let ac = null;
+        btn.addEventListener("click", async (e) => {
           e.stopPropagation();
-          const isHidden = block.style.display === "none";
-          block.style.display = isHidden ? "flex" : "none";
-          btn.textContent = isHidden ? "예문 숨기기" : `예문 ${total}개 보기`;
+          if (ac) {
+            ac.abort();
+            ac = null;
+            btn.textContent = "✨ AI 예문 생성";
+            block.style.display = "none";
+            block.innerHTML = "";
+            return;
+          }
+          ac = new AbortController();
+          btn.textContent = "생성 중… (취소)";
+          block.innerHTML = `<span class="meta">AI 예문 생성 중…</span>`;
+          block.style.display = "flex";
+          try {
+            const examples = await generateGeminiExamples(card.situation, card.answer, card.note || "", ac.signal);
+            block.innerHTML = examples
+              .map((ex) => `<div class="example-item">
+                <div class="ex-ko">${escapeHtml(ex.situation)}</div>
+                <div class="ex-en">${escapeHtml(ex.answer)}</div>
+              </div>`)
+              .join("");
+            btn.textContent = "✨ AI 예문 다시 생성";
+          } catch (err) {
+            if (err.name === "AbortError") {
+              block.style.display = "none";
+              block.innerHTML = "";
+            } else {
+              block.innerHTML = `<p class="meta" style="color:#f0b8c0;font-size:0.85rem;">${escapeHtml(err.message)}</p>`;
+            }
+            btn.textContent = "✨ AI 예문 생성";
+          } finally {
+            ac = null;
+          }
         });
       }
+
+
 
       /** 기본동사: korean / english+note */
       function buildVerbCardMain(card, revealed) {
@@ -1214,7 +1235,7 @@
             setSavedVoiceUri(uri);
           };
         }
-        initExamplesToggle();
+        initAiExamplesBtn(card);
       }
 
       function escapeHtml(s) {
@@ -1476,6 +1497,64 @@
         }
         const ko = await translateEnToKoMyMemory(query, signal);
         return { text: ko, provider: "MyMemory (백업)" };
+      }
+
+      function getGeminiApiKey() {
+        try { return localStorage.getItem(LS_GEMINI_KEY) || ""; } catch { return ""; }
+      }
+
+      function setGeminiApiKey(key) {
+        try {
+          const k = String(key || "").trim();
+          if (k) localStorage.setItem(LS_GEMINI_KEY, k);
+          else localStorage.removeItem(LS_GEMINI_KEY);
+        } catch {}
+      }
+
+      async function generateGeminiExamples(situation, answer, note, signal) {
+        const apiKey = getGeminiApiKey();
+        if (!apiKey) throw new Error("Groq API 키가 없습니다. 모드 선택 > 설정에서 입력해 주세요.");
+
+        const noteSection = note ? `\n문법 설명: ${note}` : "";
+        const prompt = `다음 한국어-영어 문장 패턴으로 새로운 예문 3개를 만들어줘.
+
+원문:
+한국어: ${situation}
+영어: ${answer}${noteSection}
+
+규칙:
+- 동일한 문법 패턴 사용
+- 문법 설명에 맞는 구조로 작성
+- 영어 초보자(A2 수준)도 이해할 수 있는 쉬운 단어만 사용
+- 짧고 단순한 문장 (단어 10개 이하)
+- 일상에서 자주 쓰는 상황
+- JSON만 출력 (설명 없이): [{"situation":"한국어","answer":"영어"},{"situation":"한국어","answer":"영어"},{"situation":"한국어","answer":"영어"}]`;
+
+        const res = await fetch(GROQ_API_URL, {
+          method: "POST",
+          signal,
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${apiKey}`,
+          },
+          body: JSON.stringify({
+            model: GROQ_MODEL,
+            messages: [{ role: "user", content: prompt }],
+            temperature: 0.8,
+            max_tokens: 512,
+          }),
+        });
+
+        if (!res.ok) {
+          const err = await res.json().catch(() => ({}));
+          throw new Error(err?.error?.message || `API 오류 ${res.status}`);
+        }
+
+        const data = await res.json();
+        const text = data?.choices?.[0]?.message?.content || "";
+        const jsonMatch = text.match(/\[[\s\S]*?\]/);
+        if (!jsonMatch) throw new Error("예문 형식을 파싱하지 못했습니다.");
+        return JSON.parse(jsonMatch[0]);
       }
 
       function googleTranslateWebUrl(enText) {
@@ -1954,7 +2033,7 @@
             setSavedVoiceUri(uri);
           };
         }
-        initExamplesToggle();
+        initAiExamplesBtn(card);
       }
 
       function createVerbStudyState(verbKey, unit) {
@@ -2270,6 +2349,17 @@
                 <p class="meta" style="margin:0.35rem 0 0;font-size:0.76rem;line-height:1.45;">처음에 보일 면입니다. 카드를 누르면 반대쪽 내용이 함께 보입니다.</p>
               </div>
               <div>
+                <strong style="font-size:0.88rem;">Groq API 키</strong>
+                <div style="margin-top:0.4rem;display:flex;gap:0.5rem;align-items:center;flex-wrap:wrap;">
+                  <input type="password" id="modeGeminiKey"
+                    style="flex:1;min-width:0;background:#111827;border:1px solid var(--border);border-radius:8px;color:var(--text);padding:0.3rem 0.5rem;font-size:0.8rem;font-family:inherit;"
+                    placeholder="gsk_..."
+                    value="${escapeHtml(getGeminiApiKey())}" />
+                  <button type="button" id="btnSaveGeminiKey" class="tts-btn">저장</button>
+                </div>
+                <p class="meta" style="margin:0.35rem 0 0;font-size:0.76rem;line-height:1.45;">카드 뒤집은 후 ✨ AI 예문 생성 버튼으로 새 예문을 만들 수 있습니다.</p>
+              </div>
+              <div>
                 <strong style="font-size:0.88rem;">TTS 재생속도</strong>
                 <div style="margin-top:0.4rem;display:flex;gap:0.5rem;align-items:center;flex-wrap:wrap;">
                   <label for="modeTtsRate" class="meta" style="font-size:0.8rem;">읽기 속도</label>
@@ -2310,6 +2400,15 @@
         if (modeCardFace) {
           modeCardFace.onchange = () => {
             setSavedCardFace(modeCardFace.value);
+          };
+        }
+        const btnSaveGeminiKey = document.getElementById("btnSaveGeminiKey");
+        if (btnSaveGeminiKey) {
+          btnSaveGeminiKey.onclick = () => {
+            const val = (document.getElementById("modeGeminiKey")?.value || "").trim();
+            setGeminiApiKey(val);
+            btnSaveGeminiKey.textContent = "저장됨 ✓";
+            setTimeout(() => { btnSaveGeminiKey.textContent = "저장"; }, 1500);
           };
         }
       }
