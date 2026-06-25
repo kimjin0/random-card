@@ -446,8 +446,8 @@
       const GOOGLE_TRANSLATE_API_KEY = "";
       const LS_GOOGLE_TRANSLATE_KEY = "english-random-card-google-translate-key";
       const LS_GEMINI_KEY = "english-card-gemini-key";
-      const GROQ_API_URL = "https://api.groq.com/openai/v1/chat/completions";
-      const GROQ_MODEL = "llama-3.3-70b-versatile";
+      const GROQ_API_URL = "https://api.openai.com/v1/chat/completions";
+      const GROQ_MODEL = "gpt-4o-mini";
 
       let wordLookupAbort = null;
       let wordDefLookupKey = "";
@@ -2358,11 +2358,11 @@ JSON만 출력: [{"korean":"...","english":"..."},{"korean":"...","english":"...
                 <p class="meta" style="margin:0.35rem 0 0;font-size:0.76rem;line-height:1.45;">처음에 보일 면입니다. 카드를 누르면 반대쪽 내용이 함께 보입니다.</p>
               </div>
               <div>
-                <strong style="font-size:0.88rem;">Groq API 키</strong>
+                <strong style="font-size:0.88rem;">OpenAI API 키</strong>
                 <div style="margin-top:0.4rem;display:flex;gap:0.5rem;align-items:center;flex-wrap:wrap;">
                   <input type="password" id="modeGeminiKey"
                     style="flex:1;min-width:0;background:#111827;border:1px solid var(--border);border-radius:8px;color:var(--text);padding:0.3rem 0.5rem;font-size:0.8rem;font-family:inherit;"
-                    placeholder="gsk_..."
+                    placeholder="sk-..."
                     value="${escapeHtml(getGeminiApiKey())}" />
                   <button type="button" id="btnSaveGeminiKey" class="tts-btn">저장</button>
                 </div>
