@@ -447,7 +447,7 @@
       const LS_GOOGLE_TRANSLATE_KEY = "english-random-card-google-translate-key";
       const LS_GEMINI_KEY = "english-card-gemini-key";
       const GROQ_API_URL = "https://api.groq.com/openai/v1/chat/completions";
-      const GROQ_MODEL = "llama-3.1-8b-instant";
+      const GROQ_MODEL = "llama-3.3-70b-versatile";
 
       let wordLookupAbort = null;
       let wordDefLookupKey = "";
@@ -1516,19 +1516,24 @@
         if (!apiKey) throw new Error("Groq API 키가 없습니다. 모드 선택 > 설정에서 입력해 주세요.");
 
         const noteSection = note ? `\n문법 설명: ${note}` : "";
-        const prompt = `다음 한국어-영어 문장 패턴으로 새로운 예문 3개를 만들어줘.
+        const prompt = `영어 학습용 예문 3개를 만들어줘.
 
-원문:
+핵심 표현:
 한국어: ${situation}
 영어: ${answer}${noteSection}
 
+★ "korean" 필드는 반드시 실제로 입 밖에 내는 말이어야 한다.
+
+올바른 예: {"korean":"야, 나 치즈버거 시켰는데 치킨이 왔어.", "english":"I ordered a cheeseburger, but they gave me chicken."}
+잘못된 예: {"korean":"주문한 메뉴가 바뀐 것에 대해 친구에게 말할 때", "english":"..."} ← 이런 상황 설명은 절대 금지
+
 규칙:
-- 동일한 문법 패턴 사용
-- 문법 설명에 맞는 구조로 작성
-- 영어 초보자(A2 수준)도 이해할 수 있는 쉬운 단어만 사용
-- 짧고 단순한 문장 (단어 10개 이하)
-- 일상에서 자주 쓰는 상황
-- JSON만 출력 (설명 없이): [{"situation":"한국어","answer":"영어"},{"situation":"한국어","answer":"영어"},{"situation":"한국어","answer":"영어"}]`;
+- korean과 english의 의미가 정확히 일치해야 한다
+- 영어는 A2 수준, 자연스러운 완전한 문장
+- 원문 영어를 그대로 복사하지 않는다
+- 3개 예문은 서로 다른 상황
+
+JSON만 출력: [{"korean":"...","english":"..."},{"korean":"...","english":"..."},{"korean":"...","english":"..."}]`;
 
         const res = await fetch(GROQ_API_URL, {
           method: "POST",
@@ -1554,7 +1559,11 @@
         const text = data?.choices?.[0]?.message?.content || "";
         const jsonMatch = text.match(/\[[\s\S]*?\]/);
         if (!jsonMatch) throw new Error("예문 형식을 파싱하지 못했습니다.");
-        return JSON.parse(jsonMatch[0]);
+        const parsed = JSON.parse(jsonMatch[0]);
+        return parsed.map((ex) => ({
+          situation: ex.korean || ex.situation || "",
+          answer: ex.english || ex.answer || "",
+        }));
       }
 
       function googleTranslateWebUrl(enText) {
