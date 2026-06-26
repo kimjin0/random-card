@@ -427,8 +427,6 @@
       const PROGRESS_VERSION = 1;
       const TTS_VOICE_KEY = "english-random-card-tts-voice-uri";
       const TTS_RATE_KEY = "english-random-card-tts-rate";
-      const TTS_VOLUME_KEY = "english-random-card-tts-volume";
-      const TTS_OPENAI_VOICE_KEY = "english-random-card-tts-openai-voice";
       /** 카드 첫 화면: "ko" = 한국어(상황), "en" = 영어(모범답) */
       const CARD_FACE_KEY = "english-random-card-card-face";
       /** studyDate 기준: 오늘 6회 → 어제 4회 → 그제 2회 순차 게이트 후, 날짜 구간별 6:4:2 가중 */
@@ -450,12 +448,8 @@
       const LS_GEMINI_KEY = "english-card-gemini-key";
       const GROQ_API_URL = "https://api.openai.com/v1/chat/completions";
       const GROQ_MODEL = "gpt-4o-mini";
-      const OPENAI_TTS_URL = "https://api.openai.com/v1/audio/speech";
-
       let wordLookupAbort = null;
       let wordDefLookupKey = "";
-      const ttsCache = new Map();
-      let ttsCurrentAudio = null;
 
       function todayKey() {
         const d = new Date();
@@ -1809,48 +1803,6 @@ JSON만 출력: [{"korean":"...","english":"..."},{"korean":"...","english":"...
         } catch {}
       }
 
-      function getSavedTtsVolume() {
-        try {
-          const raw = localStorage.getItem(TTS_VOLUME_KEY);
-          const v = Number(raw);
-          if (Number.isFinite(v) && v >= 0.1 && v <= 1.0) return v;
-        } catch {}
-        return 1.0;
-      }
-
-      function setSavedTtsVolume(vol) {
-        const n = Number(vol);
-        if (!Number.isFinite(n)) return;
-        try {
-          localStorage.setItem(TTS_VOLUME_KEY, String(Math.max(0.1, Math.min(1.0, n))));
-        } catch {}
-      }
-
-      const OPENAI_VOICES = [
-        { id: "nova",    label: "Nova (여성, 부드러움)" },
-        { id: "shimmer", label: "Shimmer (여성, 밝음)" },
-        { id: "alloy",   label: "Alloy (중성)" },
-        { id: "echo",    label: "Echo (남성, 차분함)" },
-        { id: "fable",   label: "Fable (남성, 내레이션)" },
-        { id: "onyx",    label: "Onyx (남성, 깊음)" },
-      ];
-
-      function getSavedOpenAIVoice() {
-        try {
-          const v = localStorage.getItem(TTS_OPENAI_VOICE_KEY);
-          if (v && OPENAI_VOICES.some((o) => o.id === v)) return v;
-        } catch {}
-        return "nova";
-      }
-
-      function setSavedOpenAIVoice(voice) {
-        try {
-          if (OPENAI_VOICES.some((o) => o.id === voice)) {
-            localStorage.setItem(TTS_OPENAI_VOICE_KEY, voice);
-          }
-        } catch {}
-      }
-
       function getSavedCardFace() {
         try {
           const v = localStorage.getItem(CARD_FACE_KEY);
@@ -1889,7 +1841,6 @@ JSON만 출력: [{"korean":"...","english":"..."},{"korean":"...","english":"...
       }
 
       function getVoiceOptionsHtml() {
-        if (getGeminiApiKey()) return "";
         const voices = getEnglishVoices();
         if (!voices.length) return "";
         const selected = chooseVoice(voices);
@@ -1905,53 +1856,13 @@ JSON만 출력: [{"korean":"...","english":"..."},{"korean":"...","english":"...
         </select>`;
       }
 
-      async function speakEnglish(text) {
-        const content = typeof text === "string" ? text.trim() : "";
-        if (!content) return;
-
-        const apiKey = getGeminiApiKey();
-        if (apiKey) {
-          try {
-            if (ttsCurrentAudio) {
-              ttsCurrentAudio.pause();
-              ttsCurrentAudio = null;
-            }
-            const cacheKey = content + "|" + getSavedTtsRate() + "|" + getSavedOpenAIVoice();
-            let url = ttsCache.get(cacheKey);
-            if (!url) {
-              const res = await fetch(OPENAI_TTS_URL, {
-                method: "POST",
-                headers: {
-                  "Content-Type": "application/json",
-                  "Authorization": `Bearer ${apiKey}`,
-                },
-                body: JSON.stringify({
-                  model: "tts-1",
-                  input: content,
-                  voice: getSavedOpenAIVoice(),
-                  speed: getSavedTtsRate(),
-                }),
-              });
-              if (!res.ok) throw new Error(`TTS API 오류 ${res.status}`);
-              const blob = await res.blob();
-              url = URL.createObjectURL(blob);
-              ttsCache.set(cacheKey, url);
-            }
-            const audio = new Audio(url);
-            audio.volume = getSavedTtsVolume();
-            ttsCurrentAudio = audio;
-            audio.play();
-            return;
-          } catch (e) {
-            console.warn("OpenAI TTS 실패, Web Speech API로 대체:", e);
-          }
-        }
-
-        // fallback: Web Speech API
+      function speakEnglish(text) {
         if (!("speechSynthesis" in window)) {
           alert("이 브라우저는 음성 읽기(TTS)를 지원하지 않습니다.");
           return;
         }
+        const content = typeof text === "string" ? text.trim() : "";
+        if (!content) return;
         const voices = getEnglishVoices();
         const selected = chooseVoice(voices);
         window.speechSynthesis.cancel();
@@ -1959,7 +1870,6 @@ JSON만 출력: [{"korean":"...","english":"..."},{"korean":"...","english":"...
         u.lang = selected?.lang || "en-US";
         u.voice = selected || null;
         u.rate = getSavedTtsRate();
-        u.volume = getSavedTtsVolume();
         u.pitch = 1;
         window.speechSynthesis.speak(u);
       }
@@ -2468,9 +2378,6 @@ JSON만 출력: [{"korean":"...","english":"..."},{"korean":"...","english":"...
       function renderModePicker() {
         dateLine.textContent = todayKey();
         const ttsRate = getSavedTtsRate();
-        const ttsVolume = getSavedTtsVolume();
-        const ttsOpenAIVoice = getSavedOpenAIVoice();
-        const hasApiKey = !!getGeminiApiKey();
         const face = getSavedCardFace();
         const selKo = face === "ko" ? "selected" : "";
         const selEn = face === "en" ? "selected" : "";
@@ -2517,32 +2424,6 @@ JSON만 출력: [{"korean":"...","english":"..."},{"korean":"...","english":"...
                   </select>
                 </div>
               </div>
-              <div>
-                <strong style="font-size:0.88rem;">TTS 볼륨</strong>
-                <div style="margin-top:0.4rem;display:flex;gap:0.5rem;align-items:center;flex-wrap:wrap;">
-                  <label for="modeTtsVolume" class="meta" style="font-size:0.8rem;">볼륨</label>
-                  <select id="modeTtsVolume" class="tts-voice" aria-label="TTS 볼륨 선택">
-                    ${[0.25, 0.5, 0.75, 1.0]
-                      .map((vol) => {
-                        const selected = Math.abs(ttsVolume - vol) < 0.01 ? "selected" : "";
-                        return `<option value="${vol}" ${selected}>${Math.round(vol * 100)}%</option>`;
-                      })
-                      .join("")}
-                  </select>
-                </div>
-              </div>
-              ${hasApiKey ? `<div>
-                <strong style="font-size:0.88rem;">TTS 음성</strong>
-                <div style="margin-top:0.4rem;display:flex;gap:0.5rem;align-items:center;flex-wrap:wrap;">
-                  <label for="modeTtsOpenAIVoice" class="meta" style="font-size:0.8rem;">음성</label>
-                  <select id="modeTtsOpenAIVoice" class="tts-voice" aria-label="OpenAI TTS 음성 선택">
-                    ${OPENAI_VOICES.map((v) => {
-                      const selected = ttsOpenAIVoice === v.id ? "selected" : "";
-                      return `<option value="${escapeHtml(v.id)}" ${selected}>${escapeHtml(v.label)}</option>`;
-                    }).join("")}
-                  </select>
-                </div>
-              </div>` : ""}
             </div>
           </div>
           <div class="actions">
@@ -2564,19 +2445,6 @@ JSON만 출력: [{"korean":"...","english":"..."},{"korean":"...","english":"...
         if (modeTtsRate) {
           modeTtsRate.onchange = () => {
             setSavedTtsRate(modeTtsRate.value);
-          };
-        }
-        const modeTtsVolume = document.getElementById("modeTtsVolume");
-        if (modeTtsVolume) {
-          modeTtsVolume.onchange = () => {
-            setSavedTtsVolume(modeTtsVolume.value);
-          };
-        }
-        const modeTtsOpenAIVoice = document.getElementById("modeTtsOpenAIVoice");
-        if (modeTtsOpenAIVoice) {
-          modeTtsOpenAIVoice.onchange = () => {
-            setSavedOpenAIVoice(modeTtsOpenAIVoice.value);
-            ttsCache.clear();
           };
         }
         const modeCardFace = document.getElementById("modeCardFace");
