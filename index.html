@@ -448,9 +448,12 @@
       const LS_GEMINI_KEY = "english-card-gemini-key";
       const GROQ_API_URL = "https://api.openai.com/v1/chat/completions";
       const GROQ_MODEL = "gpt-4o-mini";
+      const OPENAI_TTS_URL = "https://api.openai.com/v1/audio/speech";
 
       let wordLookupAbort = null;
       let wordDefLookupKey = "";
+      const ttsCache = new Map();
+      let ttsCurrentAudio = null;
 
       function todayKey() {
         const d = new Date();
@@ -1799,6 +1802,7 @@ JSON만 출력: [{"korean":"...","english":"..."},{"korean":"...","english":"...
       }
 
       function getVoiceOptionsHtml() {
+        if (getGeminiApiKey()) return "";
         const voices = getEnglishVoices();
         if (!voices.length) return "";
         const selected = chooseVoice(voices);
@@ -1814,13 +1818,52 @@ JSON만 출력: [{"korean":"...","english":"..."},{"korean":"...","english":"...
         </select>`;
       }
 
-      function speakEnglish(text) {
+      async function speakEnglish(text) {
+        const content = typeof text === "string" ? text.trim() : "";
+        if (!content) return;
+
+        const apiKey = getGeminiApiKey();
+        if (apiKey) {
+          try {
+            if (ttsCurrentAudio) {
+              ttsCurrentAudio.pause();
+              ttsCurrentAudio = null;
+            }
+            const cacheKey = content + "|" + getSavedTtsRate();
+            let url = ttsCache.get(cacheKey);
+            if (!url) {
+              const res = await fetch(OPENAI_TTS_URL, {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                  "Authorization": `Bearer ${apiKey}`,
+                },
+                body: JSON.stringify({
+                  model: "tts-1",
+                  input: content,
+                  voice: "nova",
+                  speed: getSavedTtsRate(),
+                }),
+              });
+              if (!res.ok) throw new Error(`TTS API 오류 ${res.status}`);
+              const blob = await res.blob();
+              url = URL.createObjectURL(blob);
+              ttsCache.set(cacheKey, url);
+            }
+            const audio = new Audio(url);
+            ttsCurrentAudio = audio;
+            audio.play();
+            return;
+          } catch (e) {
+            console.warn("OpenAI TTS 실패, Web Speech API로 대체:", e);
+          }
+        }
+
+        // fallback: Web Speech API
         if (!("speechSynthesis" in window)) {
           alert("이 브라우저는 음성 읽기(TTS)를 지원하지 않습니다.");
           return;
         }
-        const content = typeof text === "string" ? text.trim() : "";
-        if (!content) return;
         const voices = getEnglishVoices();
         const selected = chooseVoice(voices);
         window.speechSynthesis.cancel();
