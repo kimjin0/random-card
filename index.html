@@ -448,9 +448,12 @@
       const LS_GEMINI_KEY = "english-card-gemini-key";
       const GROQ_API_URL = "https://api.openai.com/v1/chat/completions";
       const GROQ_MODEL = "gpt-4o-mini";
+      const OPENAI_TTS_URL = "https://api.openai.com/v1/audio/speech";
 
       let wordLookupAbort = null;
       let wordDefLookupKey = "";
+      const ttsCache = new Map();
+      let ttsCurrentAudio = null;
 
       function todayKey() {
         const d = new Date();
@@ -1573,6 +1576,31 @@ JSON만 출력: [{"korean":"...","english":"..."},{"korean":"...","english":"...
         );
       }
 
+      async function fetchWordRoleInContext(word, sentence, signal) {
+        const apiKey = getGeminiApiKey();
+        if (!apiKey || !sentence) return null;
+        const res = await fetch(GROQ_API_URL, {
+          method: "POST",
+          signal,
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${apiKey}`,
+          },
+          body: JSON.stringify({
+            model: GROQ_MODEL,
+            messages: [{
+              role: "user",
+              content: `다음 영어 문장에서 단어의 문법적 역할을 한국어로 설명해줘.\n\n문장: "${sentence}"\n분석 단어: "${word}"\n\n규칙:\n- 2문장 이내로 간결하게\n- 품사와 문장 내 역할(주어/서술어/목적어/수식어 등) 포함\n- 이 문장에서 갖는 의미나 기능 설명\n- 앞뒤 설명 없이 내용만 출력`,
+            }],
+            temperature: 0.2,
+            max_tokens: 150,
+          }),
+        });
+        if (!res.ok) throw new Error(`API ${res.status}`);
+        const data = await res.json();
+        return (data?.choices?.[0]?.message?.content || "").trim() || null;
+      }
+
       async function fetchAndShowWordDefinition(displayWord, lookupKey, contextSentence, wordIndex) {
         const panel = document.getElementById("wordDefPanel");
         const titleEl = document.getElementById("wordDefTitle");
@@ -1617,21 +1645,39 @@ JSON만 출력: [{"korean":"...","english":"..."},{"korean":"...","english":"...
           }
           const posKo = posLabelKorean(resolvedPos);
           titleEl.textContent = wordMeta.phonetic ? `${displayLabel} ${wordMeta.phonetic}` : displayLabel;
-          bodyEl.innerHTML = `
-            <p class="word-def-ko-main">${escapeHtml(result.text)}</p>
-            ${
-              posKo
-                ? `<p class="meta" style="margin:0.3rem 0 0;line-height:1.45;">
-                     품사 · ${escapeHtml(posKo)}${
-                       resolvedPos ? ` (${escapeHtml(resolvedPos)})` : ""
-                     }
-                   </p>`
-                : ""
-            }
-            <p class="meta" style="margin:0.35rem 0 0;font-size:0.76rem;line-height:1.45;">
-              <a href="${escapeHtml(googleTranslateWebUrl(query))}" target="_blank" rel="noopener noreferrer" style="color:var(--accent);">구글 번역 웹에서 보기 ↗</a>
-            </p>`;
-          if (wordLookupAbort === ac) wordLookupAbort = null;
+
+          const showRole = !!(getGeminiApiKey() && contextSentence);
+          let bodyHtml = `<p class="word-def-ko-main">${escapeHtml(result.text)}</p>`;
+          if (posKo) {
+            bodyHtml += `<p class="meta" style="margin:0.3rem 0 0;line-height:1.45;">품사 · ${escapeHtml(posKo)}${resolvedPos ? ` (${escapeHtml(resolvedPos)})` : ""}</p>`;
+          }
+          if (showRole) {
+            bodyHtml += `<div id="wordRoleSection" style="margin-top:0.6rem;padding-top:0.5rem;border-top:1px solid #2a3344;"><p style="margin:0 0 0.2rem;font-size:0.74rem;color:var(--accent);font-weight:600;letter-spacing:0.01em;">문장 속 역할</p><p id="wordRoleBody" style="margin:0;font-size:0.84rem;color:#c8d4e8;line-height:1.55;">분석 중…</p></div>`;
+          }
+          bodyHtml += `<p class="meta" style="margin:0.35rem 0 0;font-size:0.76rem;line-height:1.45;"><a href="${escapeHtml(googleTranslateWebUrl(query))}" target="_blank" rel="noopener noreferrer" style="color:var(--accent);">구글 번역 웹에서 보기 ↗</a></p>`;
+          bodyEl.innerHTML = bodyHtml;
+
+          if (showRole) {
+            fetchWordRoleInContext(query, contextSentence, ac.signal)
+              .then((role) => {
+                if (wordLookupAbort !== ac) return;
+                const roleBodyEl = document.getElementById("wordRoleBody");
+                if (roleBodyEl && role) {
+                  roleBodyEl.textContent = role;
+                } else {
+                  document.getElementById("wordRoleSection")?.remove();
+                }
+                if (wordLookupAbort === ac) wordLookupAbort = null;
+              })
+              .catch((err) => {
+                if (err.name !== "AbortError") {
+                  document.getElementById("wordRoleSection")?.remove();
+                }
+                if (wordLookupAbort === ac) wordLookupAbort = null;
+              });
+          } else {
+            if (wordLookupAbort === ac) wordLookupAbort = null;
+          }
         } catch (e) {
           window.clearTimeout(t);
           if (e.name === "AbortError") return;
@@ -1799,6 +1845,7 @@ JSON만 출력: [{"korean":"...","english":"..."},{"korean":"...","english":"...
       }
 
       function getVoiceOptionsHtml() {
+        if (getGeminiApiKey()) return "";
         const voices = getEnglishVoices();
         if (!voices.length) return "";
         const selected = chooseVoice(voices);
@@ -1814,13 +1861,52 @@ JSON만 출력: [{"korean":"...","english":"..."},{"korean":"...","english":"...
         </select>`;
       }
 
-      function speakEnglish(text) {
+      async function speakEnglish(text) {
+        const content = typeof text === "string" ? text.trim() : "";
+        if (!content) return;
+
+        const apiKey = getGeminiApiKey();
+        if (apiKey) {
+          try {
+            if (ttsCurrentAudio) {
+              ttsCurrentAudio.pause();
+              ttsCurrentAudio = null;
+            }
+            const cacheKey = content + "|" + getSavedTtsRate();
+            let url = ttsCache.get(cacheKey);
+            if (!url) {
+              const res = await fetch(OPENAI_TTS_URL, {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                  "Authorization": `Bearer ${apiKey}`,
+                },
+                body: JSON.stringify({
+                  model: "tts-1",
+                  input: content,
+                  voice: "nova",
+                  speed: getSavedTtsRate(),
+                }),
+              });
+              if (!res.ok) throw new Error(`TTS API 오류 ${res.status}`);
+              const blob = await res.blob();
+              url = URL.createObjectURL(blob);
+              ttsCache.set(cacheKey, url);
+            }
+            const audio = new Audio(url);
+            ttsCurrentAudio = audio;
+            audio.play();
+            return;
+          } catch (e) {
+            console.warn("OpenAI TTS 실패, Web Speech API로 대체:", e);
+          }
+        }
+
+        // fallback: Web Speech API
         if (!("speechSynthesis" in window)) {
           alert("이 브라우저는 음성 읽기(TTS)를 지원하지 않습니다.");
           return;
         }
-        const content = typeof text === "string" ? text.trim() : "";
-        if (!content) return;
         const voices = getEnglishVoices();
         const selected = chooseVoice(voices);
         window.speechSynthesis.cancel();
