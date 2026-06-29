@@ -202,6 +202,17 @@
       font-weight: 600;
     }
 
+    button.secondary {
+      background: transparent;
+      border-color: var(--border);
+      color: var(--muted);
+    }
+
+    button.secondary:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
     /* 진리발표 챕터 버튼: 제목이 길어도 한 줄씩 균형 있게 줄바꿈 */
     button.truth-chapter-btn {
       flex: 1 1 100%;
@@ -2375,6 +2386,107 @@ JSON만 출력: [{"korean":"...","english":"..."},{"korean":"...","english":"...
         renderVerbPicker(groups);
       }
 
+      const LS_DAILY_EXPR_KEY = "english-card-daily-expression";
+
+      function loadCachedExpression() {
+        try {
+          const raw = localStorage.getItem(LS_DAILY_EXPR_KEY);
+          if (!raw) return null;
+          const saved = JSON.parse(raw);
+          if (saved.date === todayKey()) return saved.data;
+        } catch {}
+        return null;
+      }
+
+      function saveCachedExpression(data) {
+        try {
+          localStorage.setItem(LS_DAILY_EXPR_KEY, JSON.stringify({ date: todayKey(), data }));
+        } catch {}
+      }
+
+      function renderExpressionContent(panel, d) {
+        panel.style.display = "block";
+        panel.innerHTML = `
+          <div style="width:100%;">
+            <p style="margin:0 0 0.25rem;font-size:1.25rem;font-weight:700;color:#eef3fc;letter-spacing:-0.01em;">${escapeHtml(d.expression)}</p>
+            <p style="margin:0 0 1rem;font-size:0.88rem;color:var(--accent);">${escapeHtml(d.meaning_ko)}</p>
+            <div style="background:#111827;border:1px solid #2d3a52;border-radius:8px;padding:0.65rem 0.8rem;margin-bottom:0.5rem;">
+              <p style="margin:0 0 0.3rem;font-size:0.92rem;color:#eef3fc;line-height:1.6;" class="answer" data-en-context="${escapeHtml(d.example_en)}">${englishWordsInteractiveHtml(d.example_en)}</p>
+              <p style="margin:0;font-size:0.84rem;color:var(--muted);line-height:1.5;">${escapeHtml(d.example_ko)}</p>
+            </div>
+            ${d.note ? `<div class="note-block" style="margin-bottom:0.5rem;"><div class="label">메모</div><div class="note-body">${escapeHtml(d.note)}</div></div>` : ""}
+            <div style="display:flex;justify-content:flex-end;">
+              <button type="button" class="tts-btn" id="btnExprSpeak">🔊 듣기</button>
+            </div>
+          </div>`;
+        document.getElementById("btnExprSpeak").onclick = () => speakEnglish(d.example_en);
+      }
+
+      async function renderDailyExpression(forceNew = false) {
+        dateLine.textContent = todayKey();
+        app.innerHTML = `
+          <div class="gate-panel">
+            <strong>오늘의 영어 표현</strong>
+          </div>
+          <div class="gate-panel" id="dailyExprPanel" style="margin-top:0.6rem;min-height:110px;display:flex;align-items:center;justify-content:center;">
+            <span class="meta">표현을 불러오는 중…</span>
+          </div>
+          <div class="actions">
+            <button type="button" class="secondary" id="btnExprBack">← 돌아가기</button>
+            <button type="button" class="primary" id="btnExprRefresh">다른 표현 보기</button>
+          </div>
+        `;
+        document.getElementById("btnExprBack").onclick = () => renderModePicker();
+        document.getElementById("btnExprRefresh").onclick = () => renderDailyExpression(true);
+
+        const panel = document.getElementById("dailyExprPanel");
+
+        if (!forceNew) {
+          const cached = loadCachedExpression();
+          if (cached) {
+            renderExpressionContent(panel, cached);
+            return;
+          }
+        }
+
+        const apiKey = getGeminiApiKey();
+        if (!apiKey) {
+          panel.style.display = "block";
+          panel.innerHTML = `<p class="word-def-error">표현을 불러오려면 모드 선택 &gt; 설정에서 OpenAI API 키를 입력해 주세요.</p>`;
+          return;
+        }
+
+        try {
+          const res = await fetch(GROQ_API_URL, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "Authorization": `Bearer ${apiKey}`,
+            },
+            body: JSON.stringify({
+              model: GROQ_MODEL,
+              messages: [{
+                role: "user",
+                content: `초급 영어 학습자(A2 수준)에게 유용한 일상 영어 표현(idiom 또는 구동사) 하나를 알려줘.\n\nJSON만 출력:\n{"expression":"영어 표현","meaning_ko":"한국어 의미","example_en":"영어 예문 (짧고 자연스럽게)","example_ko":"예문 한국어 번역","note":"예문에서 알아두면 좋을 문법 패턴이나 핵심 단어를 한국어로 1~2문장으로 설명 (예: 'go + ~ing'는 활동을 하러 가다는 뜻입니다. 'often'은 빈도부사로 일반동사 앞에 씁니다.)"}`,
+              }],
+              temperature: 0.9,
+              max_tokens: 200,
+            }),
+          });
+          if (!res.ok) throw new Error(`API 오류 ${res.status}`);
+          const data = await res.json();
+          const raw = data?.choices?.[0]?.message?.content || "";
+          const match = raw.match(/\{[\s\S]*\}/);
+          if (!match) throw new Error("응답 형식을 파싱하지 못했습니다.");
+          const d = JSON.parse(match[0]);
+          saveCachedExpression(d);
+          renderExpressionContent(panel, d);
+        } catch (e) {
+          panel.style.display = "block";
+          panel.innerHTML = `<p class="word-def-error">${escapeHtml(e?.message || "표현을 불러오지 못했습니다.")}</p>`;
+        }
+      }
+
       function renderModePicker() {
         dateLine.textContent = todayKey();
         const ttsRate = getSavedTtsRate();
@@ -2430,6 +2542,7 @@ JSON만 출력: [{"korean":"...","english":"..."},{"korean":"...","english":"...
             <button type="button" class="primary" id="btnModeDaily">일상 생활</button>
             <button type="button" class="primary" id="btnModeTruth">진리발표</button>
             <button type="button" class="primary" id="btnModeVerbs">기본동사</button>
+            <button type="button" class="primary" id="btnModeBible">오늘의 영어 표현</button>
           </div>
         `;
         document.getElementById("btnModeDaily").onclick = () => {
@@ -2440,6 +2553,9 @@ JSON만 출력: [{"korean":"...","english":"..."},{"korean":"...","english":"...
         };
         document.getElementById("btnModeVerbs").onclick = () => {
           startVerbsMode();
+        };
+        document.getElementById("btnModeBible").onclick = () => {
+          renderDailyExpression();
         };
         const modeTtsRate = document.getElementById("modeTtsRate");
         if (modeTtsRate) {
