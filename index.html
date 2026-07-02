@@ -1597,15 +1597,40 @@ JSON만 출력: [{"korean":"...","english":"..."},{"korean":"...","english":"...
             model: GROQ_MODEL,
             messages: [{
               role: "user",
-              content: `다음 영어 문장에서 단어의 문법적 역할을 한국어로 설명해줘.\n\n문장: "${sentence}"\n분석 단어: "${word}"\n\n규칙:\n- 2문장 이내로 간결하게\n- 품사와 문장 내 역할(주어/서술어/목적어/수식어 등) 포함\n- 이 문장에서 갖는 의미나 기능 설명\n- 앞뒤 설명 없이 내용만 출력`,
+              content: `다음 영어 문장에서 특정 단어가 포함된 의미 단위(구/절)를 분석해줘.\n\n전체 문장: "${sentence}"\n분석 대상 단어: "${word}"\n\n아래 JSON 형식으로만 답해줘 (다른 설명 없이 JSON만 출력):\n{"phrase":"분석 대상 단어가 포함된 의미 단위(보통 한 문장 이내)","parts":[{"word":"영어 단어 또는 표현","meaning":"이 문맥에서의 한글 뜻","pos":"품사(동사/명사/부사/전치사/형용사/접속사 등)"}],"translation":"phrase의 자연스러운 한글 번역"}\n\n규칙:\n- parts는 phrase를 이루는 핵심 단어/표현만 2~4개 포함 (관사, 쉼표 등 기능어는 생략)\n- 반드시 분석 대상 단어도 parts에 포함\n- JSON 외의 텍스트는 절대 출력하지 마`,
             }],
             temperature: 0.2,
-            max_tokens: 150,
+            max_tokens: 300,
           }),
         });
         if (!res.ok) throw new Error(`API ${res.status}`);
         const data = await res.json();
-        return (data?.choices?.[0]?.message?.content || "").trim() || null;
+        const text = (data?.choices?.[0]?.message?.content || "").trim();
+        const jsonMatch = text.match(/\{[\s\S]*\}/);
+        if (!jsonMatch) return null;
+        try {
+          const parsed = JSON.parse(jsonMatch[0]);
+          if (!parsed || !parsed.phrase || !Array.isArray(parsed.parts) || parsed.parts.length === 0) {
+            return null;
+          }
+          return parsed;
+        } catch (_) {
+          return null;
+        }
+      }
+
+      function buildWordRoleHtml(role) {
+        const partsHtml = role.parts
+          .filter((p) => p && p.word)
+          .map((p) => {
+            const posSuffix = p.pos ? ` <span style="color:#8b95a8;">(${escapeHtml(p.pos)})</span>` : "";
+            return `<div style="margin:0.1rem 0;"><span style="color:#e8edf7;">${escapeHtml(p.word)}</span> 👉 ${escapeHtml(p.meaning || "")}${posSuffix}</div>`;
+          })
+          .join("");
+        const translationHtml = role.translation
+          ? `<div style="margin-top:0.5rem;">👉 ${escapeHtml(role.translation)}</div>`
+          : "";
+        return `<div>👉 ${escapeHtml(role.phrase)}</div><div style="margin:0.5rem 0 0.15rem;font-size:0.72rem;font-weight:600;color:var(--accent);">구조</div>${partsHtml}${translationHtml}`;
       }
 
       async function fetchAndShowWordDefinition(displayWord, lookupKey, contextSentence, wordIndex) {
@@ -1659,7 +1684,7 @@ JSON만 출력: [{"korean":"...","english":"..."},{"korean":"...","english":"...
             bodyHtml += `<p class="meta" style="margin:0.3rem 0 0;line-height:1.45;">품사 · ${escapeHtml(posKo)}${resolvedPos ? ` (${escapeHtml(resolvedPos)})` : ""}</p>`;
           }
           if (showRole) {
-            bodyHtml += `<div id="wordRoleSection" style="margin-top:0.6rem;padding-top:0.5rem;border-top:1px solid #2a3344;"><p style="margin:0 0 0.2rem;font-size:0.74rem;color:var(--accent);font-weight:600;letter-spacing:0.01em;">문장 속 역할</p><p id="wordRoleBody" style="margin:0;font-size:0.84rem;color:#c8d4e8;line-height:1.55;">분석 중…</p></div>`;
+            bodyHtml += `<div id="wordRoleSection" style="margin-top:0.6rem;padding-top:0.5rem;border-top:1px solid #2a3344;"><p style="margin:0 0 0.2rem;font-size:0.74rem;color:var(--accent);font-weight:600;letter-spacing:0.01em;">문장 속 역할</p><div id="wordRoleBody" style="margin:0;font-size:0.84rem;color:#c8d4e8;line-height:1.55;">분석 중…</div></div>`;
           }
           bodyHtml += `<p class="meta" style="margin:0.35rem 0 0;font-size:0.76rem;line-height:1.45;"><a href="${escapeHtml(googleTranslateWebUrl(query))}" target="_blank" rel="noopener noreferrer" style="color:var(--accent);">구글 번역 웹에서 보기 ↗</a></p>`;
           bodyEl.innerHTML = bodyHtml;
@@ -1670,7 +1695,7 @@ JSON만 출력: [{"korean":"...","english":"..."},{"korean":"...","english":"...
                 if (wordLookupAbort !== ac) return;
                 const roleBodyEl = document.getElementById("wordRoleBody");
                 if (roleBodyEl && role) {
-                  roleBodyEl.textContent = role;
+                  roleBodyEl.innerHTML = buildWordRoleHtml(role);
                 } else {
                   document.getElementById("wordRoleSection")?.remove();
                 }
