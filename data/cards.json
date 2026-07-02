@@ -753,5 +753,192 @@
         "note": "'You too.'는 상대방의 인사에 '당신도요'라고 화답하는 표현입니다. 'look forward to + 명사/동명사'는 '~을 고대하다, 기대하다'는 표현입니다."
       }
     ]
+  },
+  {
+    "chapter": 6,
+    "title": "공항에서 입국 심사을 받아요",
+    "studyDate": "2026-07-03",
+    "cards": [
+      {
+        "id": 1,
+        "situation": "다음 분, 앞으로 나와 주세요. 안녕하세요.",
+        "answer": "Next. Step forward, please. Good morning.",
+        "note": "'next'는 '다음'을 뜻합니다. 'step forward'는 '앞으로 나오다'는 표현입니다. 'please'는 정중하게 요청할 때 덧붙이는 표현입니다."
+      },
+      {
+        "id": 2,
+        "situation": "안녕하세요. 여기 제 여권입니다.",
+        "answer": "Good morning. Here is my passport.",
+        "note": "'Here is ~'는 '여기 ~가 있습니다'라는 뜻으로 무언가를 건네줄 때 씁니다. 'passport'는 '여권'을 뜻합니다."
+      },
+      {
+        "id": 3,
+        "situation": "미국에 방문하신 목적이 무엇입니까?",
+        "answer": "What is the purpose of your visit to the United States?",
+        "note": "'purpose'는 '목적'을 뜻합니다. 'visit'는 '방문' 또는 '방문하다'라는 뜻입니다. 'the United States'는 '미국'을 가리킵니다."
+      },
+      {
+        "id": 4,
+        "situation": "관광과 휴가를 위해 왔습니다.",
+        "answer": "I'm here for sightseeing and vacation.",
+        "note": "'be here for ~'는 '~을 위해 이곳에 오다'는 표현입니다. 'sightseeing'은 '관광', 'vacation'은 '휴가'를 뜻합니다."
+      },
+      {
+        "id": 5,
+        "situation": "이 나라에 얼마나 머무실 예정인가요?",
+        "answer": "How long will you be staying in the country?",
+        "note": "'How long'은 기간을 물을 때 쓰는 표현입니다. 'stay'는 '머무르다', 'country'는 '나라'를 뜻합니다."
+      },
+      {
+        "id": 6,
+        "situation": "10일 동안 머물 것입니다.",
+        "answer": "I will be here for 10 days.",
+        "note": "'here'는 '여기'를 뜻하며 'for + 기간'과 함께 쓰여 머무는 기간을 나타냅니다. 'day'는 '날, 일'을 뜻합니다."
+      },
+      {
+        "id": 7,
+        "situation": "방문 기간 동안 어디에서 머무실 건가요?",
+        "answer": "Where will you be staying during your visit?",
+        "note": "'where'는 '어디'를 묻는 의문사입니다. 'during'은 '~하는 동안'을 뜻하며, 'visit'는 '방문'을 뜻합니다."
+      },
+      {
+        "id": 8,
+        "situation": "로스앤젤레스에 있는 선셋 플라자 호텔에 묵을 예정입니다.",
+        "answer": "I'll be staying at the Sunset Plaza Hotel in Los Angeles.",
+        "note": "'stay at ~'는 '~에 머물다'는 표현입니다. 'Los Angeles'는 미국 도시 '로스앤젤레스'를 뜻합니다."
+      },
+      {
+        "id": 9,
+        "situation": "숙소 주소나 예약 확인서가 있습니까?",
+        "answer": "Do you have the address or a booking confirmation?",
+        "note": "'address'는 '주소', 'or'는 '또는'을 뜻합니다. 'booking confirmation'은 '예약 확인서'를 뜻합니다."
+      },
+      {
+        "id": 10,
+        "situation": "네, 바로 여기 제 휴대폰에 있습니다.",
+        "answer": "Yes, it's right here on my phone.",
+        "note": "'right here'는 '바로 여기'를 뜻하며 위치를 강조할 때 씁니다. 'phone'은 '전화기, 휴대폰'을 뜻합니다."
+      },
+      {
+        "id": 11,
+        "situation": "본국에서의 직업은 무엇입니까?",
+        "answer": "What is your occupation in your home country?",
+        "note": "'occupation'은 '직업'을 뜻합니다. 'home country'는 '본국, 고국'을 뜻합니다."
+      },
+      {
+        "id": 12,
+        "situation": "의류 브랜드의 마케팅 매니저로 일하고 있습니다.",
+        "answer": "I work as a marketing manager for a clothing brand.",
+        "note": "'work as ~'는 '~로 일하다'는 표현입니다. 'marketing manager'는 '마케팅 매니저', 'clothing brand'는 '의류 브랜드'를 뜻합니다."
+      },
+      {
+        "id": 13,
+        "situation": "혼자 여행하시나요, 아니면 일행이 있나요?",
+        "answer": "Are you traveling alone or with a group?",
+        "note": "'travel'은 '여행하다', 'alone'은 '혼자'를 뜻합니다. 'with a group'은 '일행과 함께'라는 표현입니다."
+      },
+      {
+        "id": 14,
+        "situation": "이번에는 저 혼자 여행합니다.",
+        "answer": "I am traveling by myself this time.",
+        "note": "'by myself'는 '나 혼자서'를 뜻합니다. 'this time'은 '이번에는'을 뜻합니다."
+      },
+      {
+        "id": 15,
+        "situation": "귀국 항공권을 가지고 있습니까?",
+        "answer": "Do you have a return ticket?",
+        "note": "'return ticket'은 '귀국 항공권(돌아오는 표)'을 뜻합니다."
+      },
+      {
+        "id": 16,
+        "situation": "네, 제 귀국편 비행기가 15일로 예정되어 있습니다.",
+        "answer": "Yes, my return flight is scheduled for the 15th.",
+        "note": "'return flight'는 '귀국편 비행기'를 뜻합니다. 'be scheduled for ~'는 '~로 예정되다'는 표현입니다."
+      },
+      {
+        "id": 17,
+        "situation": "오늘 현금을 얼마나 소지하고 계신가요?",
+        "answer": "How much cash do you have with you today?",
+        "note": "'how much'는 양을 물을 때 쓰는 표현입니다. 'cash'는 '현금'을 뜻하며, 'have ~ with you'는 '~을 소지하다'는 뜻입니다."
+      },
+      {
+        "id": 18,
+        "situation": "현금으로 약 600달러가 있고 신용카드도 있습니다.",
+        "answer": "I have about 600 dollars in cash and a credit card.",
+        "note": "'about'은 '약, 대략'을 뜻합니다. 'credit card'는 '신용카드'를 뜻합니다."
+      },
+      {
+        "id": 19,
+        "situation": "음식물이나 식물, 축산물을 가져오신 게 있습니까?",
+        "answer": "Are you bringing any food, plants, or animal products?",
+        "note": "'bring'은 '가져오다'를 뜻합니다. 'food'는 '음식', 'plant'는 '식물', 'animal product'는 '축산물(동물 관련 제품)'을 뜻합니다."
+      },
+      {
+        "id": 20,
+        "situation": "아니요, 그런 물건들은 전혀 없습니다.",
+        "answer": "No, I don't have any items like that.",
+        "note": "'any'는 부정문에서 '어떤 ~도'라는 뜻으로 쓰입니다. 'item'은 '물건, 품목', 'like that'은 '그와 같은, 그런'을 뜻합니다."
+      },
+      {
+        "id": 21,
+        "situation": "100달러를 초과하는 선물이나 판매용 물품이 있습니까?",
+        "answer": "Any gifts or items for sale that exceed $100?",
+        "note": "'gift'는 '선물', 'item for sale'은 '판매용 물품'을 뜻합니다. 'exceed'는 '넘다, 초과하다'는 뜻입니다."
+      },
+      {
+        "id": 22,
+        "situation": "아니요, 그런 건 없습니다. 그냥 제 개인 소지품들뿐이에요.",
+        "answer": "No, nothing like that. Just my personal belongings.",
+        "note": "'nothing like that'은 '그런 것은 없음'을 뜻합니다. 'just'는 '그냥, 단지', 'personal belongings'는 '개인 소지품'을 뜻합니다."
+      },
+      {
+        "id": 23,
+        "situation": "이전에 미국에 오신 적이 있습니까?",
+        "answer": "Have you been to the United States before?",
+        "note": "'Have you been to ~?'는 '~에 가본 적이 있나요?'라고 경험을 묻는 현재완료 표현입니다. 'before'는 '이전에'를 뜻합니다."
+      },
+      {
+        "id": 24,
+        "situation": "아니요, 이번 방문이 정말 처음입니다.",
+        "answer": "No, this is my very first time visiting.",
+        "note": "'very first time'은 '정말 처음'을 뜻합니다. 'visiting'은 '방문하다'라는 뜻의 동명사입니다."
+      },
+      {
+        "id": 25,
+        "situation": "좋습니다. 카메라를 보시고 사진 촬영을 위해 가만히 계세요.",
+        "answer": "Okay. Look at the camera and hold still for a photo.",
+        "note": "'look at ~'는 '~을 보다'는 표현입니다. 'hold still'은 '가만히 있다', 'photo'는 '사진'을 뜻합니다."
+      },
+      {
+        "id": 26,
+        "situation": "이렇게 하면 되나요? 카메라를 똑바로 보고 있어요.",
+        "answer": "Is this okay? I'm looking right at the camera.",
+        "note": "'okay'는 '괜찮은, 맞는'을 뜻합니다. 'look right at ~'는 '~를 똑바로 보다'는 표현으로, 'right'가 '바로, 정확히'라는 뜻의 부사로 쓰였습니다."
+      },
+      {
+        "id": 27,
+        "situation": "네. 이제 양손의 지문을 스캔해야 합니다.",
+        "answer": "Yes. Now, I need to scan the fingerprints from both of your hands.",
+        "note": "'need to ~'는 '~해야 한다'는 표현입니다. 'scan'은 '스캔하다', 'fingerprint'는 '지문', 'both of your hands'는 '당신의 양손 모두'를 뜻합니다."
+      },
+      {
+        "id": 28,
+        "situation": "알겠습니다. 스캔이 완료되면 알려주세요.",
+        "answer": "OK. Just let me know when the scan is complete.",
+        "note": "'let me know'는 '알려주세요'라는 뜻입니다. 'when'은 '~할 때'를 뜻하며, 'complete'는 '완료된'을 뜻합니다."
+      },
+      {
+        "id": 29,
+        "situation": "됐습니다. 모든 게 확인되었습니다. 로스앤젤레스에서 즐거운 시간 보내세요.",
+        "answer": "That's it. Everything is clear. Enjoy your stay in Los Angeles.",
+        "note": "'That's it.'은 '다 됐다, 그것이 전부이다'는 표현입니다. 'clear'는 '문제없는, 이상이 없는'을 뜻하며, 'enjoy your stay'는 '체류를 즐기다'는 인사 표현입니다."
+      },
+      {
+        "id": 30,
+        "situation": "정말 감사합니다. 좋은 하루 보내세요!",
+        "answer": "Thank you so much. Have a great one!",
+        "note": "'thank you so much'는 '정말 감사합니다'는 표현입니다. 'Have a great one!'은 'Have a great day.'의 친근한 표현으로 '좋은 하루 되세요'를 뜻합니다."
+      }
+    ]
   }
 ]
