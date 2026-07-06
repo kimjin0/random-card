@@ -895,11 +895,12 @@
         localStorage.removeItem(PROGRESS_KEY);
       }
 
-      const WRONG_KEY_PREFIX = "english-card-wrong-ch";
+      const WRONG_KEY_PREFIX = "english-card-wrong-";
 
-      function loadWrongIds(chapter) {
+      /** source: "daily"(cards.json) / "truth"(truth.json) — 두 파일의 chapter 번호가 겹치므로 구분 필요 */
+      function loadWrongIds(source, chapter) {
         try {
-          const raw = localStorage.getItem(WRONG_KEY_PREFIX + chapter);
+          const raw = localStorage.getItem(WRONG_KEY_PREFIX + source + "-ch" + chapter);
           if (!raw) return new Set();
           const arr = JSON.parse(raw);
           return Array.isArray(arr) ? new Set(arr) : new Set();
@@ -908,12 +909,13 @@
         }
       }
 
-      function saveWrongIds(chapter, wrongIds) {
+      function saveWrongIds(source, chapter, wrongIds) {
         try {
+          const key = WRONG_KEY_PREFIX + source + "-ch" + chapter;
           if (wrongIds.size === 0) {
-            localStorage.removeItem(WRONG_KEY_PREFIX + chapter);
+            localStorage.removeItem(key);
           } else {
-            localStorage.setItem(WRONG_KEY_PREFIX + chapter, JSON.stringify([...wrongIds]));
+            localStorage.setItem(key, JSON.stringify([...wrongIds]));
           }
         } catch {}
       }
@@ -1910,22 +1912,23 @@ JSON만 출력: [{"korean":"...","english":"..."},{"korean":"...","english":"...
         window.speechSynthesis.speak(u);
       }
 
-      function createTruthStudyState(group) {
+      function createTruthStudyState(group, source) {
         // 진리발표 모드는 truth.json에 정의된 순서(카드 id 오름차순)대로 진행.
         const picks = group.cards
           .slice()
           .sort((a, b) => a.localId - b.localId);
         return {
+          source,
           chapter: group.chapter,
           title: group.title,
           picks,
           index: 0,
           revealed: false,
-          wrongIds: loadWrongIds(group.chapter),
+          wrongIds: loadWrongIds(source, group.chapter),
         };
       }
 
-      function renderTruthChapterPicker(groups) {
+      function renderTruthChapterPicker(groups, source) {
         dateLine.textContent = todayKey();
         if (!groups.length) {
           app.innerHTML = `<div class="error">진리발표 챕터 데이터가 없습니다.</div>`;
@@ -1933,7 +1936,7 @@ JSON만 출력: [{"korean":"...","english":"..."},{"korean":"...","english":"...
         }
         const chapterButtons = groups
           .map((g) => {
-            const wrongCount = loadWrongIds(g.chapter).size;
+            const wrongCount = loadWrongIds(source, g.chapter).size;
             const wrongBadge = wrongCount > 0 ? ` <span style="display:inline-block;background:#c0392b;color:#fff;border-radius:999px;padding:0.1rem 0.55rem;font-size:0.72rem;font-weight:700;vertical-align:middle;margin-left:0.3rem;letter-spacing:0;">✗ ${wrongCount}</span>` : "";
             return `<button type="button" class="primary truth-chapter-btn" data-chapter="${g.chapter}">Chapter ${g.chapter}${g.title ? ` · ${escapeHtml(g.title)}` : ""} (${g.cards.length}문장)${wrongBadge}</button>`;
           })
@@ -1953,7 +1956,7 @@ JSON만 출력: [{"korean":"...","english":"..."},{"korean":"...","english":"...
             const chapter = Number(btn.dataset.chapter);
             const group = groups.find((g) => g.chapter === chapter);
             if (!group) return;
-            const state = createTruthStudyState(group);
+            const state = createTruthStudyState(group, source);
             renderTruthStudy(state, groups);
           });
         });
@@ -1990,6 +1993,7 @@ JSON만 출력: [{"korean":"...","english":"..."},{"korean":"...","english":"...
             document.getElementById("btnRetryWrong").onclick = () => {
               const wrongPicks = picks.filter((c) => state.wrongIds.has(c.id));
               renderTruthStudy({
+                source: state.source,
                 chapter: state.chapter,
                 title: state.title,
                 picks: wrongPicks,
@@ -2002,10 +2006,10 @@ JSON만 출력: [{"korean":"...","english":"..."},{"korean":"...","english":"...
           document.getElementById("btnTruthReplay").onclick = () => {
             const group = groups.find((g) => g.chapter === state.chapter);
             if (!group) return;
-            renderTruthStudy(createTruthStudyState(group), groups);
+            renderTruthStudy(createTruthStudyState(group, state.source), groups);
           };
           document.getElementById("btnTruthList").onclick = () => {
-            renderTruthChapterPicker(groups);
+            renderTruthChapterPicker(groups, state.source);
           };
           return;
         }
@@ -2081,7 +2085,7 @@ JSON만 출력: [{"korean":"...","english":"..."},{"korean":"...","english":"...
             } else {
               state.wrongIds.add(card.id);
             }
-            saveWrongIds(state.chapter, state.wrongIds);
+            saveWrongIds(state.source, state.chapter, state.wrongIds);
             renderTruthStudy(state, groups);
           };
         }
@@ -2090,6 +2094,7 @@ JSON만 출력: [{"korean":"...","english":"..."},{"korean":"...","english":"...
           btnRetryWrongMid.onclick = () => {
             const wrongPicks = picks.filter((c) => state.wrongIds.has(c.id));
             renderTruthStudy({
+              source: state.source,
               chapter: state.chapter,
               title: state.title,
               picks: wrongPicks,
@@ -2102,10 +2107,10 @@ JSON만 출력: [{"korean":"...","english":"..."},{"korean":"...","english":"...
         document.getElementById("btnTruthRestart").onclick = () => {
           const group = groups.find((g) => g.chapter === state.chapter);
           if (!group) return;
-          renderTruthStudy(createTruthStudyState(group), groups);
+          renderTruthStudy(createTruthStudyState(group, state.source), groups);
         };
         document.getElementById("btnTruthList").onclick = () => {
-          renderTruthChapterPicker(groups);
+          renderTruthChapterPicker(groups, state.source);
         };
         const btnSpeakAnswer = document.getElementById("btnSpeakAnswer");
         if (btnSpeakAnswer) {
@@ -2368,10 +2373,10 @@ JSON만 출력: [{"korean":"...","english":"..."},{"korean":"...","english":"...
           return;
         }
         if (groups.length === 1) {
-          const state = createTruthStudyState(groups[0]);
+          const state = createTruthStudyState(groups[0], "daily");
           renderTruthStudy(state, groups);
         } else {
-          renderTruthChapterPicker(groups);
+          renderTruthChapterPicker(groups, "daily");
         }
       }
 
@@ -2390,7 +2395,7 @@ JSON만 출력: [{"korean":"...","english":"..."},{"korean":"...","english":"...
             </div>`;
           return;
         }
-        renderTruthChapterPicker(groups);
+        renderTruthChapterPicker(groups, "truth");
       }
 
       async function startVerbsMode() {
