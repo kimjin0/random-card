@@ -427,6 +427,9 @@
     </footer>
   </div>
 
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
   <script>
     (function () {
       const DAILY_DATA_URL = "data/cards.json";
@@ -459,6 +462,20 @@
       const LS_GEMINI_KEY = "english-card-gemini-key";
       const GROQ_API_URL = "https://api.openai.com/v1/chat/completions";
       const GROQ_MODEL = "gpt-4o-mini";
+      /**
+       * 틀린 문장(오답) 기기 간 동기화용 Firebase 설정.
+       * Firebase 콘솔(console.firebase.google.com) > 프로젝트 설정 > 일반 > 내 앱(웹)에서 복사해 채우세요.
+       * apiKey/projectId가 비어 있으면 동기화 기능은 자동으로 꺼지고 기존처럼 기기 내 localStorage만 사용합니다.
+       */
+      const FIREBASE_CONFIG = {
+        apiKey: "AIzaSyABrVfFnmV9ygf3AUAJmEnoRoeEkrOcd0U",
+        authDomain: "random-card-8ee6e.firebaseapp.com",
+        projectId: "random-card-8ee6e",
+        storageBucket: "random-card-8ee6e.firebasestorage.app",
+        messagingSenderId: "703954283174",
+        appId: "1:703954283174:web:c23782aad7cecbf0616267",
+      };
+      const SYNC_CODE_KEY = "english-card-sync-code";
       let wordLookupAbort = null;
       let wordDefLookupKey = "";
 
@@ -918,6 +935,100 @@
             localStorage.setItem(key, JSON.stringify([...wrongIds]));
           }
         } catch {}
+      }
+
+      /** ---- 오답 기기 간 동기화 (Firebase Firestore, 선택 사항) ---- */
+      let fbApp = null;
+      let fbDb = null;
+      let fbAuthReady = null;
+
+      function firebaseSyncEnabled() {
+        return !!(FIREBASE_CONFIG.apiKey && FIREBASE_CONFIG.projectId);
+      }
+
+      function getSyncCode() {
+        try {
+          return (localStorage.getItem(SYNC_CODE_KEY) || "").trim();
+        } catch {
+          return "";
+        }
+      }
+
+      function setSyncCode(code) {
+        try {
+          const v = String(code || "").trim();
+          if (v) localStorage.setItem(SYNC_CODE_KEY, v);
+          else localStorage.removeItem(SYNC_CODE_KEY);
+        } catch {}
+      }
+
+      function wrongFieldKey(source, chapter) {
+        return `${source}-ch${chapter}`;
+      }
+
+      /** 같은 동기화 코드를 쓰는 기기끼리만 같은 Firestore 문서를 공유 */
+      function ensureFirebaseSignedIn() {
+        if (!firebaseSyncEnabled() || !getSyncCode()) return Promise.resolve(false);
+        if (!fbApp) {
+          fbApp = firebase.initializeApp(FIREBASE_CONFIG);
+          fbDb = firebase.firestore();
+        }
+        if (!fbAuthReady) {
+          fbAuthReady = firebase
+            .auth()
+            .signInAnonymously()
+            .then(() => true)
+            .catch((e) => {
+              console.warn("동기화 로그인 실패:", e);
+              return false;
+            });
+        }
+        return fbAuthReady;
+      }
+
+      /**
+       * 클라우드에 이미 값이 있으면 그걸 최신 정답으로 그대로 채택(해제/삭제도 정확히 반영).
+       * 클라우드에 아직 아무것도 없으면(최초 동기화) 로컬 값을 업로드해 시작점으로 삼는다.
+       * 단순 합집합이 아닌 이유: 합집합으로 합치면 한쪽에서 표시 해제해도 다른 기기에 남아있던
+       * 값 때문에 다시 살아나서 "해제"가 영영 전파되지 않는다.
+       */
+      async function pullMergeWrongIds(source, chapter) {
+        const local = loadWrongIds(source, chapter);
+        if (!firebaseSyncEnabled() || !getSyncCode()) return local;
+        try {
+          const signedIn = await ensureFirebaseSignedIn();
+          if (!signedIn) return local;
+          const field = wrongFieldKey(source, chapter);
+          const ref = fbDb.collection("wrongCardsSync").doc(getSyncCode());
+          const snap = await ref.get();
+          const data = snap.exists ? snap.data() : null;
+          if (data && Array.isArray(data[field])) {
+            const remote = new Set(data[field]);
+            saveWrongIds(source, chapter, remote);
+            return remote;
+          }
+          if (local.size > 0) {
+            await ref.set({ [field]: [...local] }, { merge: true });
+          }
+          return local;
+        } catch (e) {
+          console.warn("오답 동기화 실패:", e);
+          return local;
+        }
+      }
+
+      /** 오답 표시/해제 시 클라우드에도 반영 (실패해도 로컬 저장은 이미 끝난 상태) */
+      function pushWrongIds(source, chapter, wrongIds) {
+        if (!firebaseSyncEnabled() || !getSyncCode()) return;
+        ensureFirebaseSignedIn().then((signedIn) => {
+          if (!signedIn) return;
+          const field = wrongFieldKey(source, chapter);
+          fbDb
+            .collection("wrongCardsSync")
+            .doc(getSyncCode())
+            .set({ [field]: [...wrongIds] }, { merge: true })
+            .catch((e) => console.warn("오답 업로드 실패:", e));
+        });
       }
 
       function resolvePicksFromSession(cards, session) {
@@ -1928,6 +2039,23 @@ JSON만 출력: [{"korean":"...","english":"..."},{"korean":"...","english":"...
         };
       }
 
+      /**
+       * 학습 화면 진입 + 백그라운드 오답 동기화.
+       * 병합 결과는 화면을 다시 그리지 않고 state.wrongIds에 조용히 더해서,
+       * 다음 렌더링(다음/이전/완료 등 사용자 조작) 때 자연스럽게 반영되게 한다.
+       */
+      function enterTruthStudy(group, source, groups) {
+        const state = createTruthStudyState(group, source);
+        renderTruthStudy(state, groups);
+        if (firebaseSyncEnabled() && getSyncCode()) {
+          pullMergeWrongIds(source, group.chapter).then((merged) => {
+            // 클라우드 값을 그대로 채택 (표시 해제도 반영되도록 add가 아닌 통째로 교체)
+            state.wrongIds.clear();
+            merged.forEach((id) => state.wrongIds.add(id));
+          });
+        }
+      }
+
       function renderTruthChapterPicker(groups, source) {
         dateLine.textContent = todayKey();
         if (!groups.length) {
@@ -1956,13 +2084,17 @@ JSON만 출력: [{"korean":"...","english":"..."},{"korean":"...","english":"...
             const chapter = Number(btn.dataset.chapter);
             const group = groups.find((g) => g.chapter === chapter);
             if (!group) return;
-            const state = createTruthStudyState(group, source);
-            renderTruthStudy(state, groups);
+            enterTruthStudy(group, source, groups);
           });
         });
         document.getElementById("btnModeBack").onclick = () => {
           renderModePicker();
         };
+
+        // 배지 숫자를 최신 상태로 맞추기 위한 백그라운드 동기화 (현재 화면은 다시 그리지 않음).
+        if (firebaseSyncEnabled() && getSyncCode()) {
+          groups.forEach((g) => pullMergeWrongIds(source, g.chapter));
+        }
       }
 
       function renderTruthStudy(state, groups) {
@@ -2006,7 +2138,7 @@ JSON만 출력: [{"korean":"...","english":"..."},{"korean":"...","english":"...
           document.getElementById("btnTruthReplay").onclick = () => {
             const group = groups.find((g) => g.chapter === state.chapter);
             if (!group) return;
-            renderTruthStudy(createTruthStudyState(group, state.source), groups);
+            enterTruthStudy(group, state.source, groups);
           };
           document.getElementById("btnTruthList").onclick = () => {
             renderTruthChapterPicker(groups, state.source);
@@ -2086,6 +2218,7 @@ JSON만 출력: [{"korean":"...","english":"..."},{"korean":"...","english":"...
               state.wrongIds.add(card.id);
             }
             saveWrongIds(state.source, state.chapter, state.wrongIds);
+            pushWrongIds(state.source, state.chapter, state.wrongIds);
             renderTruthStudy(state, groups);
           };
         }
@@ -2107,7 +2240,7 @@ JSON만 출력: [{"korean":"...","english":"..."},{"korean":"...","english":"...
         document.getElementById("btnTruthRestart").onclick = () => {
           const group = groups.find((g) => g.chapter === state.chapter);
           if (!group) return;
-          renderTruthStudy(createTruthStudyState(group, state.source), groups);
+          enterTruthStudy(group, state.source, groups);
         };
         document.getElementById("btnTruthList").onclick = () => {
           renderTruthChapterPicker(groups, state.source);
@@ -2373,8 +2506,7 @@ JSON만 출력: [{"korean":"...","english":"..."},{"korean":"...","english":"...
           return;
         }
         if (groups.length === 1) {
-          const state = createTruthStudyState(groups[0], "daily");
-          renderTruthStudy(state, groups);
+          enterTruthStudy(groups[0], "daily", groups);
         } else {
           renderTruthChapterPicker(groups, "daily");
         }
@@ -2566,6 +2698,19 @@ JSON만 출력: [{"korean":"...","english":"..."},{"korean":"...","english":"...
                   </select>
                 </div>
               </div>
+              <div>
+                <strong style="font-size:0.88rem;">오답 기기 간 동기화</strong>
+                ${firebaseSyncEnabled()
+                  ? `<div style="margin-top:0.4rem;display:flex;gap:0.5rem;align-items:center;flex-wrap:wrap;">
+                      <input type="text" id="modeSyncCode"
+                        style="flex:1;min-width:0;background:#111827;border:1px solid var(--border);border-radius:8px;color:var(--text);padding:0.3rem 0.5rem;font-size:0.8rem;font-family:inherit;"
+                        placeholder="동기화 코드 (기기마다 동일하게 입력)"
+                        value="${escapeHtml(getSyncCode())}" />
+                      <button type="button" id="btnSaveSyncCode" class="tts-btn">저장</button>
+                    </div>
+                    <p class="meta" style="margin:0.35rem 0 0;font-size:0.76rem;line-height:1.45;">같은 코드를 입력한 기기끼리 "몰랐어요 ✗" 표시가 자동으로 공유됩니다. 코드는 원하는 아무 문자열이나 직접 정하면 됩니다.</p>`
+                  : `<p class="meta" style="margin:0.4rem 0 0;font-size:0.76rem;line-height:1.45;">코드 안의 <code>FIREBASE_CONFIG</code> 값을 채우면 이 기능이 켜집니다. 그전까지는 오답 표시가 이 기기에만 저장됩니다.</p>`}
+              </div>
             </div>
           </div>
           <div class="actions">
@@ -2606,6 +2751,15 @@ JSON만 출력: [{"korean":"...","english":"..."},{"korean":"...","english":"...
             setGeminiApiKey(val);
             btnSaveGeminiKey.textContent = "저장됨 ✓";
             setTimeout(() => { btnSaveGeminiKey.textContent = "저장"; }, 1500);
+          };
+        }
+        const btnSaveSyncCode = document.getElementById("btnSaveSyncCode");
+        if (btnSaveSyncCode) {
+          btnSaveSyncCode.onclick = () => {
+            const val = (document.getElementById("modeSyncCode")?.value || "").trim();
+            setSyncCode(val);
+            btnSaveSyncCode.textContent = "저장됨 ✓";
+            setTimeout(() => { btnSaveSyncCode.textContent = "저장"; }, 1500);
           };
         }
       }
