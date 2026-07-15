@@ -401,6 +401,44 @@
     .example-item .ex-en {
       color: #dbe4f5;
     }
+
+    .expr-chip {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.6rem;
+      padding: 0.5rem 0.7rem;
+      border-radius: 8px;
+      background: #111827;
+      border: 1px solid #2d3a52;
+    }
+
+    .expr-chip .expr-text {
+      min-width: 0;
+    }
+
+    .expr-chip .expr-en {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: #e4ecff;
+      word-break: break-word;
+    }
+
+    .expr-chip .expr-ko {
+      font-size: 0.8rem;
+      color: var(--muted);
+      margin-top: 0.1rem;
+      line-height: 1.45;
+    }
+
+    .expr-chip .expr-add {
+      flex-shrink: 0;
+    }
+
+    .expr-chip.saved {
+      border-color: #2f6d4a;
+      background: #10241a;
+    }
   </style>
 </head>
 <body>
@@ -937,6 +975,45 @@
         } catch {}
       }
 
+      /** ---- 단어장 (탭한 단어 저장) ---- */
+      const LS_VOCAB_KEY = "english-card-vocab";
+
+      /** 저장 형식: [{ key, word, ko, pos, phonetic, context, ts, deleted }] (key로 중복 제거) */
+      function loadVocab() {
+        try {
+          const raw = localStorage.getItem(LS_VOCAB_KEY);
+          if (!raw) return [];
+          const arr = JSON.parse(raw);
+          return Array.isArray(arr) ? arr : [];
+        } catch {
+          return [];
+        }
+      }
+
+      function saveVocabLocal(list) {
+        try {
+          localStorage.setItem(LS_VOCAB_KEY, JSON.stringify(list || []));
+        } catch {}
+      }
+
+      /** key마다 ts가 큰(=최신) 항목만 남긴다. 삭제는 deleted:true 툼스톤으로 전파. */
+      function mergeVocabLists(a, b) {
+        const map = new Map();
+        for (const e of [...(a || []), ...(b || [])]) {
+          if (!e || !e.key) continue;
+          const prev = map.get(e.key);
+          if (!prev || (e.ts || 0) >= (prev.ts || 0)) map.set(e.key, e);
+        }
+        return [...map.values()];
+      }
+
+      /** 화면에 보일 단어만: 툼스톤 제외 + 최신 저장 순 */
+      function visibleVocab(list) {
+        return (list || [])
+          .filter((e) => e && e.key && !e.deleted)
+          .sort((a, b) => (b.ts || 0) - (a.ts || 0));
+      }
+
       /** ---- 오답 기기 간 동기화 (Firebase Firestore, 선택 사항) ---- */
       let fbApp = null;
       let fbDb = null;
@@ -1029,6 +1106,85 @@
             .set({ [field]: [...wrongIds] }, { merge: true })
             .catch((e) => console.warn("오답 업로드 실패:", e));
         });
+      }
+
+      /**
+       * 단어장 동기화. 오답과 같은 wrongCardsSync 문서의 "vocab" 필드를 재사용하므로
+       * 별도 Firestore 규칙 변경이 필요 없다. 오답과 달리 합집합 병합(key별 최신 ts) —
+       * 어느 기기에서 담은 단어도 사라지지 않게. 삭제는 deleted 툼스톤으로 전파된다.
+       */
+      async function pullMergeVocab() {
+        const local = loadVocab();
+        if (!firebaseSyncEnabled() || !getSyncCode()) return local;
+        try {
+          const signedIn = await ensureFirebaseSignedIn();
+          if (!signedIn) return local;
+          const ref = fbDb.collection("wrongCardsSync").doc(getSyncCode());
+          const snap = await ref.get();
+          const data = snap.exists ? snap.data() : null;
+          const remote = data && Array.isArray(data.vocab) ? data.vocab : [];
+          const merged = mergeVocabLists(local, remote);
+          saveVocabLocal(merged);
+          // 로컬에만 있던 항목을 클라우드로 올려 시작점을 맞춘다.
+          if (merged.length !== remote.length) {
+            await ref.set({ vocab: merged }, { merge: true });
+          }
+          return merged;
+        } catch (e) {
+          console.warn("단어장 동기화 실패:", e);
+          return local;
+        }
+      }
+
+      function pushVocab(list) {
+        if (!firebaseSyncEnabled() || !getSyncCode()) return;
+        ensureFirebaseSignedIn().then((signedIn) => {
+          if (!signedIn) return;
+          fbDb
+            .collection("wrongCardsSync")
+            .doc(getSyncCode())
+            .set({ vocab: list || [] }, { merge: true })
+            .catch((e) => console.warn("단어장 업로드 실패:", e));
+        });
+      }
+
+      function vocabKeyOf(word) {
+        return String(word || "").trim().toLowerCase();
+      }
+
+      function isWordSaved(word) {
+        const key = vocabKeyOf(word);
+        if (!key) return false;
+        return loadVocab().some((e) => e && e.key === key && !e.deleted);
+      }
+
+      /** 단어 담기(있으면 갱신). 로컬 저장 후 클라우드에도 반영. */
+      function saveVocabWord(entry) {
+        const key = vocabKeyOf(entry.key || entry.word);
+        if (!key) return;
+        const list = loadVocab().filter((e) => e && e.key !== key);
+        list.push({
+          key,
+          word: entry.word || key,
+          ko: entry.ko || "",
+          pos: entry.pos || "",
+          phonetic: entry.phonetic || "",
+          context: entry.context || "",
+          ts: Date.now(),
+          deleted: false,
+        });
+        saveVocabLocal(list);
+        pushVocab(list);
+      }
+
+      /** 삭제: 실제 제거 대신 툼스톤(deleted:true)으로 표시해 다른 기기에도 전파. */
+      function removeVocabWord(word) {
+        const key = vocabKeyOf(word);
+        if (!key) return;
+        const list = loadVocab().filter((e) => e && e.key !== key);
+        list.push({ key, deleted: true, ts: Date.now() });
+        saveVocabLocal(list);
+        pushVocab(list);
       }
 
       function resolvePicksFromSession(cards, session) {
@@ -1142,6 +1298,7 @@
           ? `<div class="note-block">
               <div class="label">메모</div>
               <div class="note-body">${escapeHtml(card.note)}</div>
+              ${noteExtractSectionHtml()}
             </div>`
           : "";
         const aiExamplesSection = `<div style="margin-top:0.5rem;">
@@ -1208,6 +1365,160 @@
         });
       }
 
+      /** 메모 아래에 붙는 「✨ 메모에서 표현 뽑기」 섹션 HTML. */
+      function noteExtractSectionHtml() {
+        return `<div style="margin-top:0.6rem;">
+              <button type="button" class="ghost" id="btnExtractExpr" style="font-size:0.8rem;color:var(--accent);border-color:#2a3a5c;padding:0.3rem 0.65rem;">✨ 메모에서 표현 뽑기</button>
+              <div id="exprExtractBlock" style="display:none;margin-top:0.55rem;flex-direction:column;gap:0.45rem;"></div>
+            </div>`;
+      }
+
+      /** 메모 텍스트를 LLM에 보내 담아둘 만한 영어 표현+뜻 목록을 뽑는다. */
+      async function extractNoteExpressions(note, context, signal) {
+        const apiKey = getGeminiApiKey();
+        if (!apiKey) throw new Error("API 키가 없습니다. 모드 선택 > 설정에서 입력해 주세요.");
+
+        const contextSection = context ? `\n예문: "${context}"` : "";
+        const prompt = `다음은 영어 학습 카드의 한국어 '메모'야. 이 메모에서 단어장에 담아둘 만한 영어 표현(단어·구·숙어)을 뽑아줘.
+
+메모: "${note}"${contextSection}
+
+규칙:
+- 메모가 실제로 설명하고 있는 영어 표현만 뽑는다 (보통 따옴표 안에 들어 있음).
+- 각 표현의 한국어 뜻은 메모 내용을 바탕으로 간결하게 적는다.
+- 표현은 영어 원형으로 적는다 (예: of one's own, be going to, how often).
+- 최대 5개. 담을 만한 표현이 없으면 빈 배열([])을 출력한다.
+
+JSON만 출력: [{"expression":"영어 표현","meaning":"한국어 뜻"}]`;
+
+        const res = await fetch(GROQ_API_URL, {
+          method: "POST",
+          signal,
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${apiKey}`,
+          },
+          body: JSON.stringify({
+            model: GROQ_MODEL,
+            messages: [{ role: "user", content: prompt }],
+            temperature: 0.3,
+            max_tokens: 400,
+          }),
+        });
+
+        if (!res.ok) {
+          const err = await res.json().catch(() => ({}));
+          throw new Error(err?.error?.message || `API 오류 ${res.status}`);
+        }
+
+        const data = await res.json();
+        const text = data?.choices?.[0]?.message?.content || "";
+        const jsonMatch = text.match(/\[[\s\S]*\]/);
+        if (!jsonMatch) throw new Error("표현 형식을 파싱하지 못했습니다.");
+        const parsed = JSON.parse(jsonMatch[0]);
+        if (!Array.isArray(parsed)) return [];
+        return parsed
+          .map((it) => ({
+            expression: String(it.expression || it.word || "").trim(),
+            meaning: String(it.meaning || it.ko || "").trim(),
+          }))
+          .filter((it) => it.expression);
+      }
+
+      /** 뽑은 표현을 칩으로 그리고, 각 칩의 담기/빼기를 단어장과 연동한다. */
+      function renderExprChips(block, items, context) {
+        block.innerHTML = items
+          .map((it, i) => {
+            const saved = isWordSaved(it.expression);
+            const metaLine = it.meaning
+              ? `<div class="expr-ko">${escapeHtml(it.meaning)}</div>`
+              : "";
+            return `<div class="expr-chip${saved ? " saved" : ""}" data-i="${i}">
+                <div class="expr-text">
+                  <div class="expr-en">${escapeHtml(it.expression)}</div>
+                  ${metaLine}
+                </div>
+                <button type="button" class="tts-btn expr-add" data-i="${i}" aria-label="단어장에 담기">${saved ? "✓ 담김" : "＋ 담기"}</button>
+              </div>`;
+          })
+          .join("");
+        block.querySelectorAll(".expr-add").forEach((btn) => {
+          const it = items[Number(btn.dataset.i)];
+          if (!it) return;
+          const chip = btn.closest(".expr-chip");
+          const paint = () => {
+            const saved = isWordSaved(it.expression);
+            btn.textContent = saved ? "✓ 담김" : "＋ 담기";
+            if (chip) chip.classList.toggle("saved", saved);
+          };
+          btn.onclick = (ev) => {
+            ev.stopPropagation();
+            const key = vocabKeyOf(it.expression);
+            if (isWordSaved(key)) {
+              removeVocabWord(key);
+            } else {
+              saveVocabWord({
+                key,
+                word: it.expression,
+                ko: it.meaning,
+                pos: "",
+                phonetic: "",
+                context: context || "",
+              });
+            }
+            paint();
+          };
+        });
+      }
+
+      /** 「✨ 메모에서 표현 뽑기」 버튼을 카드 상태에 맞춰 초기화한다. */
+      function initExprExtractBtn(card) {
+        const btn = document.getElementById("btnExtractExpr");
+        const block = document.getElementById("exprExtractBlock");
+        if (!btn || !block) return;
+        const note = (card && card.note) || "";
+        const context = (card && (card.answer || card.english)) || "";
+        if (!note.trim()) {
+          btn.style.display = "none";
+          return;
+        }
+        let ac = null;
+        btn.addEventListener("click", async (e) => {
+          e.stopPropagation();
+          if (ac) {
+            ac.abort();
+            ac = null;
+            btn.textContent = "✨ 메모에서 표현 뽑기";
+            block.style.display = "none";
+            block.innerHTML = "";
+            return;
+          }
+          ac = new AbortController();
+          btn.textContent = "뽑는 중… (취소)";
+          block.innerHTML = `<span class="meta">메모에서 표현 뽑는 중…</span>`;
+          block.style.display = "flex";
+          try {
+            const items = await extractNoteExpressions(note, context, ac.signal);
+            if (!items.length) {
+              block.innerHTML = `<span class="meta">담을 만한 표현을 찾지 못했어요.</span>`;
+            } else {
+              renderExprChips(block, items, context);
+            }
+            btn.textContent = "✨ 다시 뽑기";
+          } catch (err) {
+            if (err.name === "AbortError") {
+              block.style.display = "none";
+              block.innerHTML = "";
+            } else {
+              block.innerHTML = `<p class="meta" style="color:#f0b8c0;font-size:0.85rem;">${escapeHtml(err.message)}</p>`;
+            }
+            btn.textContent = "✨ 메모에서 표현 뽑기";
+          } finally {
+            ac = null;
+          }
+        });
+      }
+
 
 
       /** 기본동사: korean / english+note */
@@ -1224,6 +1535,7 @@
         const noteBlock = `<div class="note-block">
               <div class="label">메모</div>
               <div class="note-body">${escapeHtml(card.note)}</div>
+              ${noteExtractSectionHtml()}
             </div>`;
         if (koFirst) {
           const tail = revealed
@@ -1359,6 +1671,7 @@
           };
         }
         initAiExamplesBtn(card);
+        initExprExtractBtn(card);
       }
 
       function escapeHtml(s) {
@@ -1792,15 +2105,25 @@ JSON만 출력: [{"korean":"...","english":"..."},{"korean":"...","english":"...
           titleEl.textContent = wordMeta.phonetic ? `${displayLabel} ${wordMeta.phonetic}` : displayLabel;
 
           const showRole = !!(getGeminiApiKey() && contextSentence);
+          const vocabEntry = {
+            key: vocabKeyOf(lookupKey || query),
+            word: displayLabel,
+            ko: result.text,
+            pos: posKo || resolvedPos || "",
+            phonetic: wordMeta.phonetic || "",
+            context: contextSentence || "",
+          };
           let bodyHtml = `<p class="word-def-ko-main">${escapeHtml(result.text)}</p>`;
           if (posKo) {
             bodyHtml += `<p class="meta" style="margin:0.3rem 0 0;line-height:1.45;">품사 · ${escapeHtml(posKo)}${resolvedPos ? ` (${escapeHtml(resolvedPos)})` : ""}</p>`;
           }
+          bodyHtml += `<button type="button" class="ghost" id="btnSaveVocab" style="margin-top:0.5rem;font-size:0.8rem;color:var(--accent);border-color:#2a3a5c;padding:0.3rem 0.65rem;"></button>`;
           if (showRole) {
             bodyHtml += `<div id="wordRoleSection" style="margin-top:0.6rem;padding-top:0.5rem;border-top:1px solid #2a3344;"><p style="margin:0 0 0.2rem;font-size:0.74rem;color:var(--accent);font-weight:600;letter-spacing:0.01em;">문장 속 역할</p><div id="wordRoleBody" style="margin:0;font-size:0.84rem;color:#c8d4e8;line-height:1.55;">분석 중…</div></div>`;
           }
           bodyHtml += `<p class="meta" style="margin:0.35rem 0 0;font-size:0.76rem;line-height:1.45;"><a href="${escapeHtml(googleTranslateWebUrl(query))}" target="_blank" rel="noopener noreferrer" style="color:var(--accent);">구글 번역 웹에서 보기 ↗</a></p>`;
           bodyEl.innerHTML = bodyHtml;
+          initVocabSaveButton(vocabEntry);
 
           if (showRole) {
             fetchWordRoleInContext(query, contextSentence, ac.signal)
@@ -1837,6 +2160,27 @@ JSON만 출력: [{"korean":"...","english":"..."},{"korean":"...","english":"...
             </p>`;
           if (wordLookupAbort === ac) wordLookupAbort = null;
         }
+      }
+
+      /** 뜻 패널의 「단어장 담기」 버튼을 상태에 맞춰 그리고 클릭을 처리한다. */
+      function initVocabSaveButton(entry) {
+        const btn = document.getElementById("btnSaveVocab");
+        if (!btn || !entry || !entry.key) {
+          if (btn) btn.style.display = "none";
+          return;
+        }
+        const paint = () => {
+          const saved = isWordSaved(entry.key);
+          btn.textContent = saved ? "✓ 단어장에 담김 (빼기)" : "⭐ 단어장에 담기";
+          btn.style.color = saved ? "var(--muted)" : "var(--accent)";
+        };
+        paint();
+        btn.addEventListener("click", (e) => {
+          e.stopPropagation();
+          if (isWordSaved(entry.key)) removeVocabWord(entry.key);
+          else saveVocabWord(entry);
+          paint();
+        });
       }
 
       function initEnglishWordLookup() {
@@ -2259,6 +2603,7 @@ JSON만 출력: [{"korean":"...","english":"..."},{"korean":"...","english":"...
           };
         }
         initAiExamplesBtn(card);
+        initExprExtractBtn(card);
       }
 
       function createVerbStudyState(verbKey, unit) {
@@ -2486,6 +2831,7 @@ JSON만 출력: [{"korean":"...","english":"..."},{"korean":"...","english":"...
             setSavedVoiceUri(uri);
           };
         }
+        initExprExtractBtn(card);
       }
 
       async function startDailyMode() {
@@ -2649,7 +2995,78 @@ JSON만 출력: [{"korean":"...","english":"..."},{"korean":"...","english":"...
         }
       }
 
+      function vocabItemHtml(e) {
+        const title = e.phonetic
+          ? `${escapeHtml(e.word)} <span class="meta" style="font-weight:400;">${escapeHtml(e.phonetic)}</span>`
+          : escapeHtml(e.word);
+        const posLine = e.pos
+          ? `<div class="meta" style="font-size:0.74rem;margin-top:0.1rem;">품사 · ${escapeHtml(e.pos)}</div>`
+          : "";
+        const contextLine = e.context
+          ? `<div class="answer" data-en-context="${escapeHtml(e.context)}" style="margin-top:0.4rem;font-size:0.8rem;color:#c8d4e8;line-height:1.5;">${englishWordsInteractiveHtml(e.context)}</div>`
+          : "";
+        return `<div class="example-item" style="display:flex;flex-direction:column;gap:0.15rem;">
+          <div style="display:flex;align-items:baseline;justify-content:space-between;gap:0.5rem;">
+            <strong style="font-size:0.95rem;color:#e4ecff;">${title}</strong>
+            <div style="display:flex;gap:0.3rem;flex-shrink:0;">
+              <button type="button" class="tts-btn vocab-speak" data-w="${escapeHtml(e.word)}" aria-label="단어 듣기">🔊</button>
+              <button type="button" class="tts-btn vocab-del" data-k="${escapeHtml(e.key)}" aria-label="단어 삭제">🗑</button>
+            </div>
+          </div>
+          <div style="font-size:0.98rem;font-weight:600;color:#eef3fc;">${escapeHtml(e.ko)}</div>
+          ${posLine}
+          ${contextLine}
+        </div>`;
+      }
+
+      function renderVocabBook() {
+        closeWordDefinitionPanel();
+        dateLine.textContent = "내 단어장";
+        app.dataset.view = "vocab";
+
+        const draw = (list) => {
+          if (app.dataset.view !== "vocab") return;
+          const items = visibleVocab(list);
+          const body = items.length
+            ? `<div style="display:flex;flex-direction:column;gap:0.55rem;margin-top:0.6rem;">${items
+                .map(vocabItemHtml)
+                .join("")}</div>`
+            : `<p class="meta" style="margin-top:0.8rem;">아직 담은 단어가 없습니다. 카드에서 영어 단어를 눌러 뜻을 본 뒤 <strong>⭐ 단어장에 담기</strong>를 누르면 여기에 모입니다.</p>`;
+          app.innerHTML = `
+            <div class="gate-panel">
+              <strong>내 단어장</strong> · 저장한 단어 <strong style="color:var(--accent);">${items.length}개</strong>. 단어를 누르면 뜻을 다시 볼 수 있습니다.${
+                firebaseSyncEnabled() && getSyncCode()
+                  ? " 같은 동기화 코드를 쓰는 기기끼리 자동으로 공유됩니다."
+                  : ""
+              }
+            </div>
+            ${body}
+            <div class="actions" style="margin-top:0.9rem;">
+              <button type="button" id="btnVocabBack">← 모드 선택으로</button>
+            </div>`;
+          document.getElementById("btnVocabBack").onclick = () => renderModePicker();
+          app.querySelectorAll(".vocab-speak").forEach((btn) => {
+            btn.onclick = (ev) => {
+              ev.stopPropagation();
+              speakEnglish(btn.dataset.w || "");
+            };
+          });
+          app.querySelectorAll(".vocab-del").forEach((btn) => {
+            btn.onclick = (ev) => {
+              ev.stopPropagation();
+              removeVocabWord(btn.dataset.k || "");
+              draw(loadVocab());
+            };
+          });
+        };
+
+        draw(loadVocab());
+        // 백그라운드 동기화 후 최신 목록으로 다시 그린다.
+        pullMergeVocab().then((merged) => draw(merged));
+      }
+
       function renderModePicker() {
+        app.dataset.view = "modePicker";
         dateLine.textContent = todayKey();
         const ttsRate = getSavedTtsRate();
         const face = getSavedCardFace();
@@ -2699,7 +3116,7 @@ JSON만 출력: [{"korean":"...","english":"..."},{"korean":"...","english":"...
                 </div>
               </div>
               <div>
-                <strong style="font-size:0.88rem;">오답 기기 간 동기화</strong>
+                <strong style="font-size:0.88rem;">오답·단어장 기기 간 동기화</strong>
                 ${firebaseSyncEnabled()
                   ? `<div style="margin-top:0.4rem;display:flex;gap:0.5rem;align-items:center;flex-wrap:wrap;">
                       <input type="text" id="modeSyncCode"
@@ -2708,7 +3125,7 @@ JSON만 출력: [{"korean":"...","english":"..."},{"korean":"...","english":"...
                         value="${escapeHtml(getSyncCode())}" />
                       <button type="button" id="btnSaveSyncCode" class="tts-btn">저장</button>
                     </div>
-                    <p class="meta" style="margin:0.35rem 0 0;font-size:0.76rem;line-height:1.45;">같은 코드를 입력한 기기끼리 "몰랐어요 ✗" 표시가 자동으로 공유됩니다. 코드는 원하는 아무 문자열이나 직접 정하면 됩니다.</p>`
+                    <p class="meta" style="margin:0.35rem 0 0;font-size:0.76rem;line-height:1.45;">같은 코드를 입력한 기기끼리 "몰랐어요 ✗" 표시와 단어장이 자동으로 공유됩니다. 코드는 원하는 아무 문자열이나 직접 정하면 됩니다.</p>`
                   : `<p class="meta" style="margin:0.4rem 0 0;font-size:0.76rem;line-height:1.45;">코드 안의 <code>FIREBASE_CONFIG</code> 값을 채우면 이 기능이 켜집니다. 그전까지는 오답 표시가 이 기기에만 저장됩니다.</p>`}
               </div>
             </div>
@@ -2718,6 +3135,7 @@ JSON만 출력: [{"korean":"...","english":"..."},{"korean":"...","english":"...
             <button type="button" class="primary" id="btnModeTruth">진리발표</button>
             <button type="button" class="primary" id="btnModeVerbs">기본동사</button>
             <button type="button" class="primary" id="btnModeBible">오늘의 영어 표현</button>
+            <button type="button" id="btnVocabBook">📒 내 단어장 (${visibleVocab(loadVocab()).length})</button>
           </div>
         `;
         document.getElementById("btnModeDaily").onclick = () => {
@@ -2731,6 +3149,9 @@ JSON만 출력: [{"korean":"...","english":"..."},{"korean":"...","english":"...
         };
         document.getElementById("btnModeBible").onclick = () => {
           renderDailyExpression();
+        };
+        document.getElementById("btnVocabBook").onclick = () => {
+          renderVocabBook();
         };
         const modeTtsRate = document.getElementById("modeTtsRate");
         if (modeTtsRate) {
