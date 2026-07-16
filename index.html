@@ -3189,6 +3189,13 @@ JSON만 출력: [{"korean":"...","english":"..."},{"korean":"...","english":"...
           <div class="gate-panel">
             <strong>학습 모드 선택</strong> · 오늘은 어떤 모드로 학습할지 선택하세요.
           </div>
+          <div class="actions">
+            <button type="button" class="primary" id="btnModeDaily">일상 생활</button>
+            <button type="button" class="primary" id="btnModeTruth">진리발표</button>
+            <button type="button" class="primary" id="btnModeVerbs">기본동사</button>
+            <button type="button" class="primary" id="btnModeBible">오늘의 영어 표현</button>
+            <button type="button" id="btnVocabBook">📒 내 단어장 (${visibleVocab(loadVocab()).length})</button>
+          </div>
           <div class="gate-panel" style="margin-top:0.6rem;">
             <strong>설정</strong>
             <div style="margin-top:0.65rem;display:flex;flex-direction:column;gap:0.85rem;">
@@ -3242,13 +3249,6 @@ JSON만 출력: [{"korean":"...","english":"..."},{"korean":"...","english":"...
                   : `<p class="meta" style="margin:0.4rem 0 0;font-size:0.76rem;line-height:1.45;">코드 안의 <code>FIREBASE_CONFIG</code> 값을 채우면 이 기능이 켜집니다. 그전까지는 오답 표시가 이 기기에만 저장됩니다.</p>`}
               </div>
             </div>
-          </div>
-          <div class="actions">
-            <button type="button" class="primary" id="btnModeDaily">일상 생활</button>
-            <button type="button" class="primary" id="btnModeTruth">진리발표</button>
-            <button type="button" class="primary" id="btnModeVerbs">기본동사</button>
-            <button type="button" class="primary" id="btnModeBible">오늘의 영어 표현</button>
-            <button type="button" id="btnVocabBook">📒 내 단어장 (${visibleVocab(loadVocab()).length})</button>
           </div>
         `;
         document.getElementById("btnModeDaily").onclick = () => {
