@@ -2002,6 +2002,57 @@ JSON만 출력: [{"korean":"...","english":"..."},{"korean":"...","english":"...
         }));
       }
 
+      /** 단어장에 담은 표현(word)을 실제로 사용하는 예문 3개를 만든다. */
+      async function generateVocabExamples(word, ko, context, signal) {
+        const apiKey = getGeminiApiKey();
+        if (!apiKey) throw new Error("API 키가 없습니다. 모드 선택 > 설정에서 입력해 주세요.");
+
+        const meaningSection = ko ? ` (뜻: ${ko})` : "";
+        const refSection = context ? `\n- 참고 예문(똑같이 베끼지 말 것): "${context}"` : "";
+        const prompt = `영어 표현 "${word}"${meaningSection}를 사용한 영어 학습용 예문 3개를 만들어줘.
+
+규칙:
+- 각 예문은 반드시 "${word}" 표현을 그대로 포함한다.
+- 영어는 A2~B1 수준의 자연스럽고 완전한 문장.
+- "korean"은 그 영어 문장을 실제로 말할 때의 자연스러운 한국어 번역이어야 한다 (상황 설명이 아니라 입 밖에 내는 말).
+- 3개는 서로 다른 상황으로.${refSection}
+
+JSON만 출력: [{"korean":"...","english":"..."},{"korean":"...","english":"..."},{"korean":"...","english":"..."}]`;
+
+        const res = await fetch(GROQ_API_URL, {
+          method: "POST",
+          signal,
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${apiKey}`,
+          },
+          body: JSON.stringify({
+            model: GROQ_MODEL,
+            messages: [{ role: "user", content: prompt }],
+            temperature: 0.8,
+            max_tokens: 512,
+          }),
+        });
+
+        if (!res.ok) {
+          const err = await res.json().catch(() => ({}));
+          throw new Error(err?.error?.message || `API 오류 ${res.status}`);
+        }
+
+        const data = await res.json();
+        const text = data?.choices?.[0]?.message?.content || "";
+        const jsonMatch = text.match(/\[[\s\S]*\]/);
+        if (!jsonMatch) throw new Error("예문 형식을 파싱하지 못했습니다.");
+        const parsed = JSON.parse(jsonMatch[0]);
+        if (!Array.isArray(parsed)) return [];
+        return parsed
+          .map((ex) => ({
+            situation: ex.korean || ex.situation || "",
+            answer: ex.english || ex.answer || "",
+          }))
+          .filter((ex) => ex.answer);
+      }
+
       function googleTranslateWebUrl(enText) {
         return (
           "https://translate.google.com/?sl=en&tl=ko&op=translate&text=" +
@@ -2995,6 +3046,21 @@ JSON만 출력: [{"korean":"...","english":"..."},{"korean":"...","english":"...
         }
       }
 
+      /** 단어장 화면에서 표현별로 생성한 예문을 세션 동안 기억한다. (key → [{situation, answer}]) */
+      const vocabExampleCache = {};
+
+      /** 생성된 예문 목록을 단어장용 HTML로 만든다. 영어는 탭해서 뜻을 볼 수 있다. */
+      function vocabExamplesHtml(examples) {
+        return (examples || [])
+          .map(
+            (ex) => `<div class="example-item" style="background:#0e1622;border-color:#243049;">
+              <div class="answer" data-en-context="${escapeHtml(ex.answer)}" style="font-size:0.85rem;color:#dbe4f5;line-height:1.5;">${englishWordsInteractiveHtml(ex.answer)}</div>
+              <div class="ex-ko" style="margin:0.25rem 0 0;">${escapeHtml(ex.situation)}</div>
+            </div>`
+          )
+          .join("");
+      }
+
       function vocabItemHtml(e) {
         const title = e.phonetic
           ? `${escapeHtml(e.word)} <span class="meta" style="font-weight:400;">${escapeHtml(e.phonetic)}</span>`
@@ -3005,10 +3071,14 @@ JSON만 출력: [{"korean":"...","english":"..."},{"korean":"...","english":"...
         const contextLine = e.context
           ? `<div class="answer" data-en-context="${escapeHtml(e.context)}" style="margin-top:0.4rem;font-size:0.8rem;color:#c8d4e8;line-height:1.5;">${englishWordsInteractiveHtml(e.context)}</div>`
           : "";
+        const cached = vocabExampleCache[e.key];
+        const hasEx = Array.isArray(cached) && cached.length > 0;
+        const exBlock = `<div class="vocab-ex-block" style="margin-top:0.5rem;flex-direction:column;gap:0.4rem;display:${hasEx ? "flex" : "none"};">${hasEx ? vocabExamplesHtml(cached) : ""}</div>`;
         return `<div class="example-item" style="display:flex;flex-direction:column;gap:0.15rem;">
           <div style="display:flex;align-items:baseline;justify-content:space-between;gap:0.5rem;">
             <strong style="font-size:0.95rem;color:#e4ecff;">${title}</strong>
             <div style="display:flex;gap:0.3rem;flex-shrink:0;">
+              <button type="button" class="tts-btn vocab-ex-btn" data-k="${escapeHtml(e.key)}" aria-label="예문 만들기">${hasEx ? "✨ 다시" : "✨ 예문"}</button>
               <button type="button" class="tts-btn vocab-speak" data-w="${escapeHtml(e.word)}" aria-label="단어 듣기">🔊</button>
               <button type="button" class="tts-btn vocab-del" data-k="${escapeHtml(e.key)}" aria-label="단어 삭제">🗑</button>
             </div>
@@ -3016,6 +3086,7 @@ JSON만 출력: [{"korean":"...","english":"..."},{"korean":"...","english":"...
           <div style="font-size:0.98rem;font-weight:600;color:#eef3fc;">${escapeHtml(e.ko)}</div>
           ${posLine}
           ${contextLine}
+          ${exBlock}
         </div>`;
       }
 
@@ -3027,6 +3098,8 @@ JSON만 출력: [{"korean":"...","english":"..."},{"korean":"...","english":"...
         const draw = (list) => {
           if (app.dataset.view !== "vocab") return;
           const items = visibleVocab(list);
+          const byKey = {};
+          items.forEach((it) => { if (it && it.key) byKey[it.key] = it; });
           const body = items.length
             ? `<div style="display:flex;flex-direction:column;gap:0.55rem;margin-top:0.6rem;">${items
                 .map(vocabItemHtml)
@@ -3056,6 +3129,46 @@ JSON만 출력: [{"korean":"...","english":"..."},{"korean":"...","english":"...
               ev.stopPropagation();
               removeVocabWord(btn.dataset.k || "");
               draw(loadVocab());
+            };
+          });
+          app.querySelectorAll(".vocab-ex-btn").forEach((btn) => {
+            const entry = byKey[btn.dataset.k || ""];
+            if (!entry) return;
+            const item = btn.closest(".example-item");
+            const block = item ? item.querySelector(".vocab-ex-block") : null;
+            if (!block) return;
+            let ac = null;
+            btn.onclick = async (ev) => {
+              ev.stopPropagation();
+              if (ac) {
+                ac.abort();
+                ac = null;
+                btn.textContent = vocabExampleCache[entry.key] ? "✨ 다시" : "✨ 예문";
+                return;
+              }
+              ac = new AbortController();
+              btn.textContent = "생성 중… (취소)";
+              block.style.display = "flex";
+              block.innerHTML = `<span class="meta">예문 생성 중…</span>`;
+              try {
+                const examples = await generateVocabExamples(entry.word, entry.ko, entry.context, ac.signal);
+                vocabExampleCache[entry.key] = examples;
+                block.innerHTML = examples.length
+                  ? vocabExamplesHtml(examples)
+                  : `<span class="meta">예문을 만들지 못했어요.</span>`;
+                btn.textContent = "✨ 다시";
+              } catch (err) {
+                if (err.name === "AbortError") {
+                  block.style.display = vocabExampleCache[entry.key] ? "flex" : "none";
+                  if (vocabExampleCache[entry.key]) block.innerHTML = vocabExamplesHtml(vocabExampleCache[entry.key]);
+                  else block.innerHTML = "";
+                } else {
+                  block.innerHTML = `<p class="meta" style="color:#f0b8c0;font-size:0.85rem;">${escapeHtml(err.message)}</p>`;
+                }
+                btn.textContent = vocabExampleCache[entry.key] ? "✨ 다시" : "✨ 예문";
+              } finally {
+                ac = null;
+              }
             };
           });
         };
