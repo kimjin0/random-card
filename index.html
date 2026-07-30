@@ -3141,22 +3141,32 @@ JSON만 출력:
         };
       }
 
-      /** 드릴 진행 화면. 카드(패널)를 누르면 영어가 보이고, 다 끝나면 전체 복습 목록이 나온다. */
-      function renderDrillContent(panel, data, startIndex) {
+      /**
+       * 진행 화면. 카드(패널)를 누르면 영어가 보이고, 다 끝나면 전체 복습 목록이 나온다.
+       * opts.practice: 지난 기록 다시 연습 모드 — 오늘 진행 캐시를 덮어쓰지 않고
+       * 완료해도 기록에 다시 저장하지 않는다.
+       */
+      function renderDrillContent(panel, data, startIndex, opts = {}) {
         panel.style.display = "block";
         const total = data.drills.length;
         let i = Math.max(0, Math.min(startIndex || 0, total));
         let revealed = false;
+        const persist = (idx) => {
+          if (!opts.practice) saveCachedDrill(data, idx);
+        };
 
         const paint = () => {
           closeWordDefinitionPanel();
           if (i >= total) {
-            panel.innerHTML = `
-              <div style="width:100%;">
-                <p style="margin:0 0 0.35rem;font-size:0.95rem;color:#eef3fc;">🎉 오늘의 표현 완료! 아래 목록으로 한 번 더 훑어보세요.</p>
+            const doneHead = opts.practice
+              ? `<p style="margin:0 0 0.6rem;font-size:0.95rem;color:#eef3fc;">🎉 복습 완료! 아래 목록으로 한 번 더 훑어보세요.</p>`
+              : `<p style="margin:0 0 0.35rem;font-size:0.95rem;color:#eef3fc;">🎉 오늘의 표현 완료! 아래 목록으로 한 번 더 훑어보세요.</p>
                 <p class="meta" style="margin:0 0 0.6rem;font-size:0.76rem;">이 목록은 자동으로 저장되었습니다. 📚 지난 기록에서 언제든 다시 볼 수 있습니다${
                   firebaseSyncEnabled() && getSyncCode() ? " (다른 기기에서도 보입니다)" : ""
-                }.</p>
+                }.</p>`;
+            panel.innerHTML = `
+              <div style="width:100%;">
+                ${doneHead}
                 <div style="display:flex;flex-direction:column;gap:0.45rem;">
                   ${data.drills
                     .map(
@@ -3179,7 +3189,7 @@ JSON만 출력:
                 ev.stopPropagation();
                 i = 0;
                 revealed = false;
-                saveCachedDrill(data, 0);
+                persist(0);
                 paint();
               };
             const ho = document.getElementById("btnDrillHistOpen");
@@ -3223,7 +3233,7 @@ JSON만 출력:
               if (i > 0) {
                 i--;
                 revealed = false;
-                saveCachedDrill(data, i);
+                persist(i);
                 paint();
               }
             };
@@ -3238,9 +3248,9 @@ JSON만 출력:
               }
               i++;
               revealed = false;
-              saveCachedDrill(data, i);
-              // 세트를 끝까지 완료한 순간 기록에 저장(로컬 + 클라우드)
-              if (i >= total) saveDrillHistoryEntry(data);
+              persist(i);
+              // 세트를 끝까지 완료한 순간 기록에 저장(로컬 + 클라우드). 다시 연습 때는 제외.
+              if (i >= total && !opts.practice) saveDrillHistoryEntry(data);
               paint();
             };
           const spk = document.getElementById("btnDrillSpeak");
@@ -3258,6 +3268,26 @@ JSON만 출력:
           paint();
         };
         paint();
+      }
+
+      /** 지난 기록의 세트를 한 문장씩 다시 연습한다. 오늘 진행 중인 '오늘의 표현'에는 영향이 없다. */
+      function renderDrillPractice(entry) {
+        closeWordDefinitionPanel();
+        app.dataset.view = "drillPractice";
+        dateLine.textContent = "지난 표현 연습";
+        app.innerHTML = `
+          <div class="gate-panel">
+            <strong>지난 표현 연습</strong> · ${escapeHtml(entry.date || "")}에 완료한 세트를 다시 연습합니다. 상황을 떠올리며 첫마디를 바로 내뱉어 보세요.
+          </div>
+          <div class="gate-panel" id="drillPracticePanel" style="margin-top:0.6rem;min-height:150px;"></div>
+          <div class="actions">
+            <button type="button" class="secondary" id="btnPracticeBack">← 지난 기록으로</button>
+            <button type="button" id="btnPracticeHome">모드 선택으로</button>
+          </div>
+        `;
+        document.getElementById("btnPracticeBack").onclick = () => renderDrillHistory();
+        document.getElementById("btnPracticeHome").onclick = () => renderModePicker();
+        renderDrillContent(document.getElementById("drillPracticePanel"), entry, 0, { practice: true });
       }
 
       /** 완료한 표현 세트 기록 화면. 항목을 누르면 15개 문장이 펼쳐진다. */
@@ -3280,6 +3310,7 @@ JSON만 출력:
                         <div class="meta" style="font-size:0.78rem;">${escapeHtml(e.base_ko || "")}</div>
                       </div>
                       <div style="display:flex;gap:0.3rem;flex-shrink:0;">
+                        <button type="button" class="tts-btn drill-hist-practice" data-i="${idx}" aria-label="한 문장씩 다시 연습" style="color:var(--accent);">▶ 연습</button>
                         <button type="button" class="tts-btn drill-hist-toggle" data-i="${idx}">펼치기</button>
                         <button type="button" class="tts-btn drill-hist-del" data-k="${escapeHtml(e.key)}" aria-label="기록 삭제">🗑</button>
                       </div>
@@ -3312,6 +3343,14 @@ JSON만 출력:
               <button type="button" id="btnDrillHistBack">← 오늘의 표현으로</button>
             </div>`;
           document.getElementById("btnDrillHistBack").onclick = () => renderDailyDrill();
+          app.querySelectorAll(".drill-hist-practice").forEach((btn) => {
+            const entry = items[Number(btn.dataset.i)];
+            if (!entry) return;
+            btn.onclick = (ev) => {
+              ev.stopPropagation();
+              renderDrillPractice(entry);
+            };
+          });
           app.querySelectorAll(".drill-hist-toggle").forEach((btn) => {
             btn.onclick = (ev) => {
               ev.stopPropagation();
