@@ -3025,10 +3025,35 @@ JSON만 출력: [{"korean":"...","english":"..."},{"korean":"...","english":"...
         } catch {}
       }
 
+      /**
+       * 완료한 표현 세트의 기록. 단어장과 같은 병합 규칙(key별 최신 ts, 삭제는 툼스톤)으로
+       * 같은 wrongCardsSync 문서의 "drillHistory" 필드에 동기화된다.
+       */
+      const DRILL_HISTORY_STORE = { lsKey: "english-card-drill-history", field: "drillHistory" };
+
+      /** 세트를 끝까지 완료하면 호출. 같은 날 같은 기본 문장은 한 번만 저장(갱신)된다. */
+      function saveDrillHistoryEntry(data) {
+        const key = `${todayKey()}|${String(data.base_en || "").trim().toLowerCase()}`;
+        if (!key.split("|")[1]) return;
+        const list = loadVocab(DRILL_HISTORY_STORE).filter((e) => e && e.key !== key);
+        list.push({
+          key,
+          date: todayKey(),
+          type: data.type || "verb",
+          base_en: data.base_en || "",
+          base_ko: data.base_ko || "",
+          drills: data.drills || [],
+          ts: Date.now(),
+          deleted: false,
+        });
+        saveVocabLocal(list, DRILL_HISTORY_STORE);
+        pushVocab(list, DRILL_HISTORY_STORE);
+      }
+
       /** 기본 문장 하나와 15가지 뉘앙스 변형을 AI로 생성한다. type: "verb"(동사) | "be"(느낌·상태) */
       async function generateDailyDrill(type) {
         const apiKey = getGeminiApiKey();
-        if (!apiKey) throw new Error("드릴을 만들려면 모드 선택 > 설정에서 OpenAI API 키를 입력해 주세요.");
+        if (!apiKey) throw new Error("문장을 만들려면 모드 선택 > 설정에서 OpenAI API 키를 입력해 주세요.");
 
         const isBe = type === "be";
         const baseRule = isBe
@@ -3107,7 +3132,7 @@ JSON만 출력:
             en: String(it.en || "").trim(),
           }))
           .filter((it) => it.ko && it.en);
-        if (!drills.length) throw new Error("드릴 문장을 만들지 못했습니다.");
+        if (!drills.length) throw new Error("연습 문장을 만들지 못했습니다.");
         return {
           type: isBe ? "be" : "verb",
           base_en: String(d.base_en || drills[0].en).trim(),
@@ -3128,7 +3153,10 @@ JSON만 출력:
           if (i >= total) {
             panel.innerHTML = `
               <div style="width:100%;">
-                <p style="margin:0 0 0.6rem;font-size:0.95rem;color:#eef3fc;">🎉 오늘 드릴 완료! 아래 목록으로 한 번 더 훑어보세요.</p>
+                <p style="margin:0 0 0.35rem;font-size:0.95rem;color:#eef3fc;">🎉 오늘의 표현 완료! 아래 목록으로 한 번 더 훑어보세요.</p>
+                <p class="meta" style="margin:0 0 0.6rem;font-size:0.76rem;">이 목록은 자동으로 저장되었습니다. 📚 지난 기록에서 언제든 다시 볼 수 있습니다${
+                  firebaseSyncEnabled() && getSyncCode() ? " (다른 기기에서도 보입니다)" : ""
+                }.</p>
                 <div style="display:flex;flex-direction:column;gap:0.45rem;">
                   ${data.drills
                     .map(
@@ -3140,7 +3168,8 @@ JSON만 출력:
                     )
                     .join("")}
                 </div>
-                <div style="display:flex;justify-content:flex-end;margin-top:0.6rem;">
+                <div style="display:flex;justify-content:flex-end;gap:0.4rem;margin-top:0.6rem;">
+                  <button type="button" class="tts-btn" id="btnDrillHistOpen">📚 지난 기록</button>
                   <button type="button" class="tts-btn" id="btnDrillRestart">↺ 처음부터 다시</button>
                 </div>
               </div>`;
@@ -3152,6 +3181,12 @@ JSON만 출력:
                 revealed = false;
                 saveCachedDrill(data, 0);
                 paint();
+              };
+            const ho = document.getElementById("btnDrillHistOpen");
+            if (ho)
+              ho.onclick = (ev) => {
+                ev.stopPropagation();
+                renderDrillHistory();
               };
             return;
           }
@@ -3204,6 +3239,8 @@ JSON만 출력:
               i++;
               revealed = false;
               saveCachedDrill(data, i);
+              // 세트를 끝까지 완료한 순간 기록에 저장(로컬 + 클라우드)
+              if (i >= total) saveDrillHistoryEntry(data);
               paint();
             };
           const spk = document.getElementById("btnDrillSpeak");
@@ -3223,24 +3260,108 @@ JSON만 출력:
         paint();
       }
 
+      /** 완료한 표현 세트 기록 화면. 항목을 누르면 15개 문장이 펼쳐진다. */
+      function renderDrillHistory() {
+        closeWordDefinitionPanel();
+        app.dataset.view = "drillHistory";
+        dateLine.textContent = "지난 표현 기록";
+
+        const draw = (list) => {
+          if (app.dataset.view !== "drillHistory") return;
+          const items = visibleVocab(list);
+          const body = items.length
+            ? items
+                .map(
+                  (e, idx) => `<div class="example-item" style="display:flex;flex-direction:column;gap:0.3rem;">
+                    <div class="drill-hist-head" data-i="${idx}" style="display:flex;justify-content:space-between;align-items:baseline;gap:0.5rem;cursor:pointer;">
+                      <div>
+                        <div class="meta" style="font-size:0.72rem;">${escapeHtml(e.date || "")}${e.type === "be" ? " · 느낌(be)" : ""}</div>
+                        <strong style="font-size:0.95rem;color:#e4ecff;">${escapeHtml(e.base_en || "")}</strong>
+                        <div class="meta" style="font-size:0.78rem;">${escapeHtml(e.base_ko || "")}</div>
+                      </div>
+                      <div style="display:flex;gap:0.3rem;flex-shrink:0;">
+                        <button type="button" class="tts-btn drill-hist-toggle" data-i="${idx}">펼치기</button>
+                        <button type="button" class="tts-btn drill-hist-del" data-k="${escapeHtml(e.key)}" aria-label="기록 삭제">🗑</button>
+                      </div>
+                    </div>
+                    <div class="drill-hist-body" data-i="${idx}" style="display:none;flex-direction:column;gap:0.4rem;margin-top:0.3rem;">
+                      ${(e.drills || [])
+                        .map(
+                          (d) => `<div class="example-item" style="background:#0e1622;border-color:#243049;">
+                            <div class="meta" style="font-size:0.72rem;color:var(--accent);">${escapeHtml(d.tag)}</div>
+                            <div class="answer" data-en-context="${escapeHtml(d.en)}" style="margin-top:0.15rem;font-size:0.88rem;color:#dbe4f5;line-height:1.5;">${englishWordsInteractiveHtml(d.en)}</div>
+                            <div class="ex-ko" style="margin:0.2rem 0 0;">${escapeHtml(d.ko)}</div>
+                          </div>`
+                        )
+                        .join("")}
+                    </div>
+                  </div>`
+                )
+                .join("")
+            : `<p class="meta" style="margin-top:0.8rem;">아직 저장된 기록이 없습니다. '오늘의 표현'을 끝까지 완료하면 여기에 자동으로 저장됩니다.</p>`;
+          app.innerHTML = `
+            <div class="gate-panel">
+              <strong>지난 표현 기록</strong> · 완료한 문장 세트 <strong style="color:var(--accent);">${items.length}개</strong>. 항목을 누르면 문장 목록이 펼쳐집니다.${
+                firebaseSyncEnabled() && getSyncCode()
+                  ? " 같은 동기화 코드를 쓰는 기기끼리 자동으로 공유됩니다."
+                  : ""
+              }
+            </div>
+            <div style="display:flex;flex-direction:column;gap:0.55rem;margin-top:0.6rem;">${body}</div>
+            <div class="actions" style="margin-top:0.9rem;">
+              <button type="button" id="btnDrillHistBack">← 오늘의 표현으로</button>
+            </div>`;
+          document.getElementById("btnDrillHistBack").onclick = () => renderDailyDrill();
+          app.querySelectorAll(".drill-hist-toggle").forEach((btn) => {
+            btn.onclick = (ev) => {
+              ev.stopPropagation();
+              const b = app.querySelector(`.drill-hist-body[data-i="${btn.dataset.i}"]`);
+              if (!b) return;
+              const open = b.style.display !== "none";
+              b.style.display = open ? "none" : "flex";
+              btn.textContent = open ? "펼치기" : "접기";
+            };
+          });
+          app.querySelectorAll(".drill-hist-head").forEach((head) => {
+            head.onclick = (ev) => {
+              if (ev.target.closest("button, .click-en")) return;
+              const btn = app.querySelector(`.drill-hist-toggle[data-i="${head.dataset.i}"]`);
+              if (btn) btn.click();
+            };
+          });
+          app.querySelectorAll(".drill-hist-del").forEach((btn) => {
+            btn.onclick = (ev) => {
+              ev.stopPropagation();
+              removeVocabWord(btn.dataset.k || "", DRILL_HISTORY_STORE);
+              draw(loadVocab(DRILL_HISTORY_STORE));
+            };
+          });
+        };
+
+        draw(loadVocab(DRILL_HISTORY_STORE));
+        // 백그라운드 동기화 후 최신 목록으로 다시 그린다.
+        pullMergeVocab(DRILL_HISTORY_STORE).then((merged) => draw(merged));
+      }
+
       async function renderDailyDrill(forceNew = false, forceType = null) {
         closeWordDefinitionPanel();
         app.dataset.view = "drill";
-        dateLine.textContent = "오늘의 표현 드릴";
+        dateLine.textContent = "오늘의 표현";
 
         const cached = loadCachedDrill();
         const curType = forceType || (cached && cached.data.type) || "verb";
 
         app.innerHTML = `
           <div class="gate-panel">
-            <strong>오늘의 표현 드릴</strong> · 기본 문장 하나를 두고 뉘앙스(부정·과거·미래·의무·소망·질문)를 넣었다 뺐다 하는 연습입니다. 상황을 떠올리며 첫마디를 바로 내뱉어 보세요.
+            <strong>오늘의 표현</strong> · 기본 문장 하나를 두고 뉘앙스(부정·과거·미래·의무·소망·질문)를 넣었다 뺐다 하는 연습입니다. 상황을 떠올리며 첫마디를 바로 내뱉어 보세요.
           </div>
           <div class="gate-panel" id="dailyDrillPanel" style="margin-top:0.6rem;min-height:150px;display:flex;align-items:center;justify-content:center;">
-            <span class="meta">드릴을 준비하는 중…</span>
+            <span class="meta">오늘의 표현을 준비하는 중…</span>
           </div>
           <div class="actions">
             <button type="button" class="secondary" id="btnDrillBack">← 돌아가기</button>
             <button type="button" class="secondary" id="btnDrillType">${curType === "be" ? "동사 문장으로" : "느낌(be) 문장으로"}</button>
+            <button type="button" class="secondary" id="btnDrillHistory">📚 지난 기록</button>
             <button type="button" class="primary" id="btnDrillNew">🔁 다른 문장</button>
           </div>
         `;
@@ -3248,6 +3369,7 @@ JSON만 출력:
         document.getElementById("btnDrillNew").onclick = () => renderDailyDrill(true, curType);
         document.getElementById("btnDrillType").onclick = () =>
           renderDailyDrill(true, curType === "be" ? "verb" : "be");
+        document.getElementById("btnDrillHistory").onclick = () => renderDrillHistory();
 
         const panel = document.getElementById("dailyDrillPanel");
 
@@ -3264,7 +3386,7 @@ JSON만 출력:
         } catch (e) {
           if (app.dataset.view !== "drill") return;
           panel.style.display = "block";
-          panel.innerHTML = `<p class="word-def-error">${escapeHtml(e?.message || "드릴을 만들지 못했습니다.")}</p>`;
+          panel.innerHTML = `<p class="word-def-error">${escapeHtml(e?.message || "오늘의 표현을 만들지 못했습니다.")}</p>`;
         }
       }
 
@@ -3431,7 +3553,7 @@ JSON만 출력:
             <button type="button" class="primary" id="btnModeDaily">일상 생활</button>
             <button type="button" class="primary" id="btnModeTruth">진리발표</button>
             <button type="button" class="primary" id="btnModeVerbs">기본동사</button>
-            <button type="button" class="primary" id="btnModeBible">오늘의 표현 드릴</button>
+            <button type="button" class="primary" id="btnModeBible">오늘의 표현</button>
             <button type="button" id="btnVocabBook">📒 내 단어장 (${visibleVocab(loadVocab()).length})</button>
             <button type="button" id="btnMemoBook">📔 내 메모장 (${visibleVocab(loadVocab(MEMO_STORE)).length})</button>
           </div>
