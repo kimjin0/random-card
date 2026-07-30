@@ -3050,15 +3050,36 @@ JSON만 출력: [{"korean":"...","english":"..."},{"korean":"...","english":"...
         pushVocab(list, DRILL_HISTORY_STORE);
       }
 
+      /** 새 문장이 지난 기록과 겹치지 않도록, 최근에 쓴 기본 문장 목록을 모은다. */
+      function recentDrillBases(limit = 20) {
+        const used = visibleVocab(loadVocab(DRILL_HISTORY_STORE)).map((e) =>
+          String(e.base_en || "").trim()
+        );
+        const cached = loadCachedDrill();
+        if (cached && cached.data && cached.data.base_en) {
+          used.unshift(String(cached.data.base_en).trim());
+        }
+        return [...new Set(used.filter(Boolean))].slice(0, limit);
+      }
+
       /** 기본 문장 하나와 15가지 뉘앙스 변형을 AI로 생성한다. type: "verb"(동사) | "be"(느낌·상태) */
       async function generateDailyDrill(type) {
         const apiKey = getGeminiApiKey();
         if (!apiKey) throw new Error("문장을 만들려면 모드 선택 > 설정에서 OpenAI API 키를 입력해 주세요.");
 
         const isBe = type === "be";
+        // 매번 무작위 주제를 지정해 모델이 늘 같은 예시 문장으로 회귀하는 것을 막는다.
+        const topicPool = isBe
+          ? ["피곤함", "배고픔", "긴장·떨림", "설렘·신남", "지루함", "바쁨", "지각·늦음", "배부름", "졸림", "아픔·몸살", "걱정", "자신감", "준비됨", "실망", "뿌듯함"]
+          : ["요리·음식", "운동·건강", "쇼핑", "직장·업무", "학교·공부", "교통·이동", "친구·약속", "집안일", "취미·여가", "여행", "전화·연락", "돈·소비", "날씨·외출", "카페·간식", "잠·휴식", "반려동물", "가족"];
+        const topic = topicPool[Math.floor(Math.random() * topicPool.length)];
         const baseRule = isBe
-          ? `초급(A2) 학습자가 일상에서 자주 쓰는 느낌·상태의 1인칭 현재형 문장을 하나 정한다. be동사 + 형용사(또는 명사)로 만든다. (예: I am happy. / I am tired. — 예시와 다른 새로운 문장으로)`
-          : `초급(A2) 학습자가 일상에서 자주 쓰는 아주 기본적인 1인칭 현재형 동사 문장을 하나 정한다. (예: I go for a drive. / I cook at home. — 예시와 다른 새로운 문장으로)`;
+          ? `초급(A2) 학습자가 일상에서 자주 쓰는 느낌·상태의 1인칭 현재형 문장을 하나 정한다. be동사 + 형용사(또는 명사)로 만든다. 이번 느낌·상태는 "${topic}" 관련으로 한다.`
+          : `초급(A2) 학습자가 일상에서 자주 쓰는 아주 기본적인 1인칭 현재형 동사 문장을 하나 정한다. 이번 주제는 "${topic}" 관련으로 한다.`;
+        const used = recentDrillBases();
+        const avoidRule = used.length
+          ? `\n4. 아래 "이미 사용한 문장"과 겹치거나 비슷한 문장은 절대 만들지 않는다.\n\n이미 사용한 문장:\n${used.map((s) => `- ${s}`).join("\n")}`
+          : "";
         const variants = isBe
           ? `1 "기본" 현재의 느낌·상태 (I am ...)
 2 "부정" I'm not ...
@@ -3095,7 +3116,7 @@ JSON만 출력: [{"korean":"...","english":"..."},{"korean":"...","english":"...
 
 1. ${baseRule}
 2. 그 문장을 아래 15가지 뉘앙스로 변형한다. 뒤의 기본 덩어리는 절대 바꾸지 않고 뉘앙스 부분만 바꾼다.
-3. ko는 그 상황에서 한국인이 실제로 내뱉는 짧은 반말로 쓴다. (예: "나 드라이브 안 했어.", "너 여기 자주 와?")
+3. ko는 그 상황에서 한국인이 실제로 내뱉는 짧은 반말로 쓴다. (예: "나 드라이브 안 했어.", "너 여기 자주 와?")${avoidRule}
 
 뉘앙스 순서 (tag는 그대로 사용):
 ${variants}
@@ -3568,9 +3589,11 @@ JSON만 출력:
        */
       function backgroundSyncVocabStores() {
         if (!firebaseSyncEnabled() || !getSyncCode()) return;
-        [VOCAB_STORE, MEMO_STORE].forEach((store) => {
+        // DRILL_HISTORY_STORE는 버튼이 없어(btnId 없음) 개수 갱신 없이 동기화만 된다.
+        [VOCAB_STORE, MEMO_STORE, DRILL_HISTORY_STORE].forEach((store) => {
           pullMergeVocab(store).then((merged) => {
             if (app.dataset.view !== "modePicker") return;
+            if (!store.btnId) return;
             const btn = document.getElementById(store.btnId);
             if (btn) btn.textContent = `${store.btnLabel} (${visibleVocab(merged).length})`;
           });
