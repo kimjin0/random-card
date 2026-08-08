@@ -2998,8 +2998,11 @@ JSON만 출력: [{"korean":"...","english":"..."},{"korean":"...","english":"...
        * 한국어 상황을 보고 첫마디를 먼저 내뱉은 뒤 카드를 눌러 영어를 확인한다.
        */
       const LS_DAILY_DRILL_KEY = "english-card-daily-drill";
-      /** 조동사 드릴은 '오늘의 표현'과 진행 캐시를 분리해 서로 덮어쓰지 않는다. */
-      const LS_MODAL_DRILL_KEY = "english-card-modal-drill";
+      /**
+       * 조동사 드릴은 '오늘의 표현'과 진행 캐시를 분리해 서로 덮어쓰지 않는다.
+       * 뉘앙스 규칙을 바꾸면 키 뒤 버전을 올려 예전 규칙으로 만든 세트를 버린다.
+       */
+      const LS_MODAL_DRILL_KEY = "english-card-modal-drill-v5";
 
       /** 오늘 날짜의 드릴(문장 세트 + 진행 위치)을 불러온다. */
       function loadCachedDrill(cacheKey = LS_DAILY_DRILL_KEY) {
@@ -3066,7 +3069,100 @@ JSON만 출력: [{"korean":"...","english":"..."},{"korean":"...","english":"...
         return [...new Set(used.filter(Boolean))].slice(0, limit);
       }
 
-      /** 기본 문장 하나와 15가지 뉘앙스 변형을 AI로 생성한다. type: "verb"(동사) | "be"(느낌·상태) | "modal"(조동사) */
+      /** 조동사 드릴 15장의 정렬 순서. AI가 tag를 흘리거나 순서를 바꿔도 이 순서로 다시 세운다. */
+      const MODAL_TAGS = [
+        "기본",
+        "가능성 can",
+        "허락 can",
+        "불가 can't",
+        "금지 can't",
+        "권고 should",
+        "추측 should",
+        "만류 shouldn't",
+        "추측 shouldn't",
+        "의무 have to",
+        "불필요 don't have to",
+        "추측 might",
+        "추측 might not",
+        "결심 will",
+        "계획 gonna",
+      ];
+
+      /**
+       * '가능성 can / 추측 should / 추측 shouldn't' 세 장은 AI에게 맡기지 않는다.
+       * 추측은 화자가 통제할 수 없는 일에만 붙어서 행동 동사구로는 만들 수 없는데,
+       * 모델이 매번 동사구를 진행형으로 감싸거나(→ 의무로 읽힘) 영어와 한국어를
+       * 어긋나게 만들었다. 검증된 영어–한국어 쌍을 세트로 두고 코드가 그대로 끼워 넣는다.
+       */
+      const MODAL_STATE_SETS = [
+        {
+          can: { en: "It can get pretty crowded.", ko: "꽤 붐빌 수도 있어." },
+          should: { en: "She should be there by now.", ko: "걔 지금쯤 거기 도착했을 거야." },
+          shouldnt: { en: "It shouldn't take long.", ko: "오래 안 걸릴 거야." },
+        },
+        {
+          can: { en: "It can get expensive.", ko: "돈이 꽤 들 수도 있어." },
+          should: { en: "It should be about ten dollars.", ko: "아마 10달러쯤 할 거야." },
+          shouldnt: { en: "It shouldn't cost much.", ko: "얼마 안 할 거야." },
+        },
+        {
+          can: { en: "He can be a little late sometimes.", ko: "걔 가끔 좀 늦을 수도 있어." },
+          should: { en: "He should be home by now.", ko: "걔 지금쯤 집에 있을 거야." },
+          shouldnt: { en: "He shouldn't be too far.", ko: "걔 그렇게 멀리 있진 않을 거야." },
+        },
+        {
+          can: { en: "It can be tricky at first.", ko: "처음엔 좀 까다로울 수도 있어." },
+          should: { en: "It should be pretty easy.", ko: "아마 꽤 쉬울 거야." },
+          shouldnt: { en: "It shouldn't be that hard.", ko: "그렇게 어렵진 않을 거야." },
+        },
+        {
+          can: { en: "It can take a while.", ko: "시간이 좀 걸릴 수도 있어." },
+          should: { en: "It should take about ten minutes.", ko: "아마 10분쯤 걸릴 거야." },
+          shouldnt: { en: "It shouldn't take more than an hour.", ko: "한 시간도 안 걸릴 거야." },
+        },
+        {
+          can: { en: "It can get messy.", ko: "좀 지저분해질 수도 있어." },
+          should: { en: "She should be done by now.", ko: "걔 지금쯤 다 했을 거야." },
+          shouldnt: { en: "It shouldn't be a problem.", ko: "별문제 안 될 거야." },
+        },
+        {
+          can: { en: "It can get pretty cold at night.", ko: "밤엔 꽤 추워질 수도 있어." },
+          should: { en: "It should be warm today.", ko: "오늘 아마 따뜻할 거야." },
+          shouldnt: { en: "It shouldn't rain today.", ko: "오늘 비 안 올 거야." },
+        },
+        {
+          can: { en: "He can be pretty quiet sometimes.", ko: "걔 가끔 되게 조용할 수도 있어." },
+          should: { en: "He should know the answer.", ko: "걔 아마 답 알 거야." },
+          shouldnt: { en: "He shouldn't be busy right now.", ko: "걔 지금 바쁘진 않을 거야." },
+        },
+      ];
+
+      /**
+       * AI가 만든 12장(행동 동사구 카드)에 고정 세트 3장을 끼워 15장으로 세운다.
+       * tag로 맞추고, tag가 어긋났으면 순서로 보완한다. 고정 3장은 어떤 경우에도 살아남는다.
+       */
+      function buildModalDrills(aiDrills, set) {
+        const byTag = new Map();
+        aiDrills.forEach((d) => {
+          if (d.tag && !byTag.has(d.tag)) byTag.set(d.tag, d);
+        });
+        const pinned = {
+          "가능성 can": set.can,
+          "추측 should": set.should,
+          "추측 shouldn't": set.shouldnt,
+        };
+        // 순서 보완용 커서. AI는 고정 3장을 뺀 12장만 순서대로 주므로 고정 칸에서는 넘기지 않는다.
+        let cursor = 0;
+        return MODAL_TAGS.map((tag) => {
+          const pin = pinned[tag];
+          if (pin) return { tag, ko: pin.ko, en: pin.en };
+          const hit = byTag.get(tag) || aiDrills[cursor];
+          cursor += 1;
+          return hit ? { tag, ko: hit.ko, en: hit.en } : null;
+        }).filter(Boolean);
+      }
+
+      /** 기본 문장 하나와 뉘앙스 변형을 AI로 생성한다. type: "verb"(동사) | "be"(느낌·상태) | "modal"(조동사) */
       async function generateDailyDrill(type) {
         const apiKey = getGeminiApiKey();
         if (!apiKey) throw new Error("문장을 만들려면 모드 선택 > 설정에서 OpenAI API 키를 입력해 주세요.");
@@ -3081,27 +3177,37 @@ JSON만 출력: [{"korean":"...","english":"..."},{"korean":"...","english":"...
         const baseRule = isBe
           ? `초급(A2) 학습자가 일상에서 자주 쓰는 느낌·상태의 1인칭 현재형 문장을 하나 정한다. be동사 + 형용사(또는 명사)로 만든다. 이번 느낌·상태는 "${topic}" 관련으로 한다.`
           : isModal
-            ? `초급(A2) 학습자가 일상에서 자주 쓰는 아주 기본적인 현재형 동사 문장을 하나 정한다. 동사 뒤 덩어리(목적어 등)는 모든 변형에서 그대로 유지할 수 있게 짧고 단순하게 만든다. 이번 주제는 "${topic}" 관련으로 한다.`
+            ? `초급(A2) 학습자가 일상에서 자주 쓰는 자연스러운 습관 문장을 하나 정한다. I + 동사구 현재형으로 쓰되, 원어민이 실제로 그렇게 말하는 문장이어야 한다. 매일 또는 자주 반복하는 일상 행동으로 정한다. 여행처럼 어쩌다 한 번 하는 일은 습관 문장이 되지 않으므로 피하고, 그런 주제가 주어지면 그 주제 안에서 자주 하는 작은 행동으로 좁힌다. 필요하면 after lunch, before bed, on weekends 같은 시점 표현을 붙여 자연스럽게 만든다. 다만 every morning 같은 빈도 부사는 14·15번(will·gonna)을 어색하게 만드므로 쓰지 않는다. 동사구는 모든 변형에서 그대로 유지할 수 있게 짧고 단순하게 만든다. 이번 주제는 "${topic}" 관련으로 한다.`
             : `초급(A2) 학습자가 일상에서 자주 쓰는 아주 기본적인 1인칭 현재형 동사 문장을 하나 정한다. 이번 주제는 "${topic}" 관련으로 한다.`;
         const used = recentDrillBases();
         const avoidRule = used.length
           ? `\n4. 아래 "이미 사용한 문장"과 겹치거나 비슷한 문장은 절대 만들지 않는다.\n\n이미 사용한 문장:\n${used.map((s) => `- ${s}`).join("\n")}`
           : "";
-        const modalVariants = `1 "기본" 현재형 기본 문장
-2 "가능성 can" ~할 수도 있어 (왠지 그럴 것 같은 가능성)
-3 "허락 can" ~해도 돼 (흔쾌히 허락, 주어는 You)
-4 "불가능 can't" ~할 리 없어 (가능성 없음)
-5 "금지 can't" ~하면 안 돼 (강한 금지·거절, 주어는 You)
-6 "권고 should" ~해야지 (부드러운 권고·추천)
-7 "추측 should" 아마 ~일 거야 (내 경험상 그럴 거야)
-8 "만류 shouldn't" ~하면 안 돼 (can't보다 부드러운 만류)
-9 "추측 shouldn't" ~하지 않을 거야 (내가 알기론 아닐 거야)
-10 "의무 have to" 꼭 ~해야만 해 (should보다 강한 의무)
-11 "불필요 don't have to" 안 해도 돼 (금지가 아니라 안 해도 상관없음)
-12 "추측 might" ~일지도 몰라 (반반 가능성)
-13 "추측 might not" 안 ~할지도 몰라
-14 "결심 will" 내가 ~할게 (지금 막 생긴 결심, I'll ...)
-15 "계획 gonna" 나 ~할 거야 (원래 있던 계획, I'm gonna ...)`;
+        // 추측·가능성(2·7·9번)은 화자가 통제할 수 없는 일에만 자연스럽게 붙는다.
+        // 의지로 하는 행동 동사구에 그대로 붙이면 영어가 의무·능력으로 해석해 버리므로,
+        // 그 세 장만 같은 주제의 상태 문장으로 바꾸도록 지정한다.
+        // ko 틀에는 따옴표를 쓰지 않는다. 설명문에 따옴표로 감싼 한국어를 두면
+        // 모델이 그것을 완성된 답으로 착각해 ko 칸에 그대로 베껴 넣는다.
+        // 추측 계열 3장은 코드가 고정 세트로 채우므로, AI에게는 동사구 카드 12장만 맡긴다.
+        const modalVariants = `1 "기본" [I + 동사구, 현재형] 평소에 하는 일. ko 틀: 나 ~해.
+2 "허락 can" [You + can + 동사구] 흔쾌히 허락. ko 틀: 너 ~해도 돼.
+3 "불가 can't" [I + can't + 동사구] 사정·능력이 안 됨. ko 틀: 나 ~못 해.
+4 "금지 can't" [You + can't + 동사구 + today] 단호한 금지. ko 틀: 너 오늘 ~하면 안 돼.
+5 "권고 should" [You + should + 동사구] 부드러운 권고. ko 틀: 너 ~하는 게 좋아.
+6 "만류 shouldn't" [You + shouldn't + 동사구 + today] 4번보다 부드러운 만류. ko 틀: 너 오늘은 ~안 하는 게 좋아.
+7 "의무 have to" [I + have to + 동사구] should보다 강한 의무. ko 틀: 나 꼭 ~해야 해.
+8 "불필요 don't have to" [You + don't have to + 동사구] 금지가 아니라 안 해도 상관없음. ko 틀: 너 ~안 해도 돼.
+9 "추측 might" [I + might + 동사구] 반반 가능성. ko 틀: 나 ~할지도 몰라.
+10 "추측 might not" [I + might not + 동사구] ko 틀: 나 ~안 할지도 몰라.
+11 "결심 will" [I'll + 동사구] 지금 막 생긴 결심. ko 틀: 내가 ~할게.
+12 "계획 gonna" [I'm gonna + 동사구] 원래 있던 계획. ko 틀: 나 ~할 거야.
+
+ko 작성 주의:
+- ko 틀은 뼈대일 뿐이다. ~ 자리를 실제 내용으로 채워 완성된 한국어 문장으로 쓴다.
+- 뉘앙스를 설명하는 말(그럴 가능성이 있어, 추측이야 등)을 ko에 그대로 쓰면 안 된다.
+- 3번 ko에 리 없어라는 표현을 쓰지 않는다.
+- 4번 ko에 절대라는 말을 넣지 않는다. can't는 그냥 안 돼 정도의 세기다. 4번은 안 돼로 단호하게, 6번은 안 하는 게 좋아로 부드럽게 끝내면 세기 차이가 충분히 드러난다.
+- 4번과 6번은 오늘 하루만의 이야기다. 평생 금지처럼 들리면 안 된다.`;
         const variants = isModal
           ? modalVariants
           : isBe
@@ -3137,11 +3243,26 @@ JSON만 출력: [{"korean":"...","english":"..."},{"korean":"...","english":"...
 15 "미래 질문" Are you gonna ...?`;
 
         const rule2 = isModal
-          ? `그 문장을 아래 15가지 조동사 뉘앙스로 변형한다. 동사 뒤의 기본 덩어리는 절대 바꾸지 않고 조동사 부분만 바꾼다. 단, 주어는 뉘앙스에 맞게 I/You/He/She 중에서 바꿀 수 있다. (허락·금지는 You, 결심·계획은 I)`
+          ? `그 문장을 아래 12가지 조동사 뉘앙스로 변형한다. 각 항목의 대괄호 안에 적힌 주어와 형태를 반드시 그대로 지킨다. 동사구는 한 글자도 바꾸지 않고 조동사만 갈아끼운다. 대괄호에 today가 적힌 항목에는 today를 붙인다.`
           : `그 문장을 아래 15가지 뉘앙스로 변형한다. 뒤의 기본 덩어리는 절대 바꾸지 않고 뉘앙스 부분만 바꾼다.`;
         const rule3 = isModal
-          ? `ko는 그 상황에서 한국인이 실제로 내뱉는 짧은 반말로 쓰되, 조동사의 뉘앙스 차이가 드러나게 쓴다. (예: "걔가 바뀔 수도 있어.", "그거 가져가도 돼.", "너 오늘 일찍 가면 안 돼.", "암기 안 해도 돼.")`
+          ? `ko는 한국인이 실제로 내뱉는 짧은 반말로 쓰되, 각 항목의 ko 틀을 따라 조동사의 뉘앙스 차이가 눈에 보이게 쓴다. 서로 다른 두 카드의 ko가 똑같은 문장이 되면 안 된다.`
           : `ko는 그 상황에서 한국인이 실제로 내뱉는 짧은 반말로 쓴다. (예: "나 드라이브 안 했어.", "너 여기 자주 와?")`;
+        const modalExample = `
+참고용 완성 예시 (동사구 "go to the gym", 이 문장은 그대로 쓰지 말 것):
+1 기본 → I go to the gym. / 나 헬스장 다녀.
+2 허락 can → You can go to the gym. / 너 헬스장 가도 돼.
+3 불가 can't → I can't go to the gym today. / 나 오늘 헬스장 못 가.
+4 금지 can't → You can't go to the gym today. / 너 오늘 헬스장 가면 안 돼.
+5 권고 should → You should go to the gym. / 너 헬스장 다니는 게 좋아.
+6 만류 shouldn't → You shouldn't go to the gym today. / 너 오늘은 헬스장 안 가는 게 좋아.
+7 의무 have to → I have to go to the gym. / 나 꼭 헬스장 가야 해.
+8 불필요 don't have to → You don't have to go to the gym. / 너 헬스장 안 가도 돼.
+9 추측 might → I might go to the gym. / 나 헬스장 갈지도 몰라.
+10 추측 might not → I might not go to the gym. / 나 헬스장 안 갈지도 몰라.
+11 결심 will → I'll go to the gym. / 내가 헬스장 갈게.
+12 계획 gonna → I'm gonna go to the gym. / 나 헬스장 갈 거야.
+`;
         const prompt = `영어 회화 학습용 "${isModal ? "조동사 뉘앙스 드릴" : "뉘앙스 드릴"}" 자료를 만들어줘.
 
 1. ${baseRule}
@@ -3150,9 +3271,9 @@ JSON만 출력: [{"korean":"...","english":"..."},{"korean":"...","english":"...
 
 뉘앙스 순서 (tag는 그대로 사용):
 ${variants}
-
+${isModal ? modalExample : ""}
 JSON만 출력:
-{"base_en":"기본 문장","base_ko":"기본 문장의 한국어 뜻","drills":[{"tag":"기본","ko":"한국어 상황","en":"영어 문장"} 형식으로 15개]}`;
+{"base_en":"기본 문장","base_ko":"기본 문장의 한국어 뜻","drills":[{"tag":"기본","ko":"한국어 상황","en":"영어 문장"} 형식으로 ${isModal ? 12 : 15}개]}`;
 
         const res = await fetch(GROQ_API_URL, {
           method: "POST",
@@ -3164,7 +3285,7 @@ JSON만 출력:
             model: GROQ_MODEL,
             messages: [{ role: "user", content: prompt }],
             temperature: 0.9,
-            max_tokens: 1200,
+            max_tokens: isModal ? 1800 : 1200,
           }),
         });
         if (!res.ok) {
@@ -3184,11 +3305,18 @@ JSON만 출력:
           }))
           .filter((it) => it.ko && it.en);
         if (!drills.length) throw new Error("연습 문장을 만들지 못했습니다.");
+        // 조동사 모드는 AI가 만든 동사구 12장에 고정 세트 3장을 끼워 15장으로 세운다.
+        const finalDrills = isModal
+          ? buildModalDrills(
+              drills,
+              MODAL_STATE_SETS[Math.floor(Math.random() * MODAL_STATE_SETS.length)]
+            )
+          : drills;
         return {
           type: isModal ? "modal" : isBe ? "be" : "verb",
           base_en: String(d.base_en || drills[0].en).trim(),
           base_ko: String(d.base_ko || drills[0].ko).trim(),
-          drills,
+          drills: finalDrills,
         };
       }
 
@@ -3501,6 +3629,7 @@ JSON만 출력:
         app.innerHTML = `
           <div class="gate-panel">
             <strong>조동사</strong> · 기본 문장 하나를 두고 조동사(can·can't·should·have to·might·will·gonna)를 넣었다 뺐다 하며 뉘앙스 차이를 익히는 연습입니다. 한국어 뉘앙스를 보고 첫마디를 바로 내뱉어 보세요.
+            <p class="meta" style="margin:0.4rem 0 0;font-size:0.76rem;line-height:1.45;">'추측' 카드(가능성 can·추측 should·추측 shouldn't)만 문장이 바뀝니다. 추측은 내가 어쩔 수 없는 일에만 붙기 때문에, 같은 주제의 상태 문장(<em>She should be at the gym by now.</em>)으로 연습합니다.</p>
           </div>
           <div class="gate-panel" id="modalDrillPanel" style="margin-top:0.6rem;min-height:150px;display:flex;align-items:center;justify-content:center;">
             <span class="meta">조동사 드릴을 준비하는 중…</span>
