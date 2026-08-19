@@ -1956,25 +1956,62 @@ JSON만 출력: [{"expression":"영어 표현","meaning":"한국어 뜻"}]`;
         return { phonetic, posCandidates: Array.from(posSet) };
       }
 
+      /** 무료 번역 경로가 모두 막혔을 때의 최후 백업: 드릴에 쓰는 OpenAI 키로 번역한다. */
+      async function translateEnToKoAi(text, signal) {
+        const apiKey = getGeminiApiKey();
+        if (!apiKey) throw new Error("OpenAI API 키가 없습니다.");
+        const res = await fetch(GROQ_API_URL, {
+          method: "POST",
+          signal,
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${apiKey}`,
+          },
+          body: JSON.stringify({
+            model: GROQ_MODEL,
+            messages: [{
+              role: "user",
+              content: `다음 영어를 자연스러운 한국어로 번역해줘. 단어라면 대표 뜻 한두 개만 간단히. 번역문만 출력해.\n\n${text}`,
+            }],
+            temperature: 0.2,
+            max_tokens: 200,
+          }),
+        });
+        if (!res.ok) throw new Error(`AI 번역 오류 ${res.status}`);
+        const data = await res.json();
+        const out = (data?.choices?.[0]?.message?.content || "").trim();
+        if (!out) throw new Error("AI 번역 결과가 비었습니다.");
+        return out;
+      }
+
       /** @returns {{ text: string, provider: string }} */
       async function translateEnglishToKorean(query, signal) {
         try {
           const ko = await translateEnToKoGtx(query, signal);
           return { text: ko, provider: "Google 번역" };
-        } catch (_) {
-          /* fall through */
+        } catch (e) {
+          if (e.name === "AbortError") throw e;
         }
         const key = getGoogleTranslateApiKey();
         if (key) {
           try {
             const ko = await translateEnToKoGoogleCloud(query, key, signal);
             return { text: ko, provider: "Google Cloud Translation" };
-          } catch (_) {
-            /* fall through */
+          } catch (e) {
+            if (e.name === "AbortError") throw e;
           }
         }
-        const ko = await translateEnToKoMyMemory(query, signal);
-        return { text: ko, provider: "MyMemory (백업)" };
+        try {
+          const ko = await translateEnToKoMyMemory(query, signal);
+          return { text: ko, provider: "MyMemory (백업)" };
+        } catch (e) {
+          if (e.name === "AbortError") throw e;
+        }
+        if (getGeminiApiKey()) {
+          const ko = await translateEnToKoAi(query, signal);
+          return { text: ko, provider: "AI 번역 (백업)" };
+        }
+        throw new Error("번역 서버에 연결하지 못했습니다. 네트워크 상태를 확인한 뒤 잠시 후 다시 시도해 주세요.");
       }
 
       function getGeminiApiKey() {
@@ -2116,7 +2153,7 @@ JSON만 출력: [{"korean":"...","english":"..."},{"korean":"...","english":"...
             model: GROQ_MODEL,
             messages: [{
               role: "user",
-              content: `다음 영어 문장에서 특정 단어의 문법적 역할을 분석해줘.\n\n전체 문장: "${sentence}"\n분석 대상 단어: "${word}"\n\n아래 JSON 형식으로만 답해줘 (다른 설명 없이 JSON만 출력):\n{"title":"문법적 역할 한 줄 요약 (예: 미래진행형 시제 완성, 전치사구의 목적어, 명사를 꾸미는 형용사)","chunk":"대상 단어가 속한 문법 덩어리 (예: will be staying, in the country)","components":[{"part":"덩어리를 이루는 요소 (예: will / be + -ing (staying))","role":"이 요소의 문법적 기능 (예: 미래 (~할 것이다) / 진행 (~하고 있는 중이다))"}],"explanation":"요소들이 합쳐져 어떤 시제·구문이 되는지, 그리고 대상 단어가 이 문장에서 어떤 역할과 뉘앙스를 만드는지 한국어 2~3문장으로 설명","translation":"chunk의 자연스러운 한글 번역"}\n\n규칙:\n- 대상 단어가 동사라면 조동사·시제·상(진행/완료)을 하나의 덩어리로 묶어 분석 (예: will be staying → 미래진행형)\n- 명사/대명사라면 주어·목적어·전치사의 목적어 등 문장 성분을 설명\n- 형용사/부사라면 무엇을 꾸미는지 설명\n- components는 2~4개, 모든 설명은 반드시 한국어로\n- JSON 외의 텍스트는 절대 출력하지 마`,
+              content: `다음 영어 문장에 나온 단어 하나를 왕초보 학습자에게 설명해줘.\n\n전체 문장: "${sentence}"\n설명할 단어: "${word}"\n\n아래 JSON 형식으로만 답해줘 (다른 설명 없이 JSON만 출력):\n{"pos":"이 문장에서의 품사 (예: 형용사)","ipa":"단어의 발음기호 (예: /ˈeɪbəl/)","meaning":"단어의 핵심 뜻 (예: ~할 수 있는, 능력이 있는)","role":"이 문장에서 이 단어가 하는 일을 아주 쉬운 반말 한두 문장으로 (예: 주어가 어떤 행동을 할 수 있는 상태·능력을 나타내.)","pattern":"이 단어가 들어간 대표 구문 틀 (예: be able to + 동사원형)","pattern_ko":"그 구문 틀의 뜻 (예: ~할 수 있다)","example_en":"그 구문 틀로 만든 아주 쉬운 새 예문 (위 전체 문장을 그대로 베끼지 말 것)","example_ko":"예문의 자연스러운 한국어 반말 번역 (예: 나는 수영할 수 있어.)"}\n\n규칙:\n- 문법 용어는 최소한만 쓰고, 처음 배우는 사람이 바로 이해할 수 있게 쉽게 쓴다\n- pattern은 이 문장에서 실제 쓰인 형태를 일반화한 틀로 쓴다 (동사면 조동사·시제까지 묶은 덩어리, 예: have been + -ing)\n- 대표 구문 틀이 딱히 없으면 pattern과 pattern_ko는 빈 문자열 ""로 둔다\n- example_en은 5~8단어의 짧은 새 문장\n- 모든 설명은 반드시 한국어로\n- JSON 외의 텍스트는 절대 출력하지 마`,
             }],
             temperature: 0.2,
             max_tokens: 500,
@@ -2129,7 +2166,7 @@ JSON만 출력: [{"korean":"...","english":"..."},{"korean":"...","english":"...
         if (!jsonMatch) return null;
         try {
           const parsed = JSON.parse(jsonMatch[0]);
-          if (!parsed || !parsed.title || !parsed.explanation) {
+          if (!parsed || !parsed.pos || !parsed.meaning) {
             return null;
           }
           return parsed;
@@ -2138,22 +2175,25 @@ JSON만 출력: [{"korean":"...","english":"..."},{"korean":"...","english":"...
         }
       }
 
-      function buildWordRoleHtml(role) {
-        const titleHtml = `<div style="font-weight:600;color:#e8edf7;">${escapeHtml(role.title)}</div>`;
-        const chunkHtml = role.chunk
-          ? `<div style="margin-top:0.35rem;">👉 <span style="color:#e8edf7;font-weight:600;">${escapeHtml(role.chunk)}</span>${role.translation ? ` <span style="color:#8b95a8;">· ${escapeHtml(role.translation)}</span>` : ""}</div>`
+      function buildWordRoleHtml(role, word) {
+        const posLine = `<div><span style="color:#e8edf7;font-weight:600;">${escapeHtml(word || "")}</span> 👉 <span style="color:#e8edf7;">${escapeHtml(role.pos || "")}</span></div>`;
+        const meaningLine = role.meaning
+          ? `<div style="margin-top:0.2rem;">뜻 👉 <span style="color:#e8edf7;font-weight:600;">${escapeHtml(role.meaning)}</span></div>`
           : "";
-        const componentsHtml = (Array.isArray(role.components) ? role.components : [])
-          .filter((c) => c && c.part)
-          .map((c) => `<div style="margin:0.1rem 0;"><span style="color:#e8edf7;">${escapeHtml(c.part)}</span> 👉 ${escapeHtml(c.role || "")}</div>`)
-          .join("");
-        const componentsBlock = componentsHtml
-          ? `<div style="margin:0.5rem 0 0.15rem;font-size:0.72rem;font-weight:600;color:var(--accent);">구성 요소</div>${componentsHtml}`
+        const roleLine = role.role
+          ? `<div style="margin-top:0.5rem;">${escapeHtml(role.role)}</div>`
           : "";
-        const explanationHtml = role.explanation
-          ? `<div style="margin-top:0.5rem;">${escapeHtml(role.explanation)}</div>`
+        const patternBlock = role.pattern
+          ? `<div style="margin-top:0.55rem;padding:0.5rem 0.65rem;background:#111827;border:1px solid #2d3a52;border-radius:8px;"><div style="color:#e8edf7;font-weight:600;">${escapeHtml(role.pattern)}</div>${
+              role.pattern_ko ? `<div style="margin-top:0.15rem;">👉 ${escapeHtml(role.pattern_ko)}</div>` : ""
+            }</div>`
           : "";
-        return `${titleHtml}${chunkHtml}${componentsBlock}${explanationHtml}`;
+        const exampleBlock = role.example_en
+          ? `<div style="margin-top:0.55rem;"><div style="font-size:0.74rem;color:var(--accent);font-weight:600;">예를 들어</div><div style="margin-top:0.2rem;color:#e8edf7;">${escapeHtml(role.example_en)}</div>${
+              role.example_ko ? `<div style="margin-top:0.1rem;">👉 ${escapeHtml(role.example_ko)}</div>` : ""
+            }</div>`
+          : "";
+        return `${posLine}${meaningLine}${roleLine}${patternBlock}${exampleBlock}`;
       }
 
       async function fetchAndShowWordDefinition(displayWord, lookupKey, contextSentence, wordIndex) {
@@ -2186,7 +2226,8 @@ JSON만 출력: [{"korean":"...","english":"..."},{"korean":"...","english":"...
                 return await translateEnglishToKorean(query, ac.signal);
               }
             })(),
-            fetchWordMeta(lookupKey || query, ac.signal),
+            // 발음기호·품사는 부가 정보다. dictionaryapi.dev가 죽어도 번역 표시는 막지 않는다.
+            fetchWordMeta(lookupKey || query, ac.signal).catch(() => ({ phonetic: "", posCandidates: [] })),
           ]);
           window.clearTimeout(t);
           if (wordLookupAbort !== ac) return;
@@ -2228,7 +2269,12 @@ JSON만 출력: [{"korean":"...","english":"..."},{"korean":"...","english":"...
                 if (wordLookupAbort !== ac) return;
                 const roleBodyEl = document.getElementById("wordRoleBody");
                 if (roleBodyEl && role) {
-                  roleBodyEl.innerHTML = buildWordRoleHtml(role);
+                  roleBodyEl.innerHTML = buildWordRoleHtml(role, query);
+                  // 사전 API가 죽어 발음기호를 못 가져온 경우 AI가 준 발음기호로 채운다.
+                  const aiIpa = String(role.ipa || "").trim();
+                  if (!wordMeta.phonetic && aiIpa) {
+                    titleEl.textContent = `${displayLabel} ${aiIpa}`;
+                  }
                 } else {
                   document.getElementById("wordRoleSection")?.remove();
                 }
@@ -2247,10 +2293,12 @@ JSON만 출력: [{"korean":"...","english":"..."},{"korean":"...","english":"...
           window.clearTimeout(t);
           if (e.name === "AbortError") return;
           if (wordLookupAbort !== ac) return;
+          const rawMsg = e && e.message ? String(e.message) : "";
+          // "Failed to fetch"(크롬)·"Load failed"(사파리)는 네트워크/차단 오류의 브라우저 원문이라 그대로 보여주면 알 수 없다.
           const msg =
-            e && e.message
-              ? escapeHtml(String(e.message))
-              : "네트워크 오류로 번역하지 못했습니다.";
+            !rawMsg || /failed to fetch|load failed|networkerror/i.test(rawMsg)
+              ? "번역 서버에 연결하지 못했습니다. 네트워크 문제이거나 번역 서버가 잠시 요청을 막은 상태입니다. 잠시 후 다시 눌러 보세요."
+              : escapeHtml(rawMsg);
           bodyEl.innerHTML = `<p class="word-def-error">${msg}</p>
             <p class="meta" style="margin:0.5rem 0 0;line-height:1.45;">
               <a href="${escapeHtml(googleTranslateWebUrl(query))}" target="_blank" rel="noopener noreferrer" style="color:var(--accent);">구글 번역 웹에서 직접 보기 ↗</a>
