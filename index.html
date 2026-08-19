@@ -3095,6 +3095,7 @@ JSON만 출력: [{"korean":"...","english":"..."},{"korean":"...","english":"...
           key,
           date: todayKey(),
           type: data.type || "verb",
+          topic: data.topic || "",
           base_en: data.base_en || "",
           base_ko: data.base_ko || "",
           drills: data.drills || [],
@@ -3231,6 +3232,30 @@ JSON만 출력: [{"korean":"...","english":"..."},{"korean":"...","english":"...
           return HAVEBEEN_TAGS.map((t) => byTag.get(t));
         }
         return aiDrills;
+      }
+
+      /** "I've been a night owl lately." → "a night owl" 처럼 have been 문장에서 핵심 어구만 남긴다. */
+      function haveBeenKeyPhrase(en) {
+        let s = String(en || "").trim();
+        s = s.replace(/^i'?ve been\s+/i, "").replace(/^i have been\s+/i, "");
+        s = s.replace(/[.!?]\s*$/, "");
+        s = s.replace(/\s+(lately|these days|recently|this week|nowadays)$/i, "");
+        return s.trim();
+      }
+
+      /**
+       * have been 세트의 제목용 요약. AI가 준 base_en 대신 긍정 카드 5장에서 코드가 직접 뽑아
+       * 항상 짧고 정확하게 만든다. tag가 어긋난 세트는 카드 위치(0·3·6·9·12)로 보완한다.
+       */
+      function haveBeenSummary(drills) {
+        const list = Array.isArray(drills) ? drills : [];
+        const posTags = ["명사", "형용사", "현재분사", "표현", "able to"];
+        let picked = posTags.map((t) => list.find((d) => d && d.tag === t)).filter(Boolean);
+        if (picked.length < 3 && list.length >= 13) {
+          picked = [0, 3, 6, 9, 12].map((i) => list[i]).filter(Boolean);
+        }
+        const parts = picked.map((d) => haveBeenKeyPhrase(d.en)).filter(Boolean);
+        return parts.join(" / ");
       }
 
       /** 기본 문장 하나와 뉘앙스 변형을 AI로 생성한다. type: "verb"(동사) | "be"(느낌·상태) | "modal"(조동사) | "haveBeen"(have been 활용) */
@@ -3432,9 +3457,12 @@ JSON만 출력:
           : isHaveBeen
             ? orderHaveBeenDrills(drills)
             : drills;
+        // have been 세트 제목은 AI에게 맡기지 않는다. (요약 대신 15문장 전체를 넣는 사고 방지)
+        const haveBeenTitle = isHaveBeen ? haveBeenSummary(finalDrills) : "";
         return {
           type: isModal ? "modal" : isHaveBeen ? "haveBeen" : isBe ? "be" : "verb",
-          base_en: String(d.base_en || drills[0].en).trim(),
+          topic,
+          base_en: haveBeenTitle || String(d.base_en || drills[0].en).trim(),
           base_ko: String(d.base_ko || drills[0].ko).trim(),
           drills: finalDrills,
         };
@@ -3513,7 +3541,11 @@ JSON만 출력:
           panel.innerHTML = `
             <div style="width:100%;">
               <div style="display:flex;justify-content:space-between;align-items:center;gap:0.5rem;">
-                <span class="meta" style="font-size:0.76rem;">${data.type === "haveBeen" ? "핵심 어구" : "기본 문장"} · ${escapeHtml(data.base_en)}</span>
+                <span class="meta" style="font-size:0.76rem;">${
+                  data.type === "haveBeen"
+                    ? `핵심 어구 · ${escapeHtml(haveBeenSummary(data.drills) || data.base_en)}`
+                    : `기본 문장 · ${escapeHtml(data.base_en)}`
+                }</span>
                 <span class="meta">${i + 1} / ${total}</span>
               </div>
               <div style="margin-top:0.7rem;">
@@ -3593,7 +3625,39 @@ JSON만 출력:
       /** 지난 기록 화면에서 "돌아가기"가 향할 드릴 모드 ("drill" = 오늘의 표현, "modal" = 조동사, "haveBeen" = have been). */
       let drillHistoryOrigin = "drill";
 
-      /** 완료한 표현 세트 기록 화면. 항목을 누르면 15개 문장이 펼쳐진다. */
+      /** 드릴 모드별 기록 필터. '오늘의 표현'은 verb·be(및 type이 없는 옛 기록)를 묶는다. */
+      function drillHistoryMatchesOrigin(entry, origin) {
+        const ty = entry.type || "verb";
+        if (origin === "modal") return ty === "modal";
+        if (origin === "haveBeen") return ty === "haveBeen";
+        return ty === "verb" || ty === "be";
+      }
+
+      function drillOriginLabel(origin) {
+        return origin === "modal" ? "조동사" : origin === "haveBeen" ? "have been" : "오늘의 표현";
+      }
+
+      /**
+       * 기록 카드의 메타·제목·부제. have been 세트는 저장된 base_en 대신 카드에서 뽑은
+       * 핵심 어구 요약을 쓴다 — AI가 base_en에 15문장을 통째로 넣었던 옛 기록도 이걸로 정리된다.
+       */
+      function drillHistoryTitleParts(e) {
+        if (e.type === "haveBeen") {
+          const summary = haveBeenSummary(e.drills);
+          return {
+            metaSuffix: " · have been" + (e.topic ? ` · ${e.topic}` : ""),
+            title: summary || e.base_en || "",
+            sub: "",
+          };
+        }
+        return {
+          metaSuffix: e.type === "be" ? " · 느낌(be)" : e.type === "modal" ? " · 조동사" : "",
+          title: e.base_en || "",
+          sub: e.base_ko || "",
+        };
+      }
+
+      /** 완료한 표현 세트 기록 화면. 들어온 드릴의 기록만 보여주고, 탭으로 다른 드릴 기록을 오갈 수 있다. */
       function renderDrillHistory(origin) {
         if (origin) drillHistoryOrigin = origin;
         closeWordDefinitionPanel();
@@ -3602,16 +3666,31 @@ JSON만 출력:
 
         const draw = (list) => {
           if (app.dataset.view !== "drillHistory") return;
-          const items = visibleVocab(list);
+          const originLabel = drillOriginLabel(drillHistoryOrigin);
+          const items = visibleVocab(list).filter((e) =>
+            drillHistoryMatchesOrigin(e, drillHistoryOrigin)
+          );
+          const tabsHtml = [
+            { key: "drill", label: "오늘의 표현" },
+            { key: "modal", label: "조동사" },
+            { key: "haveBeen", label: "have been" },
+          ]
+            .map(
+              (t) => `<button type="button" class="tts-btn drill-hist-tab" data-o="${t.key}" style="padding:0.3rem 0.6rem;${
+                t.key === drillHistoryOrigin ? "border-color:var(--accent);color:var(--accent);font-weight:600;" : ""
+              }">${t.label}</button>`
+            )
+            .join("");
           const body = items.length
             ? items
-                .map(
-                  (e, idx) => `<div class="example-item" style="display:flex;flex-direction:column;gap:0.3rem;">
+                .map((e, idx) => {
+                  const tp = drillHistoryTitleParts(e);
+                  return `<div class="example-item" style="display:flex;flex-direction:column;gap:0.3rem;">
                     <div class="drill-hist-head" data-i="${idx}" style="display:flex;justify-content:space-between;align-items:baseline;gap:0.5rem;cursor:pointer;">
                       <div>
-                        <div class="meta" style="font-size:0.72rem;">${escapeHtml(e.date || "")}${e.type === "be" ? " · 느낌(be)" : e.type === "modal" ? " · 조동사" : e.type === "haveBeen" ? " · have been" : ""}</div>
-                        <strong style="font-size:0.95rem;color:#e4ecff;">${escapeHtml(e.base_en || "")}</strong>
-                        <div class="meta" style="font-size:0.78rem;">${escapeHtml(e.base_ko || "")}</div>
+                        <div class="meta" style="font-size:0.72rem;">${escapeHtml(e.date || "")}${escapeHtml(tp.metaSuffix)}</div>
+                        <strong style="font-size:0.95rem;color:#e4ecff;">${escapeHtml(tp.title)}</strong>
+                        ${tp.sub ? `<div class="meta" style="font-size:0.78rem;">${escapeHtml(tp.sub)}</div>` : ""}
                       </div>
                       <div style="display:flex;gap:0.3rem;flex-shrink:0;">
                         <button type="button" class="tts-btn drill-hist-practice" data-i="${idx}" aria-label="한 문장씩 다시 연습" style="color:var(--accent);">▶ 연습</button>
@@ -3630,17 +3709,18 @@ JSON만 출력:
                         )
                         .join("")}
                     </div>
-                  </div>`
-                )
+                  </div>`;
+                })
                 .join("")
-            : `<p class="meta" style="margin-top:0.8rem;">아직 저장된 기록이 없습니다. '오늘의 표현'·'조동사'·'have been' 드릴을 끝까지 완료하면 여기에 자동으로 저장됩니다.</p>`;
+            : `<p class="meta" style="margin-top:0.8rem;">아직 '${escapeHtml(originLabel)}' 기록이 없습니다. ${escapeHtml(originLabel)} 드릴을 끝까지 완료하면 여기에 자동으로 저장됩니다.</p>`;
           app.innerHTML = `
             <div class="gate-panel">
-              <strong>지난 표현 기록</strong> · 완료한 문장 세트 <strong style="color:var(--accent);">${items.length}개</strong>. 항목을 누르면 문장 목록이 펼쳐집니다.${
+              <strong>지난 표현 기록</strong> · <strong style="color:var(--accent);">${escapeHtml(originLabel)}</strong> 세트 <strong style="color:var(--accent);">${items.length}개</strong>. 항목을 누르면 문장 목록이 펼쳐집니다.${
                 firebaseSyncEnabled() && getSyncCode()
                   ? " 같은 동기화 코드를 쓰는 기기끼리 자동으로 공유됩니다."
                   : ""
               }
+              <div style="margin-top:0.55rem;display:flex;gap:0.4rem;flex-wrap:wrap;">${tabsHtml}</div>
             </div>
             <div style="display:flex;flex-direction:column;gap:0.55rem;margin-top:0.6rem;">${body}</div>
             <div class="actions" style="margin-top:0.9rem;">
@@ -3652,6 +3732,15 @@ JSON만 출력:
               : drillHistoryOrigin === "haveBeen"
                 ? renderHaveBeenDrill()
                 : renderDailyDrill();
+          app.querySelectorAll(".drill-hist-tab").forEach((btn) => {
+            btn.onclick = (ev) => {
+              ev.stopPropagation();
+              const o = btn.dataset.o || "drill";
+              if (o === drillHistoryOrigin) return;
+              drillHistoryOrigin = o;
+              draw(loadVocab(DRILL_HISTORY_STORE));
+            };
+          });
           app.querySelectorAll(".drill-hist-practice").forEach((btn) => {
             const entry = items[Number(btn.dataset.i)];
             if (!entry) return;
