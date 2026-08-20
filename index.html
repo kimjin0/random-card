@@ -3053,6 +3053,8 @@ JSON만 출력: [{"korean":"...","english":"..."},{"korean":"...","english":"...
       const LS_MODAL_DRILL_KEY = "english-card-modal-drill-v5";
       /** have been 드릴 진행 캐시. 카드 규칙을 바꾸면 버전을 올려 예전 세트를 버린다. */
       const LS_HAVEBEEN_DRILL_KEY = "english-card-havebeen-drill-v4";
+      /** have been 시제 대비(지금·과거·과거→지금) 드릴의 진행 캐시. 활용 드릴과 분리 저장한다. */
+      const LS_HAVEBEEN_TENSE_DRILL_KEY = "english-card-havebeen-tense-drill-v1";
 
       /** 오늘 날짜의 드릴(문장 세트 + 진행 위치)을 불러온다. */
       function loadCachedDrill(cacheKey = LS_DAILY_DRILL_KEY) {
@@ -3111,7 +3113,7 @@ JSON만 출력: [{"korean":"...","english":"..."},{"korean":"...","english":"...
         const used = visibleVocab(loadVocab(DRILL_HISTORY_STORE)).map((e) =>
           String(e.base_en || "").trim()
         );
-        for (const key of [LS_DAILY_DRILL_KEY, LS_MODAL_DRILL_KEY, LS_HAVEBEEN_DRILL_KEY]) {
+        for (const key of [LS_DAILY_DRILL_KEY, LS_MODAL_DRILL_KEY, LS_HAVEBEEN_DRILL_KEY, LS_HAVEBEEN_TENSE_DRILL_KEY]) {
           const cached = loadCachedDrill(key);
           if (cached && cached.data && cached.data.base_en) {
             used.unshift(String(cached.data.base_en).trim());
@@ -3258,7 +3260,38 @@ JSON만 출력: [{"korean":"...","english":"..."},{"korean":"...","english":"...
         return parts.join(" / ");
       }
 
-      /** 기본 문장 하나와 뉘앙스 변형을 AI로 생성한다. type: "verb"(동사) | "be"(느낌·상태) | "modal"(조동사) | "haveBeen"(have been 활용) */
+      /** have been 시제 대비 드릴 15장의 정렬 순서. 다섯 활용 × (지금·과거·과거→지금). */
+      const HAVEBEEN_TENSE_TAGS = [
+        "명사 지금", "명사 과거", "명사 과거→지금",
+        "형용사 지금", "형용사 과거", "형용사 과거→지금",
+        "현재분사 지금", "현재분사 과거", "현재분사 과거→지금",
+        "표현 지금", "표현 과거", "표현 과거→지금",
+        "able to 지금", "able to 과거", "able to 과거→지금",
+      ];
+
+      function orderHaveBeenTenseDrills(aiDrills) {
+        const byTag = new Map();
+        aiDrills.forEach((d) => {
+          if (d.tag && !byTag.has(d.tag)) byTag.set(d.tag, d);
+        });
+        if (HAVEBEEN_TENSE_TAGS.every((t) => byTag.has(t))) {
+          return HAVEBEEN_TENSE_TAGS.map((t) => byTag.get(t));
+        }
+        return aiDrills;
+      }
+
+      /** 시제 대비 세트의 제목: "과거→지금"(have been) 카드 5장에서 핵심 어구를 뽑는다. */
+      function haveBeenTenseSummary(drills) {
+        const list = Array.isArray(drills) ? drills : [];
+        let picked = list.filter((d) => d && String(d.tag || "").includes("과거→지금"));
+        if (picked.length < 3 && list.length >= 15) {
+          picked = [2, 5, 8, 11, 14].map((i) => list[i]).filter(Boolean);
+        }
+        const parts = picked.map((d) => haveBeenKeyPhrase(d.en)).filter(Boolean);
+        return parts.join(" / ");
+      }
+
+      /** 기본 문장 하나와 뉘앙스 변형을 AI로 생성한다. type: "verb"(동사) | "be"(느낌·상태) | "modal"(조동사) | "haveBeen"(have been 활용) | "haveBeenTense"(have been 시제 대비) */
       async function generateDailyDrill(type) {
         const apiKey = getGeminiApiKey();
         if (!apiKey) throw new Error("문장을 만들려면 모드 선택 > 설정에서 OpenAI API 키를 입력해 주세요.");
@@ -3266,6 +3299,7 @@ JSON만 출력: [{"korean":"...","english":"..."},{"korean":"...","english":"...
         const isBe = type === "be";
         const isModal = type === "modal";
         const isHaveBeen = type === "haveBeen";
+        const isHaveBeenTense = type === "haveBeenTense";
         // 매번 무작위 주제를 지정해 모델이 늘 같은 예시 문장으로 회귀하는 것을 막는다.
         const topicPool = isBe
           ? ["피곤함", "배고픔", "긴장·떨림", "설렘·신남", "지루함", "바쁨", "지각·늦음", "배부름", "졸림", "아픔·몸살", "걱정", "자신감", "준비됨", "실망", "뿌듯함"]
@@ -3275,7 +3309,7 @@ JSON만 출력: [{"korean":"...","english":"..."},{"korean":"...","english":"...
           ? `초급(A2) 학습자가 일상에서 자주 쓰는 느낌·상태의 1인칭 현재형 문장을 하나 정한다. be동사 + 형용사(또는 명사)로 만든다. 이번 느낌·상태는 "${topic}" 관련으로 한다.`
           : isModal
             ? `초급(A2) 학습자가 일상에서 자주 쓰는 자연스러운 습관 문장을 하나 정한다. I + 동사구 현재형으로 쓰되, 원어민이 실제로 그렇게 말하는 문장이어야 한다. 매일 또는 자주 반복하는 일상 행동으로 정한다. 여행처럼 어쩌다 한 번 하는 일은 습관 문장이 되지 않으므로 피하고, 그런 주제가 주어지면 그 주제 안에서 자주 하는 작은 행동으로 좁힌다. 필요하면 after lunch, before bed, on weekends 같은 시점 표현을 붙여 자연스럽게 만든다. 다만 every morning 같은 빈도 부사는 14·15번(will·gonna)을 어색하게 만드므로 쓰지 않는다. 동사구는 모든 변형에서 그대로 유지할 수 있게 짧고 단순하게 만든다. 이번 주제는 "${topic}" 관련으로 한다.`
-            : isHaveBeen
+            : isHaveBeen || isHaveBeenTense
               ? `초급(A2) 학습자의 일상에서 "요즘/최근까지 계속되는 상태·활동"을 그릴 소재를 정한다. 이번 주제는 "${topic}" 관련으로 한다. 이 소재에서 다섯 가지 활용에 쓸 핵심 어구를 하나씩 정한다: ① 명사구 — 한국어 명사 별명(밤샘형 인간, 공부벌레, 운동 마니아, 인싸, 마당발, 집순이 같은 것)을 먼저 하나 정한 뒤, 그것을 영어 명사구로 옮긴다. "열심히 공부하는 학생"처럼 한국어에서 풀어 설명해야 하는 어구는 금지 ② 형용사 ③ 동사ing구 ④ be+전치사구 표현(on a diet, in a meeting 같은 형태. 이 예시를 그대로 베끼지 말 것) ⑤ able to 뒤에 붙일 동사원형구. 다섯 어구 모두 원어민이 실제로 have been 뒤에 자주 붙이는 자연스러운 어구여야 한다.`
               : `초급(A2) 학습자가 일상에서 자주 쓰는 아주 기본적인 1인칭 현재형 동사 문장을 하나 정한다. 이번 주제는 "${topic}" 관련으로 한다.`;
         const used = recentDrillBases();
@@ -3335,10 +3369,35 @@ ko 작성 주의:
   (X) 나 요즘 계속 사교적인 사람이야 → (O) 나 요즘 완전 마당발이야 (형용사+사람 풀어쓰기 금지)
   (X) 나 요즘 계속 집중했어 → (O) 나 요즘 집중이 잘돼 (형용사는 행동이 아니라 상태로)
   (X) 나 요즘 스터디 그룹에 있었어 → (O) 나 요즘 스터디 하고 있어 (전치사구 표현은 장소 직역이 아니라 활동으로)`;
+        // have been 시제 대비: 같은 어구를 지금(I'm)·과거(I was)·과거→지금(I've been) 세 시제로 말한다.
+        const haveBeenTenseVariants = `1 "명사 지금" [I'm + 명사구] 지금 그런 사람임. ko 틀: 나 ~야.
+2 "명사 과거" [I was + 명사구 + 끝난 과거 시점] 예전엔 그랬고 지금은 아닐 수 있음. ko 틀: 나 예전에 ~였어.
+3 "명사 과거→지금" [I've been + 명사구 + lately] 얼마 전부터 지금까지 쭉. ko 틀: 나 요즘 계속 ~야.
+4 "형용사 지금" [I'm + 형용사 (+ right now/today)] ko 틀: 나 지금 ~해.
+5 "형용사 과거" [I was + 형용사 + 끝난 과거 시점] ko 틀: 나 어제 ~했어.
+6 "형용사 과거→지금" [I've been + 형용사 + lately/all day] ko 틀: 나 요즘 계속 ~해.
+7 "현재분사 지금" [I'm + 동사ing (+ right now)] 지금 이 순간 하는 중. ko 틀: 나 지금 ~하는 중이야.
+8 "현재분사 과거" [I was + 동사ing + 끝난 과거 시점] 그때 하는 중이었음. ko 틀: 나 아까 ~하고 있었어.
+9 "현재분사 과거→지금" [I've been + 동사ing + since ~/lately] 얼마 전부터 지금까지 계속. ko 틀: 나 요즘 계속 ~하고 있어.
+10 "표현 지금" [I'm + 전치사구 표현] ko 틀: 나 지금 ~중이야.
+11 "표현 과거" [I was + 전치사구 표현 + 끝난 과거 시점] ko 틀: 나 지난주엔 ~중이었어.
+12 "표현 과거→지금" [I've been + 전치사구 표현 + for ~/lately] ko 틀: 나 요즘 계속 ~중이야.
+13 "able to 지금" [I'm able to + 동사원형구] ko 틀: 나 ~할 수 있어.
+14 "able to 과거" [I was able to + 동사원형구 + 끝난 과거 시점] ko 틀: 나 예전엔 ~할 수 있었어.
+15 "able to 과거→지금" [I've been able to + 동사원형구 + lately] ko 틀: 나 요즘 계속 ~할 수 있어.
+
+ko 작성 주의:
+- ko 틀은 뼈대일 뿐이다. ~ 자리를 실제 내용으로 채워 완성된 한국어 문장으로 쓴다.
+- 세 시제의 차이가 한국어에서도 보여야 한다: "지금" 카드는 지금/오늘, "과거" 카드는 어제/지난주/예전에 같은 끝난 시점, "과거→지금" 카드는 요즘/계속/~째 같은 이어지는 기간.
+- "과거" 카드는 지금은 끝난 일로 들리게, "과거→지금" 카드는 지금도 이어지는 일로 들리게 쓴다. 과거→지금 카드의 ko를 "~였어/했어"로 끝내지 않는다.
+- 명사 카드(1~3번)의 ko에는 "사람"이라는 단어를 쓰지 말고, 처음 정한 한국어 명사 별명을 그대로 쓴다.
+- ko는 영어의 직역이 아니라 같은 상황에서 한국인이 실제로 내뱉는 말로 쓴다.`;
         const variants = isModal
           ? modalVariants
           : isHaveBeen
           ? haveBeenVariants
+          : isHaveBeenTense
+          ? haveBeenTenseVariants
           : isBe
           ? `1 "기본" 현재의 느낌·상태 (I am ...)
 2 "부정" I'm not ...
@@ -3375,11 +3434,15 @@ ko 작성 주의:
           ? `그 문장을 아래 12가지 조동사 뉘앙스로 변형한다. 각 항목의 대괄호 안에 적힌 주어와 형태를 반드시 그대로 지킨다. 동사구는 한 글자도 바꾸지 않고 조동사만 갈아끼운다. 대괄호에 today가 적힌 항목에는 today를 붙인다.`
           : isHaveBeen
           ? `아래 15가지 순서대로 모든 문장을 현재완료(have been)로만 만든다. 각 항목의 대괄호 안 형태를 반드시 그대로 지킨다. 같은 활용 묶음(1–3, 4–6, 7–9, 10–12, 13–15)은 핵심 어구를 한 글자도 바꾸지 않고 I've been / I haven't been / Have you been만 갈아끼운다. lately, these days, this week 같은 기간 표현은 자연스러우면 붙이되, 같은 묶음 안에서는 똑같이 유지한다.`
+          : isHaveBeenTense
+          ? `아래 15가지 순서대로 만든다. 같은 활용 묶음(1–3, 4–6, 7–9, 10–12, 13–15)은 핵심 어구를 한 글자도 바꾸지 않고 시제 부분만 바꾼다: "지금" 카드는 I'm(현재), "과거" 카드는 I was + 끝난 과거 시점(yesterday, last week, before 등), "과거→지금" 카드는 I've been + 지금까지 이어지는 기간(lately, all day, for two weeks, since ~ 등). 시간 표현으로 세 시제의 차이가 또렷이 보이게 한다.`
           : `그 문장을 아래 15가지 뉘앙스로 변형한다. 뒤의 기본 덩어리는 절대 바꾸지 않고 뉘앙스 부분만 바꾼다.`;
         const rule3 = isModal
           ? `ko는 한국인이 실제로 내뱉는 짧은 반말로 쓰되, 각 항목의 ko 틀을 따라 조동사의 뉘앙스 차이가 눈에 보이게 쓴다. 서로 다른 두 카드의 ko가 똑같은 문장이 되면 안 된다.`
           : isHaveBeen
           ? `ko는 한국인이 실제로 내뱉는 짧은 반말로 쓰되, 각 항목의 ko 틀을 따라 "지금까지 계속"이라는 현재완료 뉘앙스가 눈에 보이게 쓴다. 영어 문장을 만든 뒤 ko는 직역하지 말고 "이 상황에서 한국인이라면 뭐라고 말할까"를 새로 떠올려 쓴다.`
+          : isHaveBeenTense
+          ? `ko는 한국인이 실제로 내뱉는 짧은 반말로 쓰되, 각 항목의 ko 틀을 따라 세 시제의 차이(지금 / 끝난 과거 / 지금까지 계속)가 눈에 보이게 쓴다. 직역하지 말고 같은 상황에서 한국인이 실제로 하는 말로 쓴다.`
           : `ko는 그 상황에서 한국인이 실제로 내뱉는 짧은 반말로 쓴다. (예: "나 드라이브 안 했어.", "너 여기 자주 와?")`;
         const modalExample = `
 참고용 완성 예시 (동사구 "go to the gym", 이 문장은 그대로 쓰지 말 것):
@@ -3414,7 +3477,25 @@ ko 작성 주의:
 14 able to 부정 → I haven't been able to sleep early. / 나 요즘 계속 일찍 못 자고 있어.
 15 able to 질문 → Have you been able to sleep early? / 너 요즘 일찍 잘 수 있어?
 `;
-        const prompt = `영어 회화 학습용 "${isModal ? "조동사 뉘앙스 드릴" : isHaveBeen ? "have been 활용 드릴" : "뉘앙스 드릴"}" 자료를 만들어줘.
+        const haveBeenTenseExample = `
+참고용 완성 예시 (주제 "요리·음식", 이 어구들은 그대로 쓰지 말 것):
+1 명사 지금 → I'm a coffee addict. / 나 커피 중독자야.
+2 명사 과거 → I was a coffee addict in college. / 나 대학 땐 커피 중독자였어.
+3 명사 과거→지금 → I've been a coffee addict lately. / 나 요즘 계속 커피 중독자야.
+4 형용사 지금 → I'm hungry right now. / 나 지금 배고파.
+5 형용사 과거 → I was hungry this morning. / 나 아침엔 배고팠어.
+6 형용사 과거→지금 → I've been hungry all day. / 나 오늘 하루 종일 계속 배고파.
+7 현재분사 지금 → I'm cooking dinner right now. / 나 지금 저녁 만드는 중이야.
+8 현재분사 과거 → I was cooking dinner an hour ago. / 나 한 시간 전엔 저녁 만들고 있었어.
+9 현재분사 과거→지금 → I've been cooking dinner since five. / 나 5시부터 계속 저녁 만들고 있어.
+10 표현 지금 → I'm on a diet. / 나 지금 다이어트 중이야.
+11 표현 과거 → I was on a diet last month. / 나 지난달엔 다이어트 중이었어.
+12 표현 과거→지금 → I've been on a diet for two weeks. / 나 2주째 계속 다이어트 중이야.
+13 able to 지금 → I'm able to eat spicy food. / 나 매운 거 먹을 수 있어.
+14 able to 과거 → I was able to eat spicy food before. / 나 예전엔 매운 거 먹을 수 있었어.
+15 able to 과거→지금 → I've been able to eat spicy food lately. / 나 요즘은 매운 거 잘 먹고 있어.
+`;
+        const prompt = `영어 회화 학습용 "${isModal ? "조동사 뉘앙스 드릴" : isHaveBeenTense ? "have been 시제 대비 드릴" : isHaveBeen ? "have been 활용 드릴" : "뉘앙스 드릴"}" 자료를 만들어줘.
 
 1. ${baseRule}
 2. ${rule2}
@@ -3422,9 +3503,9 @@ ko 작성 주의:
 
 뉘앙스 순서 (tag는 그대로 사용):
 ${variants}
-${isModal ? modalExample : isHaveBeen ? haveBeenExample : ""}
+${isModal ? modalExample : isHaveBeen ? haveBeenExample : isHaveBeenTense ? haveBeenTenseExample : ""}
 JSON만 출력:
-{"base_en":"${isHaveBeen ? "다섯 핵심 어구를 ' / '로 이은 요약" : "기본 문장"}","base_ko":"${isHaveBeen ? "그 요약의 한국어 뜻" : "기본 문장의 한국어 뜻"}","drills":[{"tag":"${isHaveBeen ? "명사" : "기본"}","ko":"한국어 상황","en":"영어 문장"} 형식으로 ${isModal ? 12 : 15}개]}`;
+{"base_en":"${isHaveBeen || isHaveBeenTense ? "다섯 핵심 어구를 ' / '로 이은 요약" : "기본 문장"}","base_ko":"${isHaveBeen || isHaveBeenTense ? "그 요약의 한국어 뜻" : "기본 문장의 한국어 뜻"}","drills":[{"tag":"${isHaveBeenTense ? "명사 지금" : isHaveBeen ? "명사" : "기본"}","ko":"한국어 상황","en":"영어 문장"} 형식으로 ${isModal ? 12 : 15}개]}`;
 
         const res = await fetch(GROQ_API_URL, {
           method: "POST",
@@ -3436,7 +3517,7 @@ JSON만 출력:
             model: GROQ_MODEL,
             messages: [{ role: "user", content: prompt }],
             temperature: 0.9,
-            max_tokens: isModal || isHaveBeen ? 1800 : 1200,
+            max_tokens: isModal || isHaveBeen || isHaveBeenTense ? 1800 : 1200,
           }),
         });
         if (!res.ok) {
@@ -3464,11 +3545,17 @@ JSON만 출력:
             )
           : isHaveBeen
             ? orderHaveBeenDrills(drills)
-            : drills;
+            : isHaveBeenTense
+              ? orderHaveBeenTenseDrills(drills)
+              : drills;
         // have been 세트 제목은 AI에게 맡기지 않는다. (요약 대신 15문장 전체를 넣는 사고 방지)
-        const haveBeenTitle = isHaveBeen ? haveBeenSummary(finalDrills) : "";
+        const haveBeenTitle = isHaveBeen
+          ? haveBeenSummary(finalDrills)
+          : isHaveBeenTense
+            ? haveBeenTenseSummary(finalDrills)
+            : "";
         return {
-          type: isModal ? "modal" : isHaveBeen ? "haveBeen" : isBe ? "be" : "verb",
+          type: isModal ? "modal" : isHaveBeen ? "haveBeen" : isHaveBeenTense ? "haveBeenTense" : isBe ? "be" : "verb",
           topic,
           base_en: haveBeenTitle || String(d.base_en || drills[0].en).trim(),
           base_ko: String(d.base_ko || drills[0].ko).trim(),
@@ -3496,7 +3583,7 @@ JSON만 출력:
           if (i >= total) {
             const doneHead = opts.practice
               ? `<p style="margin:0 0 0.6rem;font-size:0.95rem;color:#eef3fc;">🎉 복습 완료! 아래 목록으로 한 번 더 훑어보세요.</p>`
-              : `<p style="margin:0 0 0.35rem;font-size:0.95rem;color:#eef3fc;">🎉 ${data.type === "modal" ? "조동사 드릴" : data.type === "haveBeen" ? "have been 드릴" : "오늘의 표현"} 완료! 아래 목록으로 한 번 더 훑어보세요.</p>
+              : `<p style="margin:0 0 0.35rem;font-size:0.95rem;color:#eef3fc;">🎉 ${data.type === "modal" ? "조동사 드릴" : data.type === "haveBeen" ? "have been 드릴" : data.type === "haveBeenTense" ? "have been 시제 드릴" : "오늘의 표현"} 완료! 아래 목록으로 한 번 더 훑어보세요.</p>
                 <p class="meta" style="margin:0 0 0.6rem;font-size:0.76rem;">이 목록은 자동으로 저장되었습니다. 📚 지난 기록에서 언제든 다시 볼 수 있습니다${
                   firebaseSyncEnabled() && getSyncCode() ? " (다른 기기에서도 보입니다)" : ""
                 }.</p>`;
@@ -3552,7 +3639,9 @@ JSON만 출력:
                 <span class="meta" style="font-size:0.76rem;">${
                   data.type === "haveBeen"
                     ? `핵심 어구 · ${escapeHtml(haveBeenSummary(data.drills) || data.base_en)}`
-                    : `기본 문장 · ${escapeHtml(data.base_en)}`
+                    : data.type === "haveBeenTense"
+                      ? `핵심 어구 · ${escapeHtml(haveBeenTenseSummary(data.drills) || data.base_en)}`
+                      : `기본 문장 · ${escapeHtml(data.base_en)}`
                 }</span>
                 <span class="meta">${i + 1} / ${total}</span>
               </div>
@@ -3637,7 +3726,7 @@ JSON만 출력:
       function drillHistoryMatchesOrigin(entry, origin) {
         const ty = entry.type || "verb";
         if (origin === "modal") return ty === "modal";
-        if (origin === "haveBeen") return ty === "haveBeen";
+        if (origin === "haveBeen") return ty === "haveBeen" || ty === "haveBeenTense";
         return ty === "verb" || ty === "be";
       }
 
@@ -3654,6 +3743,14 @@ JSON만 출력:
           const summary = haveBeenSummary(e.drills);
           return {
             metaSuffix: " · have been" + (e.topic ? ` · ${e.topic}` : ""),
+            title: summary || e.base_en || "",
+            sub: "",
+          };
+        }
+        if (e.type === "haveBeenTense") {
+          const summary = haveBeenTenseSummary(e.drills);
+          return {
+            metaSuffix: " · have been 시제" + (e.topic ? ` · ${e.topic}` : ""),
             title: summary || e.base_en || "",
             sub: "",
           };
@@ -3885,38 +3982,53 @@ JSON만 출력:
         }
       }
 
-      /**
-       * 'have been' 드릴. 현재완료 have been / haven't been / Have you been을
-       * 다섯 가지 활용(명사·형용사·현재분사(ing)·표현(be on a date)·able to)에
-       * 끼워 넣으며 "지금까지 계속"의 뉘앙스를 익힌다.
-       */
-      async function renderHaveBeenDrill(forceNew = false) {
-        closeWordDefinitionPanel();
-        app.dataset.view = "haveBeenDrill";
-        dateLine.textContent = "have been";
+      /** have been 화면에서 마지막으로 쓴 연습 종류 ("usage" = 활용, "tense" = 시제 대비). */
+      let haveBeenDrillMode = "usage";
 
-        const cached = loadCachedDrill(LS_HAVEBEEN_DRILL_KEY);
+      /**
+       * 'have been' 드릴. 두 가지 연습을 토글로 오간다.
+       * - 활용(usage): have been / haven't been / Have you been을 다섯 활용에 끼워 연습.
+       * - 시제 대비(tense): 같은 어구를 지금(I'm)·과거(I was)·과거→지금(I've been)으로 바꿔 말하며 차이를 익힘.
+       * 두 세트는 진행 캐시를 분리 저장해 서로 오가도 진행이 유지된다.
+       */
+      async function renderHaveBeenDrill(forceNew = false, mode = null) {
+        closeWordDefinitionPanel();
+        if (mode) haveBeenDrillMode = mode;
+        const isTense = haveBeenDrillMode === "tense";
+        app.dataset.view = "haveBeenDrill";
+        dateLine.textContent = isTense ? "have been 시제" : "have been";
+
+        const cacheKey = isTense ? LS_HAVEBEEN_TENSE_DRILL_KEY : LS_HAVEBEEN_DRILL_KEY;
+        const cached = loadCachedDrill(cacheKey);
+
+        const introHtml = isTense
+          ? `<strong>have been 시제 대비</strong> · 같은 어구를 ① 지금(<em>I'm</em>) ② 과거(<em>I was</em>) ③ 과거→지금(<em>I've been</em>) 세 시제로 바꿔 말하며 차이를 익히는 연습입니다. 한국어를 보고 첫마디를 바로 내뱉어 보세요.
+            <p class="meta" style="margin:0.4rem 0 0;font-size:0.76rem;line-height:1.45;"><em>I was</em>는 그때로 끝난 일, <em>I've been</em>은 그때 시작해 지금도 이어지는 일입니다. 다섯 활용(명사·형용사·현재분사·표현·able to)마다 3장씩 총 15장입니다.</p>`
+          : `<strong>have been 활용</strong> · 한 가지 주제를 두고 <em>have been / haven't been / Have you been</em>을 다섯 가지 활용에 끼워 "지금까지 계속"의 뉘앙스를 익히는 연습입니다. 한국어를 보고 첫마디를 바로 내뱉어 보세요.
+            <p class="meta" style="margin:0.4rem 0 0;font-size:0.76rem;line-height:1.45;">① 명사 (<em>a night owl</em>) ② 형용사 (<em>busy</em>) ③ 현재분사 (<em>working out</em>) ④ 표현 (<em>on a date</em>) ⑤ able to (<em>able to sleep</em>) — 활용마다 긍정·부정·질문 3장씩 총 15장입니다.</p>`;
 
         app.innerHTML = `
           <div class="gate-panel">
-            <strong>have been 활용</strong> · 한 가지 주제를 두고 <em>have been / haven't been / Have you been</em>을 다섯 가지 활용에 끼워 "지금까지 계속"의 뉘앙스를 익히는 연습입니다. 한국어를 보고 첫마디를 바로 내뱉어 보세요.
-            <p class="meta" style="margin:0.4rem 0 0;font-size:0.76rem;line-height:1.45;">① 명사 (<em>a night owl</em>) ② 형용사 (<em>busy</em>) ③ 현재분사 (<em>working out</em>) ④ 표현 (<em>on a date</em>) ⑤ able to (<em>able to sleep</em>) — 활용마다 긍정·부정·질문 3장씩 총 15장입니다.</p>
+            ${introHtml}
           </div>
           <div class="gate-panel" id="haveBeenDrillPanel" style="margin-top:0.6rem;min-height:150px;display:flex;align-items:center;justify-content:center;">
             <span class="meta">have been 드릴을 준비하는 중…</span>
           </div>
           <div class="actions">
             <button type="button" class="secondary" id="btnHaveBeenBack">← 돌아가기</button>
+            <button type="button" class="secondary" id="btnHaveBeenMode">${isTense ? "활용 연습으로" : "시제 연습으로"}</button>
             <button type="button" class="secondary" id="btnHaveBeenHistory">📚 지난 기록</button>
             <button type="button" class="primary" id="btnHaveBeenNew">🔁 다른 문장</button>
           </div>
         `;
         document.getElementById("btnHaveBeenBack").onclick = () => renderModePicker();
+        document.getElementById("btnHaveBeenMode").onclick = () =>
+          renderHaveBeenDrill(false, isTense ? "usage" : "tense");
         document.getElementById("btnHaveBeenNew").onclick = () => renderHaveBeenDrill(true);
         document.getElementById("btnHaveBeenHistory").onclick = () => renderDrillHistory("haveBeen");
 
         const panel = document.getElementById("haveBeenDrillPanel");
-        const drillOpts = { cacheKey: LS_HAVEBEEN_DRILL_KEY, origin: "haveBeen" };
+        const drillOpts = { cacheKey, origin: "haveBeen" };
 
         if (!forceNew && cached) {
           renderDrillContent(panel, cached.data, cached.index, drillOpts);
@@ -3924,12 +4036,12 @@ JSON만 출력:
         }
 
         try {
-          const data = await generateDailyDrill("haveBeen");
-          if (app.dataset.view !== "haveBeenDrill") return;
-          saveCachedDrill(data, 0, LS_HAVEBEEN_DRILL_KEY);
+          const data = await generateDailyDrill(isTense ? "haveBeenTense" : "haveBeen");
+          if (app.dataset.view !== "haveBeenDrill" || (haveBeenDrillMode === "tense") !== isTense) return;
+          saveCachedDrill(data, 0, cacheKey);
           renderDrillContent(panel, data, 0, drillOpts);
         } catch (e) {
-          if (app.dataset.view !== "haveBeenDrill") return;
+          if (app.dataset.view !== "haveBeenDrill" || (haveBeenDrillMode === "tense") !== isTense) return;
           panel.style.display = "block";
           panel.innerHTML = `<p class="word-def-error">${escapeHtml(e?.message || "have been 드릴을 만들지 못했습니다.")}</p>`;
         }
