@@ -3052,7 +3052,7 @@ JSON만 출력: [{"korean":"...","english":"..."},{"korean":"...","english":"...
        */
       const LS_MODAL_DRILL_KEY = "english-card-modal-drill-v5";
       /** 시제 연습(현재·과거·과거→지금 + can·able to) 드릴의 진행 캐시. 카드 규칙을 바꾸면 버전을 올린다. */
-      const LS_TENSE_DRILL_KEY = "english-card-tense-drill-v1";
+      const LS_TENSE_DRILL_KEY = "english-card-tense-drill-v2";
 
       /** 오늘 날짜의 드릴(문장 세트 + 진행 위치)을 불러온다. */
       function loadCachedDrill(cacheKey = LS_DAILY_DRILL_KEY) {
@@ -3340,9 +3340,9 @@ ko 작성 주의:
 - 4번 ko에 절대라는 말을 넣지 않는다. can't는 그냥 안 돼 정도의 세기다. 4번은 안 돼로 단호하게, 6번은 안 하는 게 좋아로 부드럽게 끝내면 세기 차이가 충분히 드러난다.
 - 4번과 6번은 오늘 하루만의 이야기다. 평생 금지처럼 들리면 안 된다.`;
         // 시제 연습: 상태 어구 시제 9장(현재·과거·과거→지금 × 긍정·부정·질문) + 동사구 can 3장 + able to 3장.
-        const tenseVariants = `1 "현재" [I'm + 상태 어구 (+ today/right now)] 지금 그런 상태. ko 틀: 나 지금 ~해.
-2 "현재 부정" [I'm not + 상태 어구 (+ today)] ko 틀: 나 지금 안 ~해.
-3 "현재 질문" [Are you + 상태 어구 (+ today)?] ko 틀: 너 지금 ~해?
+        const tenseVariants = `1 "현재" [I'm + 상태 어구 (+ today/right now)] 지금 그런 상태. ko 틀: 나 오늘 ~해. (영어에 right now를 붙였으면 나 지금 ~해.)
+2 "현재 부정" [I'm not + 상태 어구 (+ today)] ko 틀: 나 오늘 안 ~해.
+3 "현재 질문" [Are you + 상태 어구 (+ today)?] ko 틀: 너 오늘 ~해?
 4 "과거" [I was + 상태 어구 + 끝난 과거 시점] 그때로 끝난 일. ko 틀: 나 어제 ~했어.
 5 "과거 부정" [I wasn't + 상태 어구 + 끝난 과거 시점] ko 틀: 나 어제는 안 ~했어.
 6 "과거 질문" [Were you + 상태 어구 + 끝난 과거 시점?] ko 틀: 너 어제 ~했어?
@@ -3359,6 +3359,8 @@ ko 작성 주의:
 ko 작성 주의:
 - ko 틀은 뼈대일 뿐이다. ~ 자리를 실제 내용으로 채워 완성된 한국어 문장으로 쓴다. 서로 다른 두 카드의 ko가 똑같은 문장이 되면 안 된다.
 - 시제 차이가 한국어에서도 보여야 한다: "현재"는 지금/오늘, "과거"는 어제/지난주 같은 끝난 시점, "과거→지금"은 요즘/계속 같은 이어지는 기간.
+- 영어에 붙인 시간 표현과 ko의 시간 표현을 반드시 똑같이 맞춘다: today→오늘, right now→지금, yesterday→어제, last week→지난주, lately/these days→요즘, all day→하루 종일.
+  (X) I'm sleepy today. → 나 지금 졸려 / (O) 나 오늘 졸려
 - "과거" 카드는 그때로 끝난 일로 들리게, "과거→지금" 카드는 지금도 이어지는 일로 들리게 쓴다. 과거→지금 카드의 ko를 "~였어/했어/중이었어"로 끝내지 않는다:
   (X) 내 가족과 연락 중이었어 → (O) 나 요즘 가족과 연락하고 있어
 - ko는 영어의 직역이 아니라 같은 상황에서 한국인이 실제로 내뱉는 말로 쓴다:
