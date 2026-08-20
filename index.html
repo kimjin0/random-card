@@ -3052,7 +3052,7 @@ JSON만 출력: [{"korean":"...","english":"..."},{"korean":"...","english":"...
        */
       const LS_MODAL_DRILL_KEY = "english-card-modal-drill-v5";
       /** 시제 연습(현재·과거·과거→지금 + can·able to) 드릴의 진행 캐시. 카드 규칙을 바꾸면 버전을 올린다. */
-      const LS_TENSE_DRILL_KEY = "english-card-tense-drill-v2";
+      const LS_TENSE_DRILL_KEY = "english-card-tense-drill-v4";
 
       /** 오늘 날짜의 드릴(문장 세트 + 진행 위치)을 불러온다. */
       function loadCachedDrill(cacheKey = LS_DAILY_DRILL_KEY) {
@@ -3219,7 +3219,7 @@ JSON만 출력: [{"korean":"...","english":"..."},{"korean":"...","english":"...
         "과거", "과거 부정", "과거 질문",
         "과거→지금", "과거→지금 부정", "과거→지금 질문",
         "can", "can 부정", "can 질문",
-        "able to 현재", "able to 과거", "able to 과거→지금",
+        "able to 미래", "able to 과거", "able to 과거→지금",
       ];
 
       /** AI가 tag 순서를 바꿔 보내면 정해진 순서로 다시 세운다. tag가 하나라도 어긋나면 받은 순서를 그대로 쓴다. */
@@ -3308,7 +3308,7 @@ JSON만 출력: [{"korean":"...","english":"..."},{"korean":"...","english":"...
           : isModal
             ? `초급(A2) 학습자가 일상에서 자주 쓰는 자연스러운 습관 문장을 하나 정한다. I + 동사구 현재형으로 쓰되, 원어민이 실제로 그렇게 말하는 문장이어야 한다. 매일 또는 자주 반복하는 일상 행동으로 정한다. 여행처럼 어쩌다 한 번 하는 일은 습관 문장이 되지 않으므로 피하고, 그런 주제가 주어지면 그 주제 안에서 자주 하는 작은 행동으로 좁힌다. 필요하면 after lunch, before bed, on weekends 같은 시점 표현을 붙여 자연스럽게 만든다. 다만 every morning 같은 빈도 부사는 14·15번(will·gonna)을 어색하게 만드므로 쓰지 않는다. 동사구는 모든 변형에서 그대로 유지할 수 있게 짧고 단순하게 만든다. 이번 주제는 "${topic}" 관련으로 한다.`
             : isTense
-              ? `초급(A2) 학습자의 일상 소재를 정한다. 이번 주제는 "${topic}" 관련으로 한다. 이 소재에서 두 가지 핵심 어구를 정한다: ① 상태 어구 — be동사 뒤에 붙는 형용사(busy, tired 같은 것. 명사를 쓰려면 한국어로도 자연스러운 명사 별명이어야 하고 ko에 "사람"이라는 단어를 쓰면 안 됨) ② 동사구 — can과 able to 뒤에 붙는 동사원형구(work out, sleep early 같은 것). 두 어구 모두 원어민이 실제로 자주 쓰는 자연스러운 어구여야 하고, 시제를 바꿔도 어색하지 않아야 한다.`
+              ? `초급(A2) 학습자의 일상 소재를 정한다. 이번 주제는 "${topic}" 관련으로 한다. 이 소재에서 두 가지 핵심 어구를 정한다: ① 상태 어구 — be동사 뒤에 붙는 형용사(busy, tired 같은 것. 명사를 쓰려면 한국어로도 자연스러운 명사 별명이어야 하고 ko에 "사람"이라는 단어를 쓰면 안 됨) ② 동사구 — can/able to 뒤에 붙는 동사원형구. 반드시 능력이나 여건이 실제로 문제 되는 일이어야 한다(sleep early, focus, take a day off, get up early처럼 조건이 안 되면 못 하는 일). grab a snack처럼 아무 능력도 필요 없는 사소한 행동은 금지 — "할 수 있다"는 말 자체가 어색해진다. 어구에 friends, family, mom처럼 내 사람을 가리키는 명사가 들어가면 반드시 my를 붙인다(see my friends, call my mom). 소유격 없는 meet friends는 새 친구를 사귄다는 뜻으로 들리므로, 아는 친구를 만나는 뜻이면 see my friends나 meet up with my friends로 쓴다. 두 어구 모두 원어민이 실제로 자주 쓰는 자연스러운 어구여야 하고, 시제를 바꿔도 어색하지 않아야 한다.`
               : `초급(A2) 학습자가 일상에서 자주 쓰는 아주 기본적인 1인칭 현재형 동사 문장을 하나 정한다. 이번 주제는 "${topic}" 관련으로 한다.`;
         const used = recentDrillBases();
         const avoidRule = used.length
@@ -3352,9 +3352,13 @@ ko 작성 주의:
 10 "can" [I can + 동사구 (+ today)] 지금 할 수 있음. ko 틀: 나 오늘 ~할 수 있어.
 11 "can 부정" [I can't + 동사구 (+ today)] ko 틀: 나 오늘 ~못 해.
 12 "can 질문" [Can you + 동사구 (+ today)?] ko 틀: 너 오늘 ~할 수 있어?
-13 "able to 현재" [I'm able to + 동사구] can과 같은 뜻의 일반적인 능력. ko 틀: 나 ~할 수 있어.
-14 "able to 과거" [I was able to + 동사구 + 끝난 과거 시점] can의 과거는 이 형태를 쓴다. ko 틀: 나 어제 ~할 수 있었어.
-15 "able to 과거→지금" [I've been able to + 동사구 + lately] can은 현재완료가 없어 이 형태만 가능. ko 틀: 나 요즘 계속 ~할 수 있어.
+13 "able to 미래" [I'll be able to + 동사구 + tomorrow 같은 미래 시점] will 뒤에는 can을 못 쓰므로 이 형태만 가능. ko 틀: 나 내일 ~할 수 있을 거야.
+14 "able to 과거" [I was able to + 동사구 + 끝난 과거 시점] can의 과거 자리. 그때 실제로 할 수 있었음. ko 틀: 나 어제 ~할 수 있었어.
+15 "able to 과거→지금" [I've been able to + 동사구 + lately] 현재완료에는 can을 못 쓰므로 이 형태만 가능. ko 틀: 나 요즘 계속 ~할 수 있어.
+
+able to 주의:
+- 13~15번은 can이 문법적으로 못 가는 자리(미래·과거·현재완료)를 able to가 대신 채우는 연습이다.
+- 현재형 "I'm able to ~"는 만들지 않는다. 현재는 can(10번)이 자연스럽다.
 
 ko 작성 주의:
 - ko 틀은 뼈대일 뿐이다. ~ 자리를 실제 내용으로 채워 완성된 한국어 문장으로 쓴다. 서로 다른 두 카드의 ko가 똑같은 문장이 되면 안 된다.
@@ -3405,7 +3409,7 @@ ko 작성 주의:
         const rule2 = isModal
           ? `그 문장을 아래 12가지 조동사 뉘앙스로 변형한다. 각 항목의 대괄호 안에 적힌 주어와 형태를 반드시 그대로 지킨다. 동사구는 한 글자도 바꾸지 않고 조동사만 갈아끼운다. 대괄호에 today가 적힌 항목에는 today를 붙인다.`
           : isTense
-          ? `아래 15가지 순서대로 만든다. 1~9번은 상태 어구를 한 글자도 바꾸지 않고 시제·형태만 바꾼다: "현재"는 I'm(+ today/right now), "과거"는 I was + 끝난 과거 시점(yesterday, last week 등), "과거→지금"은 I've been + 지금까지 이어지는 기간(lately, all day, for ~, since ~ 등). 10~15번은 동사구를 한 글자도 바꾸지 않고 can / can't / Can you / I'm able to / I was able to / I've been able to만 갈아끼운다. 시간 표현으로 시제 차이가 또렷이 보이게 한다.`
+          ? `아래 15가지 순서대로 만든다. 1~9번은 상태 어구를 한 글자도 바꾸지 않고 시제·형태만 바꾼다: "현재"는 I'm(+ today/right now), "과거"는 I was + 끝난 과거 시점(yesterday, last week 등), "과거→지금"은 I've been + 지금까지 이어지는 기간(lately, all day, for ~, since ~ 등). 10~15번은 동사구를 한 글자도 바꾸지 않고 can / can't / Can you / I'll be able to / I was able to / I've been able to만 갈아끼운다. 시간 표현으로 시제 차이가 또렷이 보이게 한다.`
           : `그 문장을 아래 15가지 뉘앙스로 변형한다. 뒤의 기본 덩어리는 절대 바꾸지 않고 뉘앙스 부분만 바꾼다.`;
         const rule3 = isModal
           ? `ko는 한국인이 실제로 내뱉는 짧은 반말로 쓰되, 각 항목의 ko 틀을 따라 조동사의 뉘앙스 차이가 눈에 보이게 쓴다. 서로 다른 두 카드의 ko가 똑같은 문장이 되면 안 된다.`
@@ -3441,7 +3445,7 @@ ko 작성 주의:
 10 can → I can work out today. / 나 오늘 운동할 수 있어.
 11 can 부정 → I can't work out today. / 나 오늘 운동 못 해.
 12 can 질문 → Can you work out today? / 너 오늘 운동할 수 있어?
-13 able to 현재 → I'm able to work out. / 나 운동할 수 있어.
+13 able to 미래 → I'll be able to work out tomorrow. / 나 내일 운동할 수 있을 거야.
 14 able to 과거 → I was able to work out yesterday. / 나 어제 운동할 수 있었어.
 15 able to 과거→지금 → I've been able to work out lately. / 나 요즘 계속 운동할 수 있어.
 `;
@@ -3950,8 +3954,8 @@ JSON만 출력:
 
         app.innerHTML = `
           <div class="gate-panel">
-            <strong>시제 연습</strong> · 상태 어구 하나를 ① 지금(<em>I'm</em>) ② 과거(<em>I was</em>) ③ 과거→지금(<em>I've been</em>) 세 시제 × 긍정·부정·질문으로 돌리고, 동사구 하나로 ④ <em>can</em> ⑤ <em>able to</em>(현재·과거·과거→지금)까지 익히는 연습입니다. 한국어를 보고 첫마디를 바로 내뱉어 보세요.
-            <p class="meta" style="margin:0.4rem 0 0;font-size:0.76rem;line-height:1.45;"><em>I was</em>는 그때로 끝난 일, <em>I've been</em>은 지금도 이어지는 일입니다. can은 현재만 쓸 수 있어 과거는 <em>was able to</em>, 과거→지금은 <em>have been able to</em>로 바꿔 말합니다. 총 15장.</p>
+            <strong>시제 연습</strong> · 상태 어구 하나를 ① 지금(<em>I'm</em>) ② 과거(<em>I was</em>) ③ 과거→지금(<em>I've been</em>) 세 시제 × 긍정·부정·질문으로 돌리고, 동사구 하나로 ④ <em>can</em> ⑤ <em>able to</em>(미래·과거·과거→지금)까지 익히는 연습입니다. 한국어를 보고 첫마디를 바로 내뱉어 보세요.
+            <p class="meta" style="margin:0.4rem 0 0;font-size:0.76rem;line-height:1.45;"><em>I was</em>는 그때로 끝난 일, <em>I've been</em>은 지금도 이어지는 일입니다. can은 현재 전용이라 미래는 <em>will be able to</em>, 과거는 <em>was able to</em>, 과거→지금은 <em>have been able to</em>가 그 자리를 채웁니다. 총 15장.</p>
           </div>
           <div class="gate-panel" id="tenseDrillPanel" style="margin-top:0.6rem;min-height:150px;display:flex;align-items:center;justify-content:center;">
             <span class="meta">시제 연습을 준비하는 중…</span>
