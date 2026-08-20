@@ -3052,7 +3052,7 @@ JSON만 출력: [{"korean":"...","english":"..."},{"korean":"...","english":"...
        */
       const LS_MODAL_DRILL_KEY = "english-card-modal-drill-v5";
       /** have been 드릴 진행 캐시. 카드 규칙을 바꾸면 버전을 올려 예전 세트를 버린다. */
-      const LS_HAVEBEEN_DRILL_KEY = "english-card-havebeen-drill-v1";
+      const LS_HAVEBEEN_DRILL_KEY = "english-card-havebeen-drill-v4";
 
       /** 오늘 날짜의 드릴(문장 세트 + 진행 위치)을 불러온다. */
       function loadCachedDrill(cacheKey = LS_DAILY_DRILL_KEY) {
@@ -3276,7 +3276,7 @@ JSON만 출력: [{"korean":"...","english":"..."},{"korean":"...","english":"...
           : isModal
             ? `초급(A2) 학습자가 일상에서 자주 쓰는 자연스러운 습관 문장을 하나 정한다. I + 동사구 현재형으로 쓰되, 원어민이 실제로 그렇게 말하는 문장이어야 한다. 매일 또는 자주 반복하는 일상 행동으로 정한다. 여행처럼 어쩌다 한 번 하는 일은 습관 문장이 되지 않으므로 피하고, 그런 주제가 주어지면 그 주제 안에서 자주 하는 작은 행동으로 좁힌다. 필요하면 after lunch, before bed, on weekends 같은 시점 표현을 붙여 자연스럽게 만든다. 다만 every morning 같은 빈도 부사는 14·15번(will·gonna)을 어색하게 만드므로 쓰지 않는다. 동사구는 모든 변형에서 그대로 유지할 수 있게 짧고 단순하게 만든다. 이번 주제는 "${topic}" 관련으로 한다.`
             : isHaveBeen
-              ? `초급(A2) 학습자의 일상에서 "요즘/최근까지 계속되는 상태·활동"을 그릴 소재를 정한다. 이번 주제는 "${topic}" 관련으로 한다. 이 소재에서 다섯 가지 활용에 쓸 핵심 어구를 하나씩 정한다: ① 명사구 ② 형용사 ③ 동사ing구 ④ be+전치사구 표현(on a diet, in a meeting 같은 형태. 이 예시를 그대로 베끼지 말 것) ⑤ able to 뒤에 붙일 동사원형구. 다섯 어구 모두 원어민이 실제로 have been 뒤에 자주 붙이는 자연스러운 어구여야 한다.`
+              ? `초급(A2) 학습자의 일상에서 "요즘/최근까지 계속되는 상태·활동"을 그릴 소재를 정한다. 이번 주제는 "${topic}" 관련으로 한다. 이 소재에서 다섯 가지 활용에 쓸 핵심 어구를 하나씩 정한다: ① 명사구 — 한국어 명사 별명(밤샘형 인간, 공부벌레, 운동 마니아, 인싸, 마당발, 집순이 같은 것)을 먼저 하나 정한 뒤, 그것을 영어 명사구로 옮긴다. "열심히 공부하는 학생"처럼 한국어에서 풀어 설명해야 하는 어구는 금지 ② 형용사 ③ 동사ing구 ④ be+전치사구 표현(on a diet, in a meeting 같은 형태. 이 예시를 그대로 베끼지 말 것) ⑤ able to 뒤에 붙일 동사원형구. 다섯 어구 모두 원어민이 실제로 have been 뒤에 자주 붙이는 자연스러운 어구여야 한다.`
               : `초급(A2) 학습자가 일상에서 자주 쓰는 아주 기본적인 1인칭 현재형 동사 문장을 하나 정한다. 이번 주제는 "${topic}" 관련으로 한다.`;
         const used = recentDrillBases();
         const avoidRule = used.length
@@ -3308,25 +3308,33 @@ ko 작성 주의:
 - 4번 ko에 절대라는 말을 넣지 않는다. can't는 그냥 안 돼 정도의 세기다. 4번은 안 돼로 단호하게, 6번은 안 하는 게 좋아로 부드럽게 끝내면 세기 차이가 충분히 드러난다.
 - 4번과 6번은 오늘 하루만의 이야기다. 평생 금지처럼 들리면 안 된다.`;
         // have been 드릴: 다섯 활용 × (긍정·부정·질문) 15장. 같은 묶음 3장은 핵심 어구를 그대로 유지한다.
-        const haveBeenVariants = `1 "명사" [I've been + 명사구] 요즘 계속 그런 사람·역할이었음. ko 틀: 나 요즘 계속 ~였어.
-2 "명사 부정" [I haven't been + 명사구] ko 틀: 나 요즘 ~는 아니었어.
-3 "명사 질문" [Have you been + 명사구?] ko 틀: 너 요즘 계속 ~였어?
-4 "형용사" [I've been + 형용사] 요즘 계속 그런 느낌·상태였음. ko 틀: 나 요즘 계속 ~했어.
-5 "형용사 부정" [I haven't been + 형용사] ko 틀: 나 요즘 별로 안 ~했어.
-6 "형용사 질문" [Have you been + 형용사?] ko 틀: 너 요즘 계속 ~했어?
+        const haveBeenVariants = `1 "명사" [I've been + 명사구] 1번에서 먼저 정한 한국어 명사 별명을 영어 명사구(a/an이나 my로 시작, in/on 같은 전치사 시작 금지)로 옮긴 카드다. ko 틀: 나 요즘 계속 ~야. ko의 ~ 자리에는 그 한국어 명사 별명을 그대로 넣는다. "사교적인 사람"처럼 풀어 쓰면 절대 안 되고, 명사 카드(1~3번)의 ko에는 "사람"이라는 단어 자체를 쓰지 않는다. 2·3번도 같은 명사를 쓴다.
+2 "명사 부정" [I haven't been + 명사구] ko 틀: 나 요즘 ~는 아니야.
+3 "명사 질문" [Have you been + 명사구?] ko 틀: 너 요즘 계속 ~야?
+4 "형용사" [I've been + 형용사] 요즘 계속 그런 느낌·상태임. ko 틀: 나 요즘 계속 ~해.
+5 "형용사 부정" [I haven't been + 형용사] ko 틀: 나 요즘 별로 안 ~해.
+6 "형용사 질문" [Have you been + 형용사?] ko 틀: 너 요즘 계속 ~해?
 7 "현재분사" [I've been + 동사ing] 얼마 전부터 지금까지 계속 하는 중. ko 틀: 나 요즘 계속 ~하고 있어.
 8 "현재분사 부정" [I haven't been + 동사ing] ko 틀: 나 요즘 ~안 하고 있어.
 9 "현재분사 질문" [Have you been + 동사ing?] ko 틀: 너 요즘 계속 ~하고 있어?
 10 "표현" [I've been + 전치사구 표현] be on a diet 같은 be+전치사 표현의 현재완료. ko 틀: 나 요즘 계속 ~중이야.
-11 "표현 부정" [I haven't been + 전치사구 표현] ko 틀: 나 요즘 ~중은 아니었어.
+11 "표현 부정" [I haven't been + 전치사구 표현] ko 틀: 나 요즘 ~못 하고 있어.
 12 "표현 질문" [Have you been + 전치사구 표현?] ko 틀: 너 요즘 계속 ~중이야?
-13 "able to" [I've been able to + 동사원형구] 요즘 계속 할 수 있었음. ko 틀: 나 요즘 ~할 수 있었어.
+13 "able to" [I've been able to + 동사원형구] 요즘 계속 할 수 있음. ko 틀: 나 요즘 ~할 수 있어.
 14 "able to 부정" [I haven't been able to + 동사원형구] 계속 못 하고 있음. ko 틀: 나 요즘 계속 ~못 하고 있어.
-15 "able to 질문" [Have you been able to + 동사원형구?] ko 틀: 너 요즘 ~할 수 있었어?
+15 "able to 질문" [Have you been able to + 동사원형구?] ko 틀: 너 요즘 ~할 수 있어?
 
 ko 작성 주의:
 - ko 틀은 뼈대일 뿐이다. ~ 자리를 실제 내용으로 채워 완성된 한국어 문장으로 쓴다.
-- "요즘", "계속", "쭉" 같은 말로 지금까지 이어져 온 뉘앙스가 드러나게 쓰되, 서로 다른 두 카드의 ko가 똑같은 문장이 되면 안 된다.`;
+- "요즘", "계속", "쭉" 같은 말로 지금까지 이어져 온 뉘앙스가 드러나게 쓰되, 서로 다른 두 카드의 ko가 똑같은 문장이 되면 안 된다.
+- have been은 과거에 끝난 일이 아니라 지금도 이어지는 상태다. ko를 "~였어/했어/중이었어" 같은 과거형으로 끝내지 말고 "요즘 ~야 / ~해 / ~하고 있어" 현재형으로 쓴다:
+  (X) 내 가족과 연락 중이었어 → (O) 나 요즘 가족과 연락하고 있어
+- ko는 영어의 직역이 아니라, 같은 상황에서 한국인이 실제로 내뱉는 말로 쓴다:
+  (X) 나 요즘 열심히 공부하는 학생이었어 → (O) 나 요즘 완전 공부벌레야 (관형절 직역 금지)
+  (X) 나 요즘 계속 운동하는 사람이야 → (O) 나 요즘 완전 운동 마니아야 ("~하는 사람" 금지)
+  (X) 나 요즘 계속 사교적인 사람이야 → (O) 나 요즘 완전 마당발이야 (형용사+사람 풀어쓰기 금지)
+  (X) 나 요즘 계속 집중했어 → (O) 나 요즘 집중이 잘돼 (형용사는 행동이 아니라 상태로)
+  (X) 나 요즘 스터디 그룹에 있었어 → (O) 나 요즘 스터디 하고 있어 (전치사구 표현은 장소 직역이 아니라 활동으로)`;
         const variants = isModal
           ? modalVariants
           : isHaveBeen
@@ -3371,7 +3379,7 @@ ko 작성 주의:
         const rule3 = isModal
           ? `ko는 한국인이 실제로 내뱉는 짧은 반말로 쓰되, 각 항목의 ko 틀을 따라 조동사의 뉘앙스 차이가 눈에 보이게 쓴다. 서로 다른 두 카드의 ko가 똑같은 문장이 되면 안 된다.`
           : isHaveBeen
-          ? `ko는 한국인이 실제로 내뱉는 짧은 반말로 쓰되, 각 항목의 ko 틀을 따라 "지금까지 계속"이라는 현재완료 뉘앙스가 눈에 보이게 쓴다.`
+          ? `ko는 한국인이 실제로 내뱉는 짧은 반말로 쓰되, 각 항목의 ko 틀을 따라 "지금까지 계속"이라는 현재완료 뉘앙스가 눈에 보이게 쓴다. 영어 문장을 만든 뒤 ko는 직역하지 말고 "이 상황에서 한국인이라면 뭐라고 말할까"를 새로 떠올려 쓴다.`
           : `ko는 그 상황에서 한국인이 실제로 내뱉는 짧은 반말로 쓴다. (예: "나 드라이브 안 했어.", "너 여기 자주 와?")`;
         const modalExample = `
 참고용 완성 예시 (동사구 "go to the gym", 이 문장은 그대로 쓰지 말 것):
@@ -3390,21 +3398,21 @@ ko 작성 주의:
 `;
         const haveBeenExample = `
 참고용 완성 예시 (주제 "잠·휴식", 이 어구들은 그대로 쓰지 말 것):
-1 명사 → I've been a night owl lately. / 나 요즘 계속 밤샘형 인간이었어.
-2 명사 부정 → I haven't been a night owl lately. / 나 요즘은 밤샘형 인간 아니었어.
-3 명사 질문 → Have you been a night owl lately? / 너 요즘 계속 밤늦게까지 깨 있었어?
-4 형용사 → I've been tired lately. / 나 요즘 계속 피곤했어.
-5 형용사 부정 → I haven't been tired lately. / 나 요즘은 별로 안 피곤했어.
-6 형용사 질문 → Have you been tired lately? / 너 요즘 계속 피곤했어?
+1 명사 → I've been a night owl lately. / 나 요즘 계속 밤샘형 인간이야.
+2 명사 부정 → I haven't been a night owl lately. / 나 요즘은 밤샘형 인간 아니야.
+3 명사 질문 → Have you been a night owl lately? / 너 요즘 계속 밤늦게까지 깨 있어?
+4 형용사 → I've been tired lately. / 나 요즘 계속 피곤해.
+5 형용사 부정 → I haven't been tired lately. / 나 요즘은 별로 안 피곤해.
+6 형용사 질문 → Have you been tired lately? / 너 요즘 계속 피곤해?
 7 현재분사 → I've been sleeping in lately. / 나 요즘 계속 늦잠 자고 있어.
 8 현재분사 부정 → I haven't been sleeping in lately. / 나 요즘 늦잠 안 자고 있어.
 9 현재분사 질문 → Have you been sleeping in lately? / 너 요즘 계속 늦잠 자?
 10 표현 → I've been on a break this week. / 나 이번 주 계속 쉬는 중이야.
-11 표현 부정 → I haven't been on a break this week. / 나 이번 주 쉬는 중은 아니었어.
+11 표현 부정 → I haven't been on a break this week. / 나 이번 주 내내 못 쉬고 있어.
 12 표현 질문 → Have you been on a break this week? / 너 이번 주 계속 쉬는 중이야?
-13 able to → I've been able to sleep early. / 나 요즘 일찍 잘 수 있었어.
+13 able to → I've been able to sleep early. / 나 요즘 일찍 잘 수 있어.
 14 able to 부정 → I haven't been able to sleep early. / 나 요즘 계속 일찍 못 자고 있어.
-15 able to 질문 → Have you been able to sleep early? / 너 요즘 일찍 잘 수 있었어?
+15 able to 질문 → Have you been able to sleep early? / 너 요즘 일찍 잘 수 있어?
 `;
         const prompt = `영어 회화 학습용 "${isModal ? "조동사 뉘앙스 드릴" : isHaveBeen ? "have been 활용 드릴" : "뉘앙스 드릴"}" 자료를 만들어줘.
 
