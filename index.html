@@ -439,6 +439,12 @@
       border-color: #2f6d4a;
       background: #10241a;
     }
+
+    .tts-btn.saved {
+      border-color: #2f6d4a;
+      background: #10241a;
+      color: #8fe0b0;
+    }
   </style>
 </head>
 <body>
@@ -1005,7 +1011,7 @@
         btnId: "btnMemoBook",
         btnLabel: "📔 내 메모장",
         emptyMsg:
-          "아직 담은 표현이 없습니다. 카드의 메모에서 <strong>✨ 메모에서 표현 뽑기</strong>로 뽑은 표현을 <strong>＋ 담기</strong> 하면 여기에 모입니다.",
+          "아직 담은 표현이 없습니다. 카드의 메모에서 <strong>✨ 메모에서 표현 뽑기</strong>로 뽑은 표현이나, 드릴(오늘의 표현·조동사·시제 연습)에서 <strong>＋ 담기</strong> 한 문장이 여기에 모입니다.",
       };
 
       /** 저장 형식: [{ key, word, ko, pos, phonetic, context, ts, deleted }] (key로 중복 제거) */
@@ -3531,6 +3537,42 @@ JSON만 출력:
       }
 
       /**
+       * 드릴 문장 하나를 「내 메모장」에 담는 토글 버튼 HTML.
+       * en·ko를 data 속성에 실어 진행 화면·완료 목록·지난 기록 어디서든 같은 버튼을 쓴다.
+       */
+      function drillSaveBtnHtml(d) {
+        const en = (d && d.en) || "";
+        const ko = (d && d.ko) || "";
+        const saved = isWordSaved(en, MEMO_STORE);
+        return `<button type="button" class="tts-btn drill-save${saved ? " saved" : ""}" data-en="${escapeHtml(en)}" data-ko="${escapeHtml(ko)}" aria-label="메모장에 담기">${saved ? "✓ 담김" : "＋ 담기"}</button>`;
+      }
+
+      /** 화면에 그려진 「＋ 담기」 버튼들을 메모장과 연동한다(다시 누르면 뺀다). */
+      function bindDrillSaveBtns(root) {
+        (root || app).querySelectorAll(".drill-save").forEach((btn) => {
+          const en = btn.dataset.en || "";
+          const ko = btn.dataset.ko || "";
+          if (!en) return;
+          btn.onclick = (ev) => {
+            ev.stopPropagation();
+            const key = vocabKeyOf(en);
+            if (isWordSaved(key, MEMO_STORE)) {
+              removeVocabWord(key, MEMO_STORE);
+            } else {
+              saveVocabWord({ key, word: en, ko, pos: "", phonetic: "", context: "" }, MEMO_STORE);
+            }
+            const saved = isWordSaved(key, MEMO_STORE);
+            // 같은 문장의 버튼이 여러 곳(진행 화면·완료 목록)에 있을 수 있으므로 모두 맞춰 준다.
+            (root || app).querySelectorAll(".drill-save").forEach((b) => {
+              if (vocabKeyOf(b.dataset.en || "") !== key) return;
+              b.textContent = saved ? "✓ 담김" : "＋ 담기";
+              b.classList.toggle("saved", saved);
+            });
+          };
+        });
+      }
+
+      /**
        * 진행 화면. 카드(패널)를 누르면 영어가 보이고, 다 끝나면 전체 복습 목록이 나온다.
        * opts.practice: 지난 기록 다시 연습 모드 — 오늘 진행 캐시를 덮어쓰지 않고
        * 완료해도 기록에 다시 저장하지 않는다.
@@ -3561,7 +3603,10 @@ JSON만 출력:
                   ${data.drills
                     .map(
                       (d) => `<div class="example-item" style="background:#0e1622;border-color:#243049;">
-                        <div class="meta" style="font-size:0.72rem;color:var(--accent);">${escapeHtml(d.tag)}</div>
+                        <div style="display:flex;align-items:center;justify-content:space-between;gap:0.5rem;">
+                          <div class="meta" style="font-size:0.72rem;color:var(--accent);">${escapeHtml(d.tag)}</div>
+                          ${drillSaveBtnHtml(d)}
+                        </div>
                         <div class="answer" data-en-context="${escapeHtml(d.en)}" style="margin-top:0.15rem;font-size:0.9rem;color:#dbe4f5;line-height:1.5;">${englishWordsInteractiveHtml(d.en)}</div>
                         <div class="ex-ko" style="margin:0.2rem 0 0;">${escapeHtml(d.ko)}</div>
                       </div>`
@@ -3588,6 +3633,7 @@ JSON만 출력:
                 ev.stopPropagation();
                 renderDrillHistory(opts.origin);
               };
+            bindDrillSaveBtns(panel);
             return;
           }
 
@@ -3595,7 +3641,8 @@ JSON만 출력:
           const engBlock = revealed
             ? `<div style="background:#111827;border:1px solid #2d3a52;border-radius:8px;padding:0.65rem 0.8rem;">
                 <div class="answer" data-en-context="${escapeHtml(cur.en)}" style="font-size:1.05rem;color:#eef3fc;line-height:1.6;">${englishWordsInteractiveHtml(cur.en)}</div>
-                <div style="display:flex;justify-content:flex-end;margin-top:0.4rem;">
+                <div style="display:flex;justify-content:flex-end;gap:0.35rem;margin-top:0.4rem;">
+                  ${drillSaveBtnHtml(cur)}
                   <button type="button" class="tts-btn" id="btnDrillSpeak">🔊 듣기</button>
                 </div>
               </div>`
@@ -3657,6 +3704,7 @@ JSON만 출력:
               ev.stopPropagation();
               speakEnglish(cur.en);
             };
+          bindDrillSaveBtns(panel);
         };
 
         panel.onclick = (e) => {
@@ -3784,7 +3832,10 @@ JSON만 출력:
                       ${(e.drills || [])
                         .map(
                           (d) => `<div class="example-item" style="background:#0e1622;border-color:#243049;">
-                            <div class="meta" style="font-size:0.72rem;color:var(--accent);">${escapeHtml(d.tag)}</div>
+                            <div style="display:flex;align-items:center;justify-content:space-between;gap:0.5rem;">
+                              <div class="meta" style="font-size:0.72rem;color:var(--accent);">${escapeHtml(d.tag)}</div>
+                              ${drillSaveBtnHtml(d)}
+                            </div>
                             <div class="answer" data-en-context="${escapeHtml(d.en)}" style="margin-top:0.15rem;font-size:0.88rem;color:#dbe4f5;line-height:1.5;">${englishWordsInteractiveHtml(d.en)}</div>
                             <div class="ex-ko" style="margin:0.2rem 0 0;">${escapeHtml(d.ko)}</div>
                           </div>`
@@ -3855,6 +3906,7 @@ JSON만 출력:
               draw(loadVocab(DRILL_HISTORY_STORE));
             };
           });
+          bindDrillSaveBtns(app);
         };
 
         draw(loadVocab(DRILL_HISTORY_STORE));
