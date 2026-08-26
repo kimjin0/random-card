@@ -524,6 +524,8 @@
         appId: "1:703954283174:web:c23782aad7cecbf0616267",
       };
       const SYNC_CODE_KEY = "english-card-sync-code";
+      /** 「문장 속 역할」 분석의 제한 시간. 네트워크가 응답을 안 주면 여기서 끊는다. */
+      const ROLE_LOOKUP_TIMEOUT_MS = 20000;
       let wordLookupAbort = null;
       let wordDefLookupKey = "";
 
@@ -1759,6 +1761,11 @@ JSON만 출력: [{"expression":"영어 표현","meaning":"한국어 뜻"}]`;
           .join("");
       }
 
+      /** 단어 양끝의 문장부호를 떼어 낸다. ("confident." → "confident", "I'm"·"don't"은 유지) */
+      function stripEdgePunct(s) {
+        return String(s || "").replace(/^[^\w']+|[^\w']+$/g, "").trim();
+      }
+
       function getContextWordParts(text) {
         if (!text || typeof text !== "string") return [];
         const parts = text.split(/(\s+)/);
@@ -2166,17 +2173,26 @@ JSON만 출력: [{"korean":"...","english":"..."},{"korean":"...","english":"...
               content: `다음 영어 문장에 나온 단어 하나를 왕초보 학습자에게 설명해줘.\n\n전체 문장: "${sentence}"\n설명할 단어: "${word}"\n\n아래 JSON 형식으로만 답해줘 (다른 설명 없이 JSON만 출력):\n{"pos":"이 문장에서의 품사 (예: 형용사)","ipa":"단어의 발음기호 (예: /ˈeɪbəl/)","meaning":"단어의 핵심 뜻 (예: ~할 수 있는, 능력이 있는)","role":"이 문장에서 이 단어가 하는 일을 아주 쉬운 반말 한두 문장으로 (예: 주어가 어떤 행동을 할 수 있는 상태·능력을 나타내.)","pattern":"이 단어가 들어간 대표 구문 틀 (예: be able to + 동사원형)","pattern_ko":"그 구문 틀의 뜻 (예: ~할 수 있다)","example_en":"그 구문 틀로 만든 아주 쉬운 새 예문 (위 전체 문장을 그대로 베끼지 말 것)","example_ko":"예문의 자연스러운 한국어 반말 번역 (예: 나는 수영할 수 있어.)"}\n\n규칙:\n- 문법 용어는 최소한만 쓰고, 처음 배우는 사람이 바로 이해할 수 있게 쉽게 쓴다\n- pattern은 이 문장에서 실제 쓰인 형태를 일반화한 틀로 쓴다 (동사면 조동사·시제까지 묶은 덩어리, 예: have been + -ing)\n- 대표 구문 틀이 딱히 없으면 pattern과 pattern_ko는 빈 문자열 ""로 둔다\n- example_en은 5~8단어의 짧은 새 문장\n- 모든 설명은 반드시 한국어로\n- JSON 외의 텍스트는 절대 출력하지 마`,
             }],
             reasoning_effort: "minimal",
-            max_completion_tokens: 1000,
+            max_completion_tokens: 1600,
           }),
         });
-        if (!res.ok) throw new Error(`API ${res.status}`);
+        if (!res.ok) {
+          const errBody = await res.json().catch(() => ({}));
+          throw new Error(errBody?.error?.message || `API 오류 ${res.status}`);
+        }
         const data = await res.json();
-        const text = (data?.choices?.[0]?.message?.content || "").trim();
+        const choice = (data && data.choices && data.choices[0]) || {};
+        const text = (choice.message?.content || "").trim();
         const jsonMatch = text.match(/\{[\s\S]*\}/);
-        if (!jsonMatch) return null;
+        if (!jsonMatch) {
+          // 본문 없이 끝나는 건 대개 reasoning 토큰이 한도를 다 쓴 경우다. 이유를 알 수 있게 알린다.
+          if (choice.finish_reason === "length") throw new Error("설명이 길이 제한에 걸렸습니다.");
+          return null;
+        }
         try {
           const parsed = JSON.parse(jsonMatch[0]);
-          if (!parsed || !parsed.pos || !parsed.meaning) {
+          // pos·meaning 중 하나만 빠져도 버리면 아깝다. 빈 항목은 아래 렌더에서 알아서 생략된다.
+          if (!parsed || (!parsed.pos && !parsed.meaning && !parsed.role)) {
             return null;
           }
           return parsed;
@@ -2206,6 +2222,65 @@ JSON만 출력: [{"korean":"...","english":"..."},{"korean":"...","english":"...
         return `${posLine}${meaningLine}${roleLine}${patternBlock}${exampleBlock}`;
       }
 
+      /**
+       * 「문장 속 역할」 영역을 채운다. 번역과 달리 이 요청에는 제한 시간이 없어서
+       * 응답이 안 오면 "분석 중…"에 영원히 머물렀다. 자체 타이머로 끊고,
+       * 실패하면 섹션을 조용히 지우는 대신 이유와 「↻ 다시」 버튼을 보여 준다.
+       */
+      function runWordRoleLookup(ac, query, contextSentence, displayLabel, phonetic) {
+        const roleBodyEl = document.getElementById("wordRoleBody");
+        if (!roleBodyEl) return;
+        roleBodyEl.textContent = "분석 중…";
+
+        const roleTimer = window.setTimeout(() => {
+          if (wordLookupAbort === ac) ac.abort();
+        }, ROLE_LOOKUP_TIMEOUT_MS);
+
+        const showRetry = (msg) => {
+          const el = document.getElementById("wordRoleBody");
+          if (!el) return;
+          el.innerHTML = `<span class="meta" style="font-size:0.8rem;line-height:1.45;">${escapeHtml(msg)}</span>
+            <button type="button" class="tts-btn" id="btnWordRoleRetry" style="margin-left:0.4rem;">↻ 다시</button>`;
+          const btn = document.getElementById("btnWordRoleRetry");
+          if (btn)
+            btn.onclick = (ev) => {
+              ev.stopPropagation();
+              const again = new AbortController();
+              wordLookupAbort = again;
+              runWordRoleLookup(again, query, contextSentence, displayLabel, phonetic);
+            };
+        };
+
+        fetchWordRoleInContext(query, contextSentence, ac.signal)
+          .then((role) => {
+            window.clearTimeout(roleTimer);
+            // 그 사이 다른 단어를 눌렀다면 지금 화면은 남의 것이다. 건드리지 않는다.
+            if (wordLookupAbort !== ac) return;
+            wordLookupAbort = null;
+            const el = document.getElementById("wordRoleBody");
+            if (!el) return;
+            if (!role) {
+              showRetry("역할 설명을 받지 못했습니다.");
+              return;
+            }
+            el.innerHTML = buildWordRoleHtml(role, query);
+            // 사전 API가 죽어 발음기호를 못 가져온 경우 AI가 준 발음기호로 채운다.
+            const titleEl = document.getElementById("wordDefTitle");
+            const aiIpa = String(role.ipa || "").trim();
+            if (titleEl && !phonetic && aiIpa) titleEl.textContent = `${displayLabel} ${aiIpa}`;
+          })
+          .catch((err) => {
+            window.clearTimeout(roleTimer);
+            if (wordLookupAbort !== ac) return;
+            wordLookupAbort = null;
+            if (err && err.name === "AbortError") {
+              showRetry(`${Math.round(ROLE_LOOKUP_TIMEOUT_MS / 1000)}초 안에 응답이 오지 않아 멈췄습니다.`);
+              return;
+            }
+            showRetry(err && err.message ? String(err.message) : "역할 분석에 실패했습니다.");
+          });
+      }
+
       async function fetchAndShowWordDefinition(displayWord, lookupKey, contextSentence, wordIndex) {
         const panel = document.getElementById("wordDefPanel");
         const titleEl = document.getElementById("wordDefTitle");
@@ -2213,11 +2288,12 @@ JSON만 출력: [{"korean":"...","english":"..."},{"korean":"...","english":"...
         if (!panel || !titleEl || !bodyEl) return;
 
         panel.hidden = false;
-        const displayLabel = (displayWord || lookupKey || "").trim() || lookupKey;
+        // "confident." 처럼 문장부호가 붙은 채로 조회하면 번역·역할 분석이 모두 흔들린다.
+        const displayLabel = stripEdgePunct(displayWord) || lookupKey || "";
         titleEl.textContent = displayLabel;
         wordDefLookupKey = lookupKey || "";
 
-        const query = String(displayWord || lookupKey || "").trim();
+        const query = displayLabel;
         if (!query) return;
         bodyEl.innerHTML = `<span class="meta">한글 번역 불러오는 중…</span>`;
 
@@ -2274,28 +2350,7 @@ JSON만 출력: [{"korean":"...","english":"..."},{"korean":"...","english":"...
           initVocabSaveButton(vocabEntry);
 
           if (showRole) {
-            fetchWordRoleInContext(query, contextSentence, ac.signal)
-              .then((role) => {
-                if (wordLookupAbort !== ac) return;
-                const roleBodyEl = document.getElementById("wordRoleBody");
-                if (roleBodyEl && role) {
-                  roleBodyEl.innerHTML = buildWordRoleHtml(role, query);
-                  // 사전 API가 죽어 발음기호를 못 가져온 경우 AI가 준 발음기호로 채운다.
-                  const aiIpa = String(role.ipa || "").trim();
-                  if (!wordMeta.phonetic && aiIpa) {
-                    titleEl.textContent = `${displayLabel} ${aiIpa}`;
-                  }
-                } else {
-                  document.getElementById("wordRoleSection")?.remove();
-                }
-                if (wordLookupAbort === ac) wordLookupAbort = null;
-              })
-              .catch((err) => {
-                if (err.name !== "AbortError") {
-                  document.getElementById("wordRoleSection")?.remove();
-                }
-                if (wordLookupAbort === ac) wordLookupAbort = null;
-              });
+            runWordRoleLookup(ac, query, contextSentence, displayLabel, wordMeta.phonetic);
           } else {
             if (wordLookupAbort === ac) wordLookupAbort = null;
           }
