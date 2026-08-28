@@ -1115,5 +1115,512 @@
         "note": "'Me too.'는 '나도 그래'라고 동의하는 표현입니다. 'wonderful'은 '멋진, 훌륭한'을 뜻합니다. 'trip'은 '여행'을 뜻합니다."
       }
     ]
+  },
+  {
+    "chapter": 8,
+    "title": "10분영어 #269",
+    "studyDate": "2026-08-28",
+    "cards": [
+      {
+        "id": 1,
+        "situation": "나 좀 우울해요.",
+        "answer": "I'm feeling down."
+      },
+      {
+        "id": 2,
+        "situation": "요즘 모든 게 힘들어요.",
+        "answer": "Everything's been hard lately."
+      },
+      {
+        "id": 3,
+        "situation": "많이 쌓였나 봐요.",
+        "answer": "It must have been building up."
+      },
+      {
+        "id": 4,
+        "situation": "그런 것 같아요.",
+        "answer": "I think so."
+      },
+      {
+        "id": 5,
+        "situation": "말해봐요.",
+        "answer": "Talk to me."
+      },
+      {
+        "id": 6,
+        "situation": "들을게요.",
+        "answer": "I'll listen."
+      },
+      {
+        "id": 7,
+        "situation": "이 옷 어때요?",
+        "answer": "What do you think of this outfit?"
+      },
+      {
+        "id": 8,
+        "situation": "너무 평범해요.",
+        "answer": "It's too plain."
+      },
+      {
+        "id": 9,
+        "situation": "저는 심플해서 좋아요.",
+        "answer": "I like it because it's simple."
+      },
+      {
+        "id": 10,
+        "situation": "어떤 스타일 원해요?",
+        "answer": "What style do you want?"
+      },
+      {
+        "id": 11,
+        "situation": "좀 더 특별한 거요.",
+        "answer": "Something more special."
+      },
+      {
+        "id": 12,
+        "situation": "저건 어때요?",
+        "answer": "How about that one?"
+      },
+      {
+        "id": 13,
+        "situation": "체크인하러 왔어요.",
+        "answer": "I'm here to check in."
+      },
+      {
+        "id": 14,
+        "situation": "아직 방이 준비가 안 됐어요.",
+        "answer": "The room isn't ready yet."
+      },
+      {
+        "id": 15,
+        "situation": "로비에서 기다려도 되나요?",
+        "answer": "Can I wait in the lobby?"
+      },
+      {
+        "id": 16,
+        "situation": "네, 물론이죠.",
+        "answer": "Yes, of course."
+      },
+      {
+        "id": 17,
+        "situation": "짐은 맡길 수 있어요?",
+        "answer": "Can I leave my luggage?"
+      },
+      {
+        "id": 18,
+        "situation": "네, 맡아드릴게요.",
+        "answer": "Yes, we'll hold it for you."
+      },
+      {
+        "id": 19,
+        "situation": "로비에 카페 있어요?",
+        "answer": "Is there a café in the lobby?"
+      },
+      {
+        "id": 20,
+        "situation": "저쪽에 있어요.",
+        "answer": "It's over there."
+      },
+      {
+        "id": 21,
+        "situation": "호텔은 어떻게 골라요?",
+        "answer": "How do you choose a hotel?"
+      },
+      {
+        "id": 22,
+        "situation": "저는 가격을 봐요.",
+        "answer": "I look at the price."
+      },
+      {
+        "id": 23,
+        "situation": "저는 위치를 봐요.",
+        "answer": "I look at the location."
+      },
+      {
+        "id": 24,
+        "situation": "사진도 봐요?",
+        "answer": "Do you look at photos too?"
+      },
+      {
+        "id": 25,
+        "situation": "그것도 중요하죠.",
+        "answer": "That matters too."
+      },
+      {
+        "id": 26,
+        "situation": "사진이 실제와 다를 때도 있어요.",
+        "answer": "Sometimes the photos don't match."
+      },
+      {
+        "id": 27,
+        "situation": "그래서 리뷰를 더 믿어요.",
+        "answer": "That's why I trust reviews more."
+      },
+      {
+        "id": 28,
+        "situation": "왜 저 사람이 먼저 들어가요?",
+        "answer": "Why did that person go in first?"
+      },
+      {
+        "id": 29,
+        "situation": "새치기했어요.",
+        "answer": "They cut in line."
+      },
+      {
+        "id": 30,
+        "situation": "억울해요.",
+        "answer": "It's not fair."
+      },
+      {
+        "id": 31,
+        "situation": "직원한테 말해봐요.",
+        "answer": "Tell the staff."
+      },
+      {
+        "id": 32,
+        "situation": "말해도 될까요?",
+        "answer": "Is it okay to say something?"
+      },
+      {
+        "id": 33,
+        "situation": "당연하죠.",
+        "answer": "Of course."
+      },
+      {
+        "id": 34,
+        "situation": "우리가 먼저 왔잖아요.",
+        "answer": "We were here first."
+      },
+      {
+        "id": 35,
+        "situation": "주문한 거 왔어요?",
+        "answer": "Did your order arrive?"
+      },
+      {
+        "id": 36,
+        "situation": "취소했어요.",
+        "answer": "I canceled it."
+      },
+      {
+        "id": 37,
+        "situation": "왜요?",
+        "answer": "Why?"
+      },
+      {
+        "id": 38,
+        "situation": "더 싼 데 찾았어요.",
+        "answer": "I found it cheaper somewhere else."
+      },
+      {
+        "id": 39,
+        "situation": "얼마나 더 저렴했어요?",
+        "answer": "How much cheaper was it?"
+      },
+      {
+        "id": 40,
+        "situation": "2만 원이요.",
+        "answer": "Twenty thousand won."
+      },
+      {
+        "id": 41,
+        "situation": "차이가 크네요.",
+        "answer": "That's a big difference."
+      },
+      {
+        "id": 42,
+        "situation": "잠깐만요.",
+        "answer": "Just a moment."
+      },
+      {
+        "id": 43,
+        "situation": "화장실 가야 해요.",
+        "answer": "I need to use the restroom."
+      },
+      {
+        "id": 44,
+        "situation": "기다려 줄 수 있어요?",
+        "answer": "Can you wait for me?"
+      },
+      {
+        "id": 45,
+        "situation": "기다릴게요.",
+        "answer": "I'll wait for you."
+      },
+      {
+        "id": 46,
+        "situation": "저기 벤치에 있을게요.",
+        "answer": "I'll be on that bench over there."
+      },
+      {
+        "id": 47,
+        "situation": "금방 올게요.",
+        "answer": "I'll be right back."
+      },
+      {
+        "id": 48,
+        "situation": "천천히 해요.",
+        "answer": "Take your time."
+      },
+      {
+        "id": 49,
+        "situation": "우리 이 길 맞아요?",
+        "answer": "Are we going the right way?"
+      },
+      {
+        "id": 50,
+        "situation": "아닌 것 같아요.",
+        "answer": "I don't think so."
+      },
+      {
+        "id": 51,
+        "situation": "지도 다시 봐요.",
+        "answer": "Let's check the map."
+      },
+      {
+        "id": 52,
+        "situation": "왼쪽으로 갔어야 했어요.",
+        "answer": "We should have turned left."
+      },
+      {
+        "id": 53,
+        "situation": "다시 돌아가요.",
+        "answer": "Let's go back."
+      },
+      {
+        "id": 54,
+        "situation": "다 드셨어요?",
+        "answer": "Are you done eating?"
+      },
+      {
+        "id": 55,
+        "situation": "많이 남았어요.",
+        "answer": "There's a lot left."
+      },
+      {
+        "id": 56,
+        "situation": "남은 음식 가져갈까요?",
+        "answer": "Should we take the rest home?"
+      },
+      {
+        "id": 57,
+        "situation": "그러죠.",
+        "answer": "Let's do that."
+      },
+      {
+        "id": 58,
+        "situation": "이거 포장해 주실 수 있나요?",
+        "answer": "Can I get this to go?"
+      },
+      {
+        "id": 59,
+        "situation": "네, 해드릴게요.",
+        "answer": "Sure, no problem."
+      },
+      {
+        "id": 60,
+        "situation": "음식 남기기 아까워요.",
+        "answer": "I hate to waste food."
+      },
+      {
+        "id": 61,
+        "situation": "맞아요.",
+        "answer": "Right."
+      },
+      {
+        "id": 62,
+        "situation": "나중에 먹어요.",
+        "answer": "Let's eat it later."
+      },
+      {
+        "id": 63,
+        "situation": "지하철역 어디예요?",
+        "answer": "Where's the subway station?"
+      },
+      {
+        "id": 64,
+        "situation": "잘 모르겠어요.",
+        "answer": "I'm not sure."
+      },
+      {
+        "id": 65,
+        "situation": "저쪽이라고 들었어요.",
+        "answer": "I heard it's over there."
+      },
+      {
+        "id": 66,
+        "situation": "찾았어요.",
+        "answer": "Found it."
+      },
+      {
+        "id": 67,
+        "situation": "저기 있네요.",
+        "answer": "There it is."
+      },
+      {
+        "id": 68,
+        "situation": "저기 표지판 봐요.",
+        "answer": "Look at that sign over there."
+      },
+      {
+        "id": 69,
+        "situation": "어, 여기서 보네요.",
+        "answer": "Oh, you're here too!"
+      },
+      {
+        "id": 70,
+        "situation": "여긴 어쩐 일이에요?",
+        "answer": "What brings you here?"
+      },
+      {
+        "id": 71,
+        "situation": "장 보러 왔어요.",
+        "answer": "I came to get groceries."
+      },
+      {
+        "id": 72,
+        "situation": "저는 커피 마시러 왔어요.",
+        "answer": "I came to get coffee."
+      },
+      {
+        "id": 73,
+        "situation": "여기 자주 와요?",
+        "answer": "Do you come here often?"
+      },
+      {
+        "id": 74,
+        "situation": "가끔이요.",
+        "answer": "Sometimes."
+      },
+      {
+        "id": 75,
+        "situation": "거의 매일이요.",
+        "answer": "Almost every day."
+      },
+      {
+        "id": 76,
+        "situation": "뭐 마실 거예요?",
+        "answer": "What are you going to drink?"
+      },
+      {
+        "id": 77,
+        "situation": "그냥 블랙커피로 주세요.",
+        "answer": "Just black coffee, please."
+      },
+      {
+        "id": 78,
+        "situation": "설탕이나 시럽은요?",
+        "answer": "What about sugar or syrup?"
+      },
+      {
+        "id": 79,
+        "situation": "아니요, 괜찮아요.",
+        "answer": "No, thanks."
+      },
+      {
+        "id": 80,
+        "situation": "저는 라떼 마실게요.",
+        "answer": "I'll have a latte."
+      },
+      {
+        "id": 81,
+        "situation": "단 거 좋아해요?",
+        "answer": "Do you like sweet things?"
+      },
+      {
+        "id": 82,
+        "situation": "네, 좋아해요.",
+        "answer": "Yeah, I do."
+      },
+      {
+        "id": 83,
+        "situation": "복사기 써도 될까요?",
+        "answer": "Can I use the copier?"
+      },
+      {
+        "id": 84,
+        "situation": "많이 복사해요?",
+        "answer": "Do you have a lot to copy?"
+      },
+      {
+        "id": 85,
+        "situation": "저는 한 장이요.",
+        "answer": "Just one page."
+      },
+      {
+        "id": 86,
+        "situation": "저는 좀 많아요.",
+        "answer": "I have a lot."
+      },
+      {
+        "id": 87,
+        "situation": "그럼 제가 먼저 할게요.",
+        "answer": "Then I'll go first."
+      },
+      {
+        "id": 88,
+        "situation": "네, 먼저 하세요.",
+        "answer": "Sure, go ahead."
+      },
+      {
+        "id": 89,
+        "situation": "내일 마라톤이에요?",
+        "answer": "Is the marathon tomorrow?"
+      },
+      {
+        "id": 90,
+        "situation": "네, 드디어.",
+        "answer": "Yes, finally."
+      },
+      {
+        "id": 91,
+        "situation": "행운을 빌어요.",
+        "answer": "Good luck."
+      },
+      {
+        "id": 92,
+        "situation": "얼마나 준비했어요?",
+        "answer": "How long have you been training?"
+      },
+      {
+        "id": 93,
+        "situation": "6개월이요.",
+        "answer": "Six months."
+      },
+      {
+        "id": 94,
+        "situation": "오늘 즐거웠어요?",
+        "answer": "Did you have a good time today?"
+      },
+      {
+        "id": 95,
+        "situation": "정말 즐거웠어요.",
+        "answer": "I had a great time."
+      },
+      {
+        "id": 96,
+        "situation": "또 만날 수 있을까요?",
+        "answer": "Can we meet again?"
+      },
+      {
+        "id": 97,
+        "situation": "그랬으면 좋겠어요.",
+        "answer": "I hope so."
+      },
+      {
+        "id": 98,
+        "situation": "연락처 교환해요.",
+        "answer": "Let's exchange numbers."
+      },
+      {
+        "id": 99,
+        "situation": "좋아요.",
+        "answer": "Sounds good."
+      },
+      {
+        "id": 100,
+        "situation": "문자할게요.",
+        "answer": "I'll text you."
+      }
+    ]
   }
 ]

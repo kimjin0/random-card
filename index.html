@@ -1015,8 +1015,28 @@
         emptyMsg:
           "아직 담은 표현이 없습니다. 카드의 메모에서 <strong>✨ 메모에서 표현 뽑기</strong>로 뽑은 표현이나, 드릴(오늘의 표현·조동사·시제 연습)에서 <strong>＋ 담기</strong> 한 문장이 여기에 모입니다.",
       };
+      /** 메모장 항목 출처(src) 키 → 표시 이름. 필터 칩도 이 순서로 보인다. "none"은 출처를 알 수 없는 옛 항목. */
+      const MEMO_SRC_LABELS = {
+        daily: "일상 생활",
+        truth: "진리발표",
+        verbs: "기본동사",
+        drill: "오늘의 표현",
+        modal: "조동사",
+        tense: "시제 연습",
+        none: "출처 없음",
+      };
+      const MEMO_SRC_ORDER = ["daily", "truth", "verbs", "drill", "modal", "tense", "none"];
+      /** 단어장/메모장 화면에서 선택한 출처 필터 (view별, 세션 동안 유지). */
+      const vocabBookFilter = {};
 
-      /** 저장 형식: [{ key, word, ko, pos, phonetic, context, ts, deleted }] (key로 중복 제거) */
+      function memoSrcLabel(e) {
+        const base = MEMO_SRC_LABELS[(e && e.src) || ""] || "";
+        if (!base) return "";
+        return e.srcLabel ? `${base} · ${e.srcLabel}` : base;
+      }
+
+      /** 저장 형식: [{ key, word, ko, pos, phonetic, context, src, srcLabel, ts, deleted }] (key로 중복 제거)
+       *  src: 담은 곳(daily/truth/verbs/drill/modal/tense, 없으면 ""), srcLabel: 챕터·주제 등 세부 표시용 */
       function loadVocab(store = VOCAB_STORE) {
         try {
           const raw = localStorage.getItem(store.lsKey);
@@ -1221,6 +1241,8 @@
           pos: entry.pos || "",
           phonetic: entry.phonetic || "",
           context: entry.context || "",
+          src: entry.src || "",
+          srcLabel: entry.srcLabel || "",
           ts: Date.now(),
           deleted: false,
         });
@@ -1236,6 +1258,56 @@
         list.push({ key, deleted: true, ts: Date.now() });
         saveVocabLocal(list, store);
         pushVocab(list, store);
+      }
+
+      /**
+       * 출처(src)가 없는 옛 메모 항목의 출처를 되짚어 채운다.
+       *  - 카드에서 뽑은 표현: context(카드 영어 문장)를 cards.json/truth.json에서 찾아 일상 생활/진리발표 + 챕터로.
+       *  - 드릴에서 담은 문장: 지난 드릴 기록의 문장과 맞춰 오늘의 표현/조동사/시제 연습으로.
+       * 바뀐 항목은 ts를 1ms 올린다 — 동기화 병합이 같은 ts면 클라우드(옛 값)를 택하므로, 그대로 두면 되돌아간다.
+       */
+      async function backfillMemoSources(list) {
+        const untagged = (list || []).filter((e) => e && e.key && !e.deleted && !e.src);
+        if (!untagged.length) return { list, changed: false };
+
+        const byAnswer = new Map();
+        const addGroups = (groups, src) => {
+          groups.forEach((g) => {
+            g.cards.forEach((c) => {
+              const k = vocabKeyOf(c.answer);
+              if (k && !byAnswer.has(k)) byAnswer.set(k, { src, srcLabel: `Chapter ${g.chapter} · ${g.title || ""}` });
+            });
+          });
+        };
+        const needCards = untagged.some((e) => e.context);
+        if (needCards) {
+          for (const [url, src] of [[DAILY_DATA_URL, "daily"], [TRUTH_DATA_URL, "truth"]]) {
+            try {
+              const res = await fetch(url);
+              if (res.ok) addGroups(validateTruthChapters(await res.json()), src);
+            } catch (e) {
+              console.warn("메모 출처 보정용 카드 데이터 로드 실패:", url, e);
+            }
+          }
+        }
+        const byDrillEn = new Map();
+        visibleVocab(loadVocab(DRILL_HISTORY_STORE)).forEach((h) => {
+          (h.drills || []).forEach((d) => {
+            const k = vocabKeyOf(d && d.en);
+            if (k && !byDrillEn.has(k)) byDrillEn.set(k, drillSrcOf(h));
+          });
+        });
+
+        let changed = false;
+        const out = list.map((e) => {
+          if (!e || !e.key || e.deleted || e.src) return e;
+          let hit = e.context ? byAnswer.get(vocabKeyOf(e.context)) : null;
+          if (!hit) hit = byDrillEn.get(e.key) || null;
+          if (!hit) return e;
+          changed = true;
+          return { ...e, src: hit.src, srcLabel: hit.srcLabel, ts: (e.ts || 0) + 1 };
+        });
+        return { list: out, changed };
       }
 
       function resolvePicksFromSession(cards, session) {
@@ -1477,7 +1549,7 @@ JSON만 출력: [{"expression":"영어 표현","meaning":"한국어 뜻"}]`;
       }
 
       /** 뽑은 표현을 칩으로 그리고, 각 칩의 담기/빼기를 단어장과 연동한다. */
-      function renderExprChips(block, items, context) {
+      function renderExprChips(block, items, context, src) {
         block.innerHTML = items
           .map((it, i) => {
             const saved = isWordSaved(it.expression, MEMO_STORE);
@@ -1516,6 +1588,8 @@ JSON만 출력: [{"expression":"영어 표현","meaning":"한국어 뜻"}]`;
                   pos: "",
                   phonetic: "",
                   context: context || "",
+                  src: (src && src.src) || "",
+                  srcLabel: (src && src.srcLabel) || "",
                 },
                 MEMO_STORE
               );
@@ -1526,7 +1600,7 @@ JSON만 출력: [{"expression":"영어 표현","meaning":"한국어 뜻"}]`;
       }
 
       /** 「✨ 메모에서 표현 뽑기」 버튼을 카드 상태에 맞춰 초기화한다. */
-      function initExprExtractBtn(card) {
+      function initExprExtractBtn(card, src) {
         const btn = document.getElementById("btnExtractExpr");
         const block = document.getElementById("exprExtractBlock");
         if (!btn || !block) return;
@@ -1556,7 +1630,7 @@ JSON만 출력: [{"expression":"영어 표현","meaning":"한국어 뜻"}]`;
             if (!items.length) {
               block.innerHTML = `<span class="meta">담을 만한 표현을 찾지 못했어요.</span>`;
             } else {
-              renderExprChips(block, items, context);
+              renderExprChips(block, items, context, src);
             }
             btn.textContent = "✨ 다시 뽑기";
           } catch (err) {
@@ -1725,7 +1799,7 @@ JSON만 출력: [{"expression":"영어 표현","meaning":"한국어 뜻"}]`;
           };
         }
         initAiExamplesBtn(card);
-        initExprExtractBtn(card);
+        initExprExtractBtn(card, { src: "daily", srcLabel: "" });
       }
 
       function escapeHtml(s) {
@@ -2813,7 +2887,7 @@ JSON만 출력: [{"korean":"...","english":"..."},{"korean":"...","english":"...
           };
         }
         initAiExamplesBtn(card);
-        initExprExtractBtn(card);
+        initExprExtractBtn(card, { src: state.source, srcLabel: `Chapter ${state.chapter} · ${state.title || ""}` });
       }
 
       function createVerbStudyState(verbKey, unit) {
@@ -3041,7 +3115,7 @@ JSON만 출력: [{"korean":"...","english":"..."},{"korean":"...","english":"...
             setSavedVoiceUri(uri);
           };
         }
-        initExprExtractBtn(card);
+        initExprExtractBtn(card, { src: "verbs", srcLabel: (state && state.unitLabel) || "" });
       }
 
       async function startDailyMode() {
@@ -3595,11 +3669,13 @@ JSON만 출력:
        * 드릴 문장 하나를 「내 메모장」에 담는 토글 버튼 HTML.
        * en·ko를 data 속성에 실어 진행 화면·완료 목록·지난 기록 어디서든 같은 버튼을 쓴다.
        */
-      function drillSaveBtnHtml(d) {
+      function drillSaveBtnHtml(d, src) {
         const en = (d && d.en) || "";
         const ko = (d && d.ko) || "";
+        const s = (src && src.src) || "";
+        const sl = (src && src.srcLabel) || "";
         const saved = isWordSaved(en, MEMO_STORE);
-        return `<button type="button" class="tts-btn drill-save${saved ? " saved" : ""}" data-en="${escapeHtml(en)}" data-ko="${escapeHtml(ko)}" aria-label="메모장에 담기">${saved ? "✓ 담김" : "＋ 담기"}</button>`;
+        return `<button type="button" class="tts-btn drill-save${saved ? " saved" : ""}" data-en="${escapeHtml(en)}" data-ko="${escapeHtml(ko)}" data-src="${escapeHtml(s)}" data-src-label="${escapeHtml(sl)}" aria-label="메모장에 담기">${saved ? "✓ 담김" : "＋ 담기"}</button>`;
       }
 
       /** 화면에 그려진 「＋ 담기」 버튼들을 메모장과 연동한다(다시 누르면 뺀다). */
@@ -3607,6 +3683,8 @@ JSON만 출력:
         (root || app).querySelectorAll(".drill-save").forEach((btn) => {
           const en = btn.dataset.en || "";
           const ko = btn.dataset.ko || "";
+          const src = btn.dataset.src || "";
+          const srcLabel = btn.dataset.srcLabel || "";
           if (!en) return;
           btn.onclick = (ev) => {
             ev.stopPropagation();
@@ -3614,7 +3692,7 @@ JSON만 출력:
             if (isWordSaved(key, MEMO_STORE)) {
               removeVocabWord(key, MEMO_STORE);
             } else {
-              saveVocabWord({ key, word: en, ko, pos: "", phonetic: "", context: "" }, MEMO_STORE);
+              saveVocabWord({ key, word: en, ko, pos: "", phonetic: "", context: "", src, srcLabel }, MEMO_STORE);
             }
             const saved = isWordSaved(key, MEMO_STORE);
             // 같은 문장의 버튼이 여러 곳(진행 화면·완료 목록)에 있을 수 있으므로 모두 맞춰 준다.
@@ -3660,7 +3738,7 @@ JSON만 출력:
                       (d) => `<div class="example-item" style="background:#0e1622;border-color:#243049;">
                         <div style="display:flex;align-items:center;justify-content:space-between;gap:0.5rem;">
                           <div class="meta" style="font-size:0.72rem;color:var(--accent);">${escapeHtml(d.tag)}</div>
-                          ${drillSaveBtnHtml(d)}
+                          ${drillSaveBtnHtml(d, drillSrcOf(data))}
                         </div>
                         <div class="answer" data-en-context="${escapeHtml(d.en)}" style="margin-top:0.15rem;font-size:0.9rem;color:#dbe4f5;line-height:1.5;">${englishWordsInteractiveHtml(d.en)}</div>
                         <div class="ex-ko" style="margin:0.2rem 0 0;">${escapeHtml(d.ko)}</div>
@@ -3697,7 +3775,7 @@ JSON만 출력:
             ? `<div style="background:#111827;border:1px solid #2d3a52;border-radius:8px;padding:0.65rem 0.8rem;">
                 <div class="answer" data-en-context="${escapeHtml(cur.en)}" style="font-size:1.05rem;color:#eef3fc;line-height:1.6;">${englishWordsInteractiveHtml(cur.en)}</div>
                 <div style="display:flex;justify-content:flex-end;gap:0.35rem;margin-top:0.4rem;">
-                  ${drillSaveBtnHtml(cur)}
+                  ${drillSaveBtnHtml(cur, drillSrcOf(data))}
                   <button type="button" class="tts-btn" id="btnDrillSpeak">🔊 듣기</button>
                 </div>
               </div>`
@@ -3806,6 +3884,22 @@ JSON만 출력:
         return origin === "modal" ? "조동사" : origin === "tense" ? "시제 연습" : "오늘의 표현";
       }
 
+      /** 드릴 데이터의 type → 메모장 출처 키 (drillHistoryMatchesOrigin과 같은 기준). */
+      function drillTypeOrigin(type) {
+        const ty = type || "verb";
+        if (ty === "modal") return "modal";
+        if (ty === "tense" || ty === "haveBeen" || ty === "haveBeenTense") return "tense";
+        return "drill";
+      }
+
+      /** 드릴 세트(진행 데이터 또는 지난 기록 항목)에서 메모장에 실을 출처 정보. */
+      function drillSrcOf(x) {
+        return {
+          src: drillTypeOrigin(x && x.type),
+          srcLabel: (x && x.topic) ? String(x.topic).trim() : "",
+        };
+      }
+
       /**
        * 기록 카드의 메타·제목·부제. have been 세트는 저장된 base_en 대신 카드에서 뽑은
        * 핵심 어구 요약을 쓴다 — AI가 base_en에 15문장을 통째로 넣었던 옛 기록도 이걸로 정리된다.
@@ -3889,7 +3983,7 @@ JSON만 출력:
                           (d) => `<div class="example-item" style="background:#0e1622;border-color:#243049;">
                             <div style="display:flex;align-items:center;justify-content:space-between;gap:0.5rem;">
                               <div class="meta" style="font-size:0.72rem;color:var(--accent);">${escapeHtml(d.tag)}</div>
-                              ${drillSaveBtnHtml(d)}
+                              ${drillSaveBtnHtml(d, drillSrcOf(e))}
                             </div>
                             <div class="answer" data-en-context="${escapeHtml(d.en)}" style="margin-top:0.15rem;font-size:0.88rem;color:#dbe4f5;line-height:1.5;">${englishWordsInteractiveHtml(d.en)}</div>
                             <div class="ex-ko" style="margin:0.2rem 0 0;">${escapeHtml(d.ko)}</div>
@@ -4138,6 +4232,10 @@ JSON만 출력:
         const posLine = e.pos
           ? `<div class="meta" style="font-size:0.74rem;margin-top:0.1rem;">품사 · ${escapeHtml(e.pos)}</div>`
           : "";
+        const srcText = memoSrcLabel(e);
+        const srcLine = srcText
+          ? `<div class="meta" style="font-size:0.72rem;margin-top:0.1rem;">📍 ${escapeHtml(srcText)}</div>`
+          : "";
         const contextLine = e.context
           ? `<div class="answer" data-en-context="${escapeHtml(e.context)}" style="margin-top:0.4rem;font-size:0.8rem;color:#c8d4e8;line-height:1.5;">${englishWordsInteractiveHtml(e.context)}</div>`
           : "";
@@ -4155,6 +4253,7 @@ JSON만 출력:
           </div>
           <div style="font-size:0.98rem;font-weight:600;color:#eef3fc;">${escapeHtml(e.ko)}</div>
           ${posLine}
+          ${srcLine}
           ${contextLine}
           ${exBlock}
         </div>`;
@@ -4167,27 +4266,63 @@ JSON만 출력:
 
         const draw = (list) => {
           if (app.dataset.view !== store.view) return;
-          const items = visibleVocab(list);
+          const all = visibleVocab(list);
+          // 출처(src)별 개수. 출처를 모르는 옛 항목은 "none"으로 묶는다.
+          const counts = {};
+          all.forEach((e) => {
+            const b = e.src || "none";
+            counts[b] = (counts[b] || 0) + 1;
+          });
+          let filter = vocabBookFilter[store.view] || "all";
+          if (filter !== "all" && !counts[filter]) filter = vocabBookFilter[store.view] = "all";
+          const items = filter === "all" ? all : all.filter((e) => (e.src || "none") === filter);
           const byKey = {};
           items.forEach((it) => { if (it && it.key) byKey[it.key] = it; });
+          // 출처가 2종류 이상일 때만 필터 칩을 보인다 (단어장처럼 한 곳에서만 담으면 불필요).
+          const buckets = MEMO_SRC_ORDER.filter((k) => counts[k]);
+          const chipStyle = (on) =>
+            `padding:0.3rem 0.6rem;${on ? "border-color:var(--accent);color:var(--accent);font-weight:600;" : ""}`;
+          const filterHtml =
+            buckets.length >= 2
+              ? `<div class="actions" style="margin-top:0.6rem;gap:0.35rem;">
+                  <button type="button" class="tts-btn vocab-filter" data-f="all" style="${chipStyle(filter === "all")}">전체 (${all.length})</button>
+                  ${buckets
+                    .map(
+                      (k) => `<button type="button" class="tts-btn vocab-filter" data-f="${k}" style="${chipStyle(filter === k)}">${escapeHtml(MEMO_SRC_LABELS[k])} (${counts[k]})</button>`
+                    )
+                    .join("")}
+                </div>`
+              : "";
           const body = items.length
             ? `<div style="display:flex;flex-direction:column;gap:0.55rem;margin-top:0.6rem;">${items
                 .map(vocabItemHtml)
                 .join("")}</div>`
-            : `<p class="meta" style="margin-top:0.8rem;">${store.emptyMsg}</p>`;
+            : all.length
+              ? `<p class="meta" style="margin-top:0.8rem;">이 출처로 담은 ${store.countLabel}이 없습니다.</p>`
+              : `<p class="meta" style="margin-top:0.8rem;">${store.emptyMsg}</p>`;
           app.innerHTML = `
             <div class="gate-panel">
-              <strong>${store.title}</strong> · 저장한 ${store.countLabel} <strong style="color:var(--accent);">${items.length}개</strong>. 단어를 누르면 뜻을 다시 볼 수 있습니다.${
+              <strong>${store.title}</strong> · 저장한 ${store.countLabel} <strong style="color:var(--accent);">${items.length}개</strong>${
+                filter !== "all" ? ` (전체 ${all.length}개)` : ""
+              }. 단어를 누르면 뜻을 다시 볼 수 있습니다.${
                 firebaseSyncEnabled() && getSyncCode()
                   ? " 같은 동기화 코드를 쓰는 기기끼리 자동으로 공유됩니다."
                   : ""
               }
             </div>
+            ${filterHtml}
             ${body}
             <div class="actions" style="margin-top:0.9rem;">
               <button type="button" id="btnVocabBack">← 모드 선택으로</button>
             </div>`;
           document.getElementById("btnVocabBack").onclick = () => renderModePicker();
+          app.querySelectorAll(".vocab-filter").forEach((btn) => {
+            btn.onclick = (ev) => {
+              ev.stopPropagation();
+              vocabBookFilter[store.view] = btn.dataset.f || "all";
+              draw(list);
+            };
+          });
           app.querySelectorAll(".vocab-speak").forEach((btn) => {
             btn.onclick = (ev) => {
               ev.stopPropagation();
@@ -4244,8 +4379,17 @@ JSON만 출력:
         };
 
         draw(loadVocab(store));
-        // 백그라운드 동기화 후 최신 목록으로 다시 그린다.
-        pullMergeVocab(store).then((merged) => draw(merged));
+        // 백그라운드 동기화 후 최신 목록으로 다시 그린다. 메모장은 출처 없는 옛 항목의 출처를
+        // 카드·드릴 기록에서 되짚어 채운 뒤(backfill) 한 번 더 그린다.
+        pullMergeVocab(store).then(async (merged) => {
+          draw(merged);
+          if (store !== MEMO_STORE) return;
+          const { list, changed } = await backfillMemoSources(merged);
+          if (!changed) return;
+          saveVocabLocal(list, store);
+          pushVocab(list, store);
+          draw(list);
+        });
       }
 
       /**
