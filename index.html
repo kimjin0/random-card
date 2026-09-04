@@ -1165,7 +1165,7 @@
         btnId: "btnMemoBook",
         btnLabel: "📔 내 메모장",
         emptyMsg:
-          "아직 담은 표현이 없습니다. 카드의 메모에서 <strong>✨ 메모에서 표현 뽑기</strong>로 뽑은 표현이나, 드릴(오늘의 표현·조동사·시제 연습)에서 <strong>＋ 담기</strong> 한 문장이 여기에 모입니다.",
+          "아직 담은 표현이 없습니다. 일상 생활·진리발표 카드의 영어 줄이나 드릴(오늘의 표현·조동사·시제 연습)에서 <strong>＋ 담기</strong> 한 문장, 카드의 메모에서 <strong>✨ 메모에서 표현 뽑기</strong>로 뽑은 표현이 여기에 모입니다.",
       };
       /**
        * 카드놀이 덱. 단어장·메모장 목록에서 체크해 저장한 항목의 복사본이 모인다.
@@ -1567,12 +1567,17 @@
       }
 
       /** 일상·진리발표: situation=한국어, answer=영어. 설정에 따라 앞뒤면 순서를 바꿉니다. */
-      function buildSituationAnswerCardMain(card, revealed) {
+      /**
+       * src: { src, srcLabel } — 영어 줄의 「＋ 담기」로 문장(영어·한국어 쌍)을 내 메모장에 담을 때
+       * 출처(일상 생활/진리발표 + 챕터)를 함께 저장한다. 담은 문장은 메모장에서 체크해 카드놀이로 보낼 수 있다.
+       */
+      function buildSituationAnswerCardMain(card, revealed, src) {
         const koFirst = isKoreanCardFaceFirst();
         const englishBlock = `<div class="answer-head">
               <div class="label">영어</div>
               <div style="display:flex;align-items:center;gap:0.35rem;">
                 ${getVoiceOptionsHtml()}
+                ${drillSaveBtnHtml({ en: card.answer, ko: card.situation }, src)}
                 <button type="button" class="tts-btn" id="btnSpeakAnswer" aria-label="영어 문장 듣기">🔊 듣기</button>
               </div>
             </div>
@@ -1891,7 +1896,7 @@ JSON만 출력: [{"expression":"영어 표현","meaning":"한국어 뜻"}]`;
         const bars = picks
           .map((_, i) => `<span class="${i <= index ? "on" : ""}"></span>`)
           .join("");
-        const cardMain = buildSituationAnswerCardMain(card, revealed);
+        const cardMain = buildSituationAnswerCardMain(card, revealed, { src: "daily", srcLabel: "" });
 
         app.innerHTML = `
           ${gatePanelHtml(cards, progress)}
@@ -1968,6 +1973,7 @@ JSON만 출력: [{"expression":"영어 표현","meaning":"한국어 뜻"}]`;
           };
         }
         initAiExamplesBtn(card);
+        bindDrillSaveBtns();
         initExprExtractBtn(card, { src: "daily", srcLabel: "" });
       }
 
@@ -2948,7 +2954,10 @@ JSON만 출력: [{"korean":"...","english":"..."},{"korean":"...","english":"...
           .map((_, i) => `<span class="${i <= index ? "on" : ""}"></span>`)
           .join("");
         const titleLabel = state.title ? ` · ${escapeHtml(state.title)}` : "";
-        const cardMain = buildSituationAnswerCardMain(card, revealed);
+        const cardMain = buildSituationAnswerCardMain(card, revealed, {
+          src: state.source,
+          srcLabel: `Chapter ${state.chapter} · ${state.title || ""}`,
+        });
 
         app.innerHTML = `
           <div class="progress">${bars}</div>
@@ -3056,6 +3065,7 @@ JSON만 출력: [{"korean":"...","english":"..."},{"korean":"...","english":"...
           };
         }
         initAiExamplesBtn(card);
+        bindDrillSaveBtns();
         initExprExtractBtn(card, { src: state.source, srcLabel: `Chapter ${state.chapter} · ${state.title || ""}` });
       }
 
