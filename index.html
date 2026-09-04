@@ -445,6 +445,158 @@
       background: #10241a;
       color: #8fe0b0;
     }
+
+    /* ---- 카드놀이: 단어장·메모장에서 체크해 담은 카드를 3D로 뒤집으며 연습 ---- */
+    .vocab-pick {
+      width: 1.1rem;
+      height: 1.1rem;
+      margin: 0.2rem 0 0;
+      flex-shrink: 0;
+      accent-color: var(--accent);
+      cursor: pointer;
+    }
+
+    .deck-badge {
+      font-size: 0.75rem;
+      flex-shrink: 0;
+    }
+
+    /* 목록 끝에 붙는 저장 바. 목록이 길어도 화면 아래에 붙어 있어 스크롤 없이 저장할 수 있다. */
+    .deck-bar {
+      position: sticky;
+      bottom: 0.5rem;
+      z-index: 5;
+      margin-top: 0.9rem;
+      padding: 0.6rem 0.7rem;
+      border-radius: var(--radius);
+      background: #1a2230;
+      border: 1px solid #3d4f6f;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      align-items: center;
+    }
+
+    .deck-bar .push-right {
+      margin-left: auto;
+    }
+
+    .deck-bar .meta {
+      font-size: 0.76rem;
+    }
+
+    .deck-bar button:disabled,
+    #btnDeckPrev:disabled {
+      opacity: 0.45;
+      cursor: default;
+    }
+
+    .deck-progress {
+      height: 5px;
+      border-radius: 999px;
+      background: #2f3b52;
+      overflow: hidden;
+      margin-bottom: 1rem;
+    }
+
+    .deck-progress span {
+      display: block;
+      height: 100%;
+      border-radius: 999px;
+      background: #7db2ff;
+      box-shadow: 0 0 8px rgba(125, 178, 255, 0.55);
+      transition: width 0.25s ease;
+    }
+
+    .flip-scene {
+      perspective: 1200px;
+    }
+
+    /* 앞·뒷면을 같은 그리드 칸에 겹쳐 놓고 카드 전체를 Y축으로 돌린다. 높이는 더 긴 면에 맞춰진다. */
+    .flip-card {
+      position: relative;
+      display: grid;
+      cursor: pointer;
+      transform-style: preserve-3d;
+      transition: transform 0.55s cubic-bezier(0.4, 0.2, 0.2, 1);
+      border-radius: var(--radius);
+    }
+
+    .flip-card:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+    }
+
+    .flip-card.flipped {
+      transform: rotateY(180deg);
+    }
+
+    .flip-face {
+      grid-area: 1 / 1;
+      display: flex;
+      flex-direction: column;
+      min-height: 240px;
+      padding: 1.35rem 1.25rem 1.15rem;
+      border-radius: var(--radius);
+      background: var(--surface);
+      border: 1px solid var(--border);
+      -webkit-backface-visibility: hidden;
+      backface-visibility: hidden;
+      transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .flip-card:hover .flip-face {
+      border-color: #3d4a63;
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.25);
+    }
+
+    .flip-front {
+      transform: rotateY(0deg);
+    }
+
+    .flip-back {
+      transform: rotateY(180deg);
+      background: #1a2338;
+      border-color: #3b4f78;
+    }
+
+    /* 뒤로 돌아가 있는 면은 눌리지 않게 (브라우저별 backface 히트테스트 차이 대비) */
+    .flip-card:not(.flipped) .flip-back,
+    .flip-card.flipped .flip-front {
+      pointer-events: none;
+    }
+
+    .flip-main {
+      margin: auto 0;
+      padding: 0.5rem 0;
+      text-align: center;
+    }
+
+    .flip-word {
+      font-size: 1.45rem;
+      font-weight: 600;
+      line-height: 1.4;
+      color: #eef3fc;
+      word-break: keep-all;
+      overflow-wrap: anywhere;
+      white-space: pre-line;
+    }
+
+    .flip-face .hint {
+      margin-top: 0;
+      text-align: center;
+    }
+
+    .flip-sub {
+      margin-top: 0.6rem;
+      padding-top: 0.6rem;
+      border-top: 1px solid var(--border);
+      font-size: 0.9rem;
+      color: #b8c2d4;
+      text-align: center;
+      white-space: pre-line;
+    }
   </style>
 </head>
 <body>
@@ -1015,6 +1167,23 @@
         emptyMsg:
           "아직 담은 표현이 없습니다. 카드의 메모에서 <strong>✨ 메모에서 표현 뽑기</strong>로 뽑은 표현이나, 드릴(오늘의 표현·조동사·시제 연습)에서 <strong>＋ 담기</strong> 한 문장이 여기에 모입니다.",
       };
+      /**
+       * 카드놀이 덱. 단어장·메모장 목록에서 체크해 저장한 항목의 복사본이 모인다.
+       * 단어장과 같은 저장 형식·병합 규칙을 쓰고, 같은 wrongCardsSync 문서의 "cardGame" 필드로 동기화된다.
+       */
+      const CARD_GAME_STORE = {
+        lsKey: "english-card-game-deck",
+        field: "cardGame",
+        view: "cardGame",
+        title: "카드놀이",
+        countLabel: "카드",
+        btnId: "btnCardGame",
+        btnLabel: "🃏 카드놀이",
+        emptyMsg:
+          "<strong>📒 내 단어장</strong>이나 <strong>📔 내 메모장</strong>에서 항목 왼쪽을 체크한 뒤 <strong>🃏 카드놀이에 저장</strong>을 누르면 여기에 카드로 모입니다.",
+      };
+      /** 카드놀이 앞면 언어 저장 키. 기본은 한국어(앞) → 영어(뒤). */
+      const CARD_GAME_FRONT_KEY = "english-card-game-front";
       /** 메모장 항목 출처(src) 키 → 표시 이름. 필터 칩도 이 순서로 보인다. "none"은 출처를 알 수 없는 옛 항목. */
       const MEMO_SRC_LABELS = {
         daily: "일상 생활",
@@ -4225,7 +4394,8 @@ JSON만 출력:
           .join("");
       }
 
-      function vocabItemHtml(e) {
+      /** pick: 카드놀이 체크 상태 { checked, inDeck } (단어장/메모장 목록에서만 전달). */
+      function vocabItemHtml(e, pick) {
         const title = e.phonetic
           ? `${escapeHtml(e.word)} <span class="meta" style="font-weight:400;">${escapeHtml(e.phonetic)}</span>`
           : escapeHtml(e.word);
@@ -4242,9 +4412,18 @@ JSON만 출력:
         const cached = vocabExampleCache[e.key];
         const hasEx = Array.isArray(cached) && cached.length > 0;
         const exBlock = `<div class="vocab-ex-block" style="margin-top:0.5rem;flex-direction:column;gap:0.4rem;display:${hasEx ? "flex" : "none"};">${hasEx ? vocabExamplesHtml(cached) : ""}</div>`;
+        const pickHtml = pick
+          ? `<input type="checkbox" class="vocab-pick" data-k="${escapeHtml(e.key)}" ${pick.checked ? "checked" : ""} aria-label="카드놀이에 넣기" />`
+          : "";
+        const deckBadge = pick && pick.inDeck ? `<span class="deck-badge" title="카드놀이에 들어 있음">🃏</span>` : "";
+        const titleTag = pick ? "label" : "div";
         return `<div class="example-item" style="display:flex;flex-direction:column;gap:0.15rem;">
           <div style="display:flex;align-items:baseline;justify-content:space-between;gap:0.5rem;">
-            <strong style="font-size:0.95rem;color:#e4ecff;">${title}</strong>
+            <${titleTag} style="display:flex;align-items:flex-start;gap:0.5rem;min-width:0;${pick ? "cursor:pointer;" : ""}">
+              ${pickHtml}
+              <strong style="font-size:0.95rem;color:#e4ecff;">${title}</strong>
+              ${deckBadge}
+            </${titleTag}>
             <div style="display:flex;gap:0.3rem;flex-shrink:0;">
               <button type="button" class="tts-btn vocab-ex-btn" data-k="${escapeHtml(e.key)}" aria-label="예문 만들기">${hasEx ? "✨ 다시" : "✨ 예문"}</button>
               <button type="button" class="tts-btn vocab-speak" data-w="${escapeHtml(e.word)}" aria-label="단어 듣기">🔊</button>
@@ -4263,6 +4442,11 @@ JSON만 출력:
         closeWordDefinitionPanel();
         dateLine.textContent = store.title;
         app.dataset.view = store.view;
+        // 카드놀이 체크 상태. 저장 전까지는 여기에만 두고(key → 원하는 상태), 저장할 때 덱과의 차이만 반영한다.
+        // 백그라운드 동기화로 목록을 다시 그려도 체크가 남도록 draw 바깥에 둔다.
+        const deckPick = new Map();
+        let deckSavedMsg = "";
+        let refreshDeckBar = null;
 
         const draw = (list) => {
           if (app.dataset.view !== store.view) return;
@@ -4278,6 +4462,23 @@ JSON만 출력:
           const items = filter === "all" ? all : all.filter((e) => (e.src || "none") === filter);
           const byKey = {};
           items.forEach((it) => { if (it && it.key) byKey[it.key] = it; });
+          const deckKeys = new Set(visibleVocab(loadVocab(CARD_GAME_STORE)).map((d) => d.key));
+          const wantInDeck = (key) => (deckPick.has(key) ? deckPick.get(key) : deckKeys.has(key));
+          const pickOf = (e) => ({ checked: wantInDeck(e.key), inDeck: deckKeys.has(e.key) });
+          /** 화면에 보이는 항목 기준으로 체크 상태와 덱의 차이를 모은다 (필터로 숨긴 항목은 건드리지 않는다). */
+          const collectPicks = () => {
+            const adds = [];
+            const drops = [];
+            let checked = 0;
+            items.forEach((e) => {
+              const want = wantInDeck(e.key);
+              const has = deckKeys.has(e.key);
+              if (want) checked += 1;
+              if (want && !has) adds.push(e);
+              else if (!want && has) drops.push(e.key);
+            });
+            return { adds, drops, checked };
+          };
           // 출처가 2종류 이상일 때만 필터 칩을 보인다 (단어장처럼 한 곳에서만 담으면 불필요).
           const buckets = MEMO_SRC_ORDER.filter((k) => counts[k]);
           const chipStyle = (on) =>
@@ -4295,7 +4496,7 @@ JSON만 출력:
               : "";
           const body = items.length
             ? `<div style="display:flex;flex-direction:column;gap:0.55rem;margin-top:0.6rem;">${items
-                .map(vocabItemHtml)
+                .map((e) => vocabItemHtml(e, pickOf(e)))
                 .join("")}</div>`
             : all.length
               ? `<p class="meta" style="margin-top:0.8rem;">이 출처로 담은 ${store.countLabel}이 없습니다.</p>`
@@ -4304,7 +4505,7 @@ JSON만 출력:
             <div class="gate-panel">
               <strong>${store.title}</strong> · 저장한 ${store.countLabel} <strong style="color:var(--accent);">${items.length}개</strong>${
                 filter !== "all" ? ` (전체 ${all.length}개)` : ""
-              }. 단어를 누르면 뜻을 다시 볼 수 있습니다.${
+              }. 단어를 누르면 뜻을 다시 볼 수 있고, 왼쪽을 체크한 뒤 <strong>🃏 카드놀이에 저장</strong>을 누르면 카드놀이에 담깁니다.${
                 firebaseSyncEnabled() && getSyncCode()
                   ? " 같은 동기화 코드를 쓰는 기기끼리 자동으로 공유됩니다."
                   : ""
@@ -4312,10 +4513,89 @@ JSON만 출력:
             </div>
             ${filterHtml}
             ${body}
+            ${
+              items.length
+                ? `<div class="deck-bar" id="deckBar">
+                    <button type="button" class="tts-btn" id="btnDeckPickAll"></button>
+                    <button type="button" class="primary" id="btnDeckSave" style="padding:0.4rem 0.8rem;font-size:0.82rem;"></button>
+                    <button type="button" class="tts-btn push-right" id="btnDeckOpen">🃏 카드놀이 열기 (${deckKeys.size})</button>
+                    <span class="meta" id="deckBarMsg" style="flex-basis:100%;"></span>
+                  </div>`
+                : ""
+            }
             <div class="actions" style="margin-top:0.9rem;">
               <button type="button" id="btnVocabBack">← 모드 선택으로</button>
             </div>`;
           document.getElementById("btnVocabBack").onclick = () => renderModePicker();
+
+          // ---- 카드놀이 담기 바 ----
+          const deckBar = document.getElementById("deckBar");
+          if (deckBar) {
+            const btnAll = document.getElementById("btnDeckPickAll");
+            const btnSave = document.getElementById("btnDeckSave");
+            const msgEl = document.getElementById("deckBarMsg");
+            refreshDeckBar = () => {
+              const { adds, drops, checked } = collectPicks();
+              btnAll.textContent = items.length && checked === items.length ? "☐ 전체 해제" : "☑ 전체 선택";
+              const dirty = adds.length > 0 || drops.length > 0;
+              btnSave.disabled = !dirty;
+              btnSave.textContent = dirty
+                ? `🃏 카드놀이에 저장 (${[adds.length ? `＋${adds.length}` : "", drops.length ? `−${drops.length}` : ""]
+                    .filter(Boolean)
+                    .join(" · ")})`
+                : "🃏 카드놀이에 저장";
+              msgEl.textContent =
+                deckSavedMsg || `선택 ${checked}개 / ${items.length}개 · 카드놀이에 ${deckKeys.size}장 들어 있음`;
+            };
+            const applyPicks = () => {
+              const { adds, drops } = collectPicks();
+              if (!adds.length && !drops.length) return false;
+              updateCardGameDeck(adds, drops);
+              deckPick.clear();
+              deckSavedMsg = `저장됨 ✓ 카드놀이에 ${adds.length}장 추가${drops.length ? `, ${drops.length}장 제외` : ""}`;
+              setTimeout(() => {
+                deckSavedMsg = "";
+                if (app.dataset.view === store.view && refreshDeckBar) refreshDeckBar();
+              }, 2500);
+              return true;
+            };
+            app.querySelectorAll(".vocab-pick").forEach((cb) => {
+              cb.onchange = () => {
+                const key = cb.dataset.k || "";
+                if (!key) return;
+                // 덱과 같은 상태로 되돌리면 '변경 없음'이므로 기록을 지운다.
+                if (cb.checked === deckKeys.has(key)) deckPick.delete(key);
+                else deckPick.set(key, cb.checked);
+                refreshDeckBar();
+              };
+            });
+            btnAll.onclick = () => {
+              const { checked } = collectPicks();
+              const on = checked !== items.length;
+              items.forEach((e) => {
+                if (on === deckKeys.has(e.key)) deckPick.delete(e.key);
+                else deckPick.set(e.key, on);
+              });
+              app.querySelectorAll(".vocab-pick").forEach((cb) => {
+                cb.checked = on;
+              });
+              refreshDeckBar();
+            };
+            btnSave.onclick = () => {
+              if (applyPicks()) draw(loadVocab(store));
+            };
+            document.getElementById("btnDeckOpen").onclick = () => {
+              const { adds, drops } = collectPicks();
+              if (adds.length || drops.length) {
+                if (!confirm("저장하지 않은 선택이 있어요. 저장하고 카드놀이로 갈까요?")) return;
+                applyPicks();
+              }
+              renderCardGame();
+            };
+            refreshDeckBar();
+          } else {
+            refreshDeckBar = null;
+          }
           app.querySelectorAll(".vocab-filter").forEach((btn) => {
             btn.onclick = (ev) => {
               ev.stopPropagation();
@@ -4332,7 +4612,11 @@ JSON만 출력:
           app.querySelectorAll(".vocab-del").forEach((btn) => {
             btn.onclick = (ev) => {
               ev.stopPropagation();
-              removeVocabWord(btn.dataset.k || "", store);
+              const key = btn.dataset.k || "";
+              removeVocabWord(key, store);
+              // 목록에서 지운 항목은 카드놀이 덱에서도 함께 빠진다(두 번 지우지 않게).
+              deckPick.delete(key);
+              if (isWordSaved(key, CARD_GAME_STORE)) updateCardGameDeck([], [key]);
               draw(loadVocab(store));
             };
           });
@@ -4392,6 +4676,259 @@ JSON만 출력:
         });
       }
 
+      /** ---- 카드놀이: 단어장·메모장에서 체크해 담은 카드를 뒤집으며 연습 ---- */
+
+      /**
+       * 덱 갱신(추가·제외를 한 번에). 항목 형식·툼스톤 규칙은 saveVocabWord/removeVocabWord와 같지만
+       * 여러 장을 한 번에 저장하므로 클라우드 업로드는 한 번만 한다.
+       */
+      function updateCardGameDeck(addEntries, removeKeys) {
+        const adds = (addEntries || [])
+          .map((e) => ({ ...e, key: vocabKeyOf((e && (e.key || e.word)) || "") }))
+          .filter((e) => e.key);
+        const drops = (removeKeys || []).map(vocabKeyOf).filter(Boolean);
+        const touched = new Set([...adds.map((e) => e.key), ...drops]);
+        if (!touched.size) return;
+        const list = loadVocab(CARD_GAME_STORE).filter((e) => e && !touched.has(e.key));
+        const ts = Date.now();
+        adds.forEach((e) => {
+          list.push({
+            key: e.key,
+            word: e.word || e.key,
+            ko: e.ko || "",
+            pos: e.pos || "",
+            phonetic: e.phonetic || "",
+            context: e.context || "",
+            src: e.src || "",
+            srcLabel: e.srcLabel || "",
+            ts,
+            deleted: false,
+          });
+        });
+        drops.forEach((key) => {
+          if (adds.some((e) => e.key === key)) return;
+          list.push({ key, deleted: true, ts });
+        });
+        saveVocabLocal(list, CARD_GAME_STORE);
+        pushVocab(list, CARD_GAME_STORE);
+      }
+
+      function getCardGameFront() {
+        try {
+          return localStorage.getItem(CARD_GAME_FRONT_KEY) === "en" ? "en" : "ko";
+        } catch {
+          return "ko";
+        }
+      }
+
+      function setCardGameFront(face) {
+        try {
+          localStorage.setItem(CARD_GAME_FRONT_KEY, face === "en" ? "en" : "ko");
+        } catch {}
+      }
+
+      /** 세션 동안의 진행 상태 { order: [key], index, flipped }. 화면을 나갔다 와도 순서·위치가 유지된다. */
+      let cardGameState = null;
+
+      /** 덱 변경(추가·제외·동기화)을 진행 순서에 반영: 남은 카드 순서는 유지하고 새 카드는 섞어서 뒤에 붙인다. */
+      function syncCardGameOrder(deckKeys) {
+        if (!cardGameState) {
+          cardGameState = { order: shuffleInPlace([...deckKeys]), index: 0, flipped: false };
+          return cardGameState;
+        }
+        const st = cardGameState;
+        const keySet = new Set(deckKeys);
+        const kept = st.order.filter((k) => keySet.has(k));
+        const have = new Set(kept);
+        const fresh = shuffleInPlace(deckKeys.filter((k) => !have.has(k)));
+        st.order = kept.concat(fresh);
+        if (st.index > st.order.length) st.index = st.order.length;
+        return st;
+      }
+
+      function renderCardGame() {
+        closeWordDefinitionPanel();
+        const store = CARD_GAME_STORE;
+        dateLine.textContent = store.title;
+        app.dataset.view = store.view;
+        let shownSig = null;
+
+        const draw = (list) => {
+          if (app.dataset.view !== store.view) return;
+          shownSig = vocabListSignature(list);
+          const deck = visibleVocab(list);
+          const byKey = {};
+          deck.forEach((e) => {
+            byKey[e.key] = e;
+          });
+          const redraw = () => draw(loadVocab(store));
+
+          if (!deck.length) {
+            cardGameState = null;
+            app.innerHTML = `
+              <div class="gate-panel"><strong>🃏 카드놀이</strong> · 아직 카드가 없습니다.</div>
+              <p class="meta" style="margin-top:0.8rem;line-height:1.6;">${store.emptyMsg}</p>
+              <div class="actions">
+                <button type="button" class="primary" id="btnDeckGoVocab">📒 내 단어장에서 고르기</button>
+                <button type="button" id="btnDeckGoMemo">📔 내 메모장에서 고르기</button>
+                <button type="button" class="ghost push-right" id="btnDeckBack">← 모드 선택으로</button>
+              </div>`;
+            document.getElementById("btnDeckGoVocab").onclick = () => renderVocabBook();
+            document.getElementById("btnDeckGoMemo").onclick = () => renderVocabBook(MEMO_STORE);
+            document.getElementById("btnDeckBack").onclick = () => renderModePicker();
+            return;
+          }
+
+          const st = syncCardGameOrder(deck.map((e) => e.key));
+          const total = st.order.length;
+
+          if (st.index >= total) {
+            app.innerHTML = `
+              <div class="done">
+                <h2>🎉 ${total}장 모두 확인했어요</h2>
+                <p class="meta">섞어서 다시 하거나, 단어장·메모장에서 카드를 더 담아 보세요.</p>
+                <div class="actions" style="justify-content:center;margin-top:1rem;">
+                  <button type="button" class="primary" id="btnDeckAgain">🔀 섞어서 다시</button>
+                  <button type="button" class="ghost" id="btnDeckGoVocab">📒 내 단어장</button>
+                  <button type="button" class="ghost" id="btnDeckBack">← 모드 선택으로</button>
+                </div>
+              </div>`;
+            document.getElementById("btnDeckAgain").onclick = () => {
+              cardGameState = null;
+              redraw();
+            };
+            document.getElementById("btnDeckGoVocab").onclick = () => renderVocabBook();
+            document.getElementById("btnDeckBack").onclick = () => renderModePicker();
+            return;
+          }
+
+          const card = byKey[st.order[st.index]];
+          const front = getCardGameFront();
+          const word = String(card.word || card.key || "");
+          const koHtml = card.ko
+            ? escapeHtml(card.ko)
+            : `<span class="meta" style="font-weight:400;">한국어 뜻이 없는 카드입니다</span>`;
+          const enWordsHtml = englishWordsInteractiveHtml(word);
+          const metaBits = [card.phonetic || "", card.pos ? `품사 · ${card.pos}` : ""]
+            .filter(Boolean)
+            .map(escapeHtml)
+            .join(" · ");
+          const srcText = memoSrcLabel(card);
+          const srcLine = srcText
+            ? `<div class="meta" style="font-size:0.72rem;margin-top:0.45rem;text-align:center;">📍 ${escapeHtml(srcText)}</div>`
+            : "";
+          const koHead = `<div class="label">한국어</div>`;
+          const enHead = `<div class="answer-head">
+                <div class="label" style="margin-bottom:0;">영어</div>
+                <button type="button" class="tts-btn" id="btnDeckSpeak" aria-label="영어 듣기">🔊 듣기</button>
+              </div>`;
+          const koBlock = `<div class="flip-main"><div class="flip-word">${koHtml}</div></div>`;
+          const enBlock = `<div class="flip-main">
+                <div class="flip-word answer" data-en-context="${escapeHtml(word)}">${enWordsHtml}</div>
+                ${metaBits ? `<div class="meta" style="margin-top:0.3rem;">${metaBits}</div>` : ""}
+              </div>`;
+          const frontHint = `<p class="hint">${
+            front === "ko" ? "영어로 말해 본 뒤 카드를 눌러 확인하세요." : "뜻을 떠올린 뒤 카드를 눌러 확인하세요."
+          }</p>`;
+          const frontHtml = front === "ko" ? `${koHead}${koBlock}${frontHint}` : `${enHead}${enBlock}${frontHint}`;
+          const backHtml =
+            front === "ko"
+              ? `${enHead}${enBlock}<div class="flip-sub">${koHtml}</div>${srcLine}`
+              : `${koHead}${koBlock}<div class="flip-sub answer" data-en-context="${escapeHtml(word)}">${enWordsHtml}</div>${srcLine}`;
+
+          app.innerHTML = `
+            <div class="gate-panel">
+              <strong>🃏 카드놀이</strong> · 총 <strong>${total}장</strong>. 카드를 누르면 뒤집힙니다 (앞면 ${
+                front === "ko" ? "한국어 → 뒷면 영어" : "영어 → 뒷면 한국어"
+              }).
+            </div>
+            <div class="deck-progress"><span style="width:${(((st.index + 1) / total) * 100).toFixed(1)}%"></span></div>
+            <div class="pill" style="margin-bottom:0.75rem;">${st.index + 1} / ${total}</div>
+            <div class="flip-scene">
+              <div class="flip-card${st.flipped ? " flipped" : ""}" id="flipCard" tabindex="0" role="button" aria-label="카드 뒤집기">
+                <div class="flip-face flip-front">${frontHtml}</div>
+                <div class="flip-face flip-back">${backHtml}</div>
+              </div>
+            </div>
+            <div class="actions">
+              <button type="button" id="btnDeckPrev" ${st.index === 0 ? "disabled" : ""}>← 이전</button>
+              <button type="button" class="primary" id="btnDeckNext">${st.index >= total - 1 ? "완료" : "다음 →"}</button>
+              <button type="button" class="ghost push-right" id="btnDeckShuffle">🔀 섞기</button>
+            </div>
+            <div class="actions" style="margin-top:0.5rem;">
+              <button type="button" class="ghost" id="btnDeckFace">앞면 바꾸기: ${front === "ko" ? "영어로" : "한국어로"}</button>
+              <button type="button" class="ghost" id="btnDeckRemove">🗑 이 카드 빼기</button>
+              <button type="button" class="ghost push-right" id="btnDeckBack">← 모드 선택으로</button>
+            </div>`;
+
+          const flipEl = document.getElementById("flipCard");
+          const goNext = () => {
+            st.index += 1;
+            st.flipped = false;
+            redraw();
+          };
+          const goPrev = () => {
+            if (st.index <= 0) return;
+            st.index -= 1;
+            st.flipped = false;
+            redraw();
+          };
+          // 뒤집기는 다시 그리지 않고 클래스만 바꿔 CSS 전환(회전 애니메이션)이 보이게 한다.
+          const toggleFlip = () => {
+            st.flipped = !st.flipped;
+            flipEl.classList.toggle("flipped", st.flipped);
+          };
+          flipEl.addEventListener("click", (e) => {
+            if (e.target.closest("button, select, .click-en")) return;
+            toggleFlip();
+          });
+          flipEl.addEventListener("keydown", (e) => {
+            if (e.target !== flipEl) return;
+            if (e.key === "Enter" || e.key === " ") {
+              e.preventDefault();
+              toggleFlip();
+            } else if (e.key === "ArrowRight") {
+              e.preventDefault();
+              goNext();
+            } else if (e.key === "ArrowLeft") {
+              e.preventDefault();
+              goPrev();
+            }
+          });
+          document.getElementById("btnDeckNext").onclick = goNext;
+          document.getElementById("btnDeckPrev").onclick = goPrev;
+          document.getElementById("btnDeckShuffle").onclick = () => {
+            cardGameState = null;
+            redraw();
+          };
+          document.getElementById("btnDeckFace").onclick = () => {
+            setCardGameFront(front === "ko" ? "en" : "ko");
+            st.flipped = false;
+            redraw();
+          };
+          document.getElementById("btnDeckRemove").onclick = () => {
+            updateCardGameDeck([], [card.key]);
+            st.flipped = false;
+            redraw();
+          };
+          document.getElementById("btnDeckBack").onclick = () => renderModePicker();
+          const speakBtn = document.getElementById("btnDeckSpeak");
+          if (speakBtn) {
+            speakBtn.onclick = (ev) => {
+              ev.stopPropagation();
+              speakEnglish(word);
+            };
+          }
+          flipEl.focus({ preventScroll: true });
+        };
+
+        draw(loadVocab(store));
+        // 다른 기기에서 담은 카드를 반영. 내용이 같으면 다시 그리지 않아 진행 중인 뒤집기가 끊기지 않는다.
+        pullMergeVocab(store).then((merged) => {
+          if (vocabListSignature(merged) !== shownSig) draw(merged);
+        });
+      }
+
       /**
        * 모드 선택 화면에 들어올 때마다 단어장·메모장을 백그라운드로 동기화한다.
        * 다른 기기에서 담은 항목이 버튼 개수에 바로 반영되고, 저장 당시 업로드가
@@ -4400,7 +4937,7 @@ JSON만 출력:
       function backgroundSyncVocabStores() {
         if (!firebaseSyncEnabled() || !getSyncCode()) return;
         // DRILL_HISTORY_STORE는 버튼이 없어(btnId 없음) 개수 갱신 없이 동기화만 된다.
-        [VOCAB_STORE, MEMO_STORE, DRILL_HISTORY_STORE].forEach((store) => {
+        [VOCAB_STORE, MEMO_STORE, CARD_GAME_STORE, DRILL_HISTORY_STORE].forEach((store) => {
           pullMergeVocab(store).then((merged) => {
             if (app.dataset.view !== "modePicker") return;
             if (!store.btnId) return;
@@ -4429,6 +4966,7 @@ JSON만 출력:
             <button type="button" class="primary" id="btnModeBible">오늘의 표현</button>
             <button type="button" id="btnVocabBook">📒 내 단어장 (${visibleVocab(loadVocab()).length})</button>
             <button type="button" id="btnMemoBook">📔 내 메모장 (${visibleVocab(loadVocab(MEMO_STORE)).length})</button>
+            <button type="button" id="btnCardGame">🃏 카드놀이 (${visibleVocab(loadVocab(CARD_GAME_STORE)).length})</button>
           </div>
           <div class="gate-panel" style="margin-top:0.6rem;">
             <strong>설정</strong>
@@ -4505,6 +5043,9 @@ JSON만 출력:
         };
         document.getElementById("btnMemoBook").onclick = () => {
           renderVocabBook(MEMO_STORE);
+        };
+        document.getElementById("btnCardGame").onclick = () => {
+          renderCardGame();
         };
         const modeTtsRate = document.getElementById("modeTtsRate");
         if (modeTtsRate) {
