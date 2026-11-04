@@ -78,11 +78,15 @@
     .w.start { background: rgba(255, 200, 107, .45); outline: 1px dashed var(--warn); }
 
     /* 뜻·발음 팝업 */
+    /* 화면 아래 고정 패널: 본문을 가리지 않음 */
     #pop {
-      position: absolute; z-index: 20; display: none;
-      width: min(380px, calc(100vw - 32px));
-      background: #222b3b; border: 1px solid var(--accent); border-radius: 12px;
-      padding: .65rem .8rem; font-size: .95rem; box-shadow: 0 8px 24px rgba(0,0,0,.45);
+      position: fixed; z-index: 20; display: none;
+      left: 50%; bottom: 0; transform: translateX(-50%);
+      width: min(680px, 100%); max-height: 40vh; overflow-y: auto;
+      background: #222b3b; border: 1px solid var(--accent); border-bottom: none;
+      border-radius: 14px 14px 0 0;
+      padding: .7rem 1rem calc(.8rem + env(safe-area-inset-bottom)); font-size: .95rem;
+      box-shadow: 0 -8px 24px rgba(0,0,0,.45);
     }
     #pop .head { display: flex; gap: .4rem; align-items: flex-start; }
     #pop .src { flex: 1; font-weight: 600; word-break: break-word; }
@@ -144,6 +148,7 @@
       <div class="src"></div>
       <button id="popSpeak" title="발음 듣기">🔊</button>
       <button id="popSlow" title="천천히 듣기">🐢</button>
+      <button id="popClose" title="닫기">✕</button>
     </div>
     <div class="pron"></div>
     <div class="out"></div>
@@ -307,6 +312,7 @@
     let selSeq = 0;
     let currentPart = "";
 
+    document.getElementById("popClose").onclick = () => { resetTap(); hidePop(); };
     document.getElementById("popSpeak").onclick = () => { speechSynthesis.cancel(); speak(currentPart); };
     document.getElementById("popSlow").onclick = () => { speechSynthesis.cancel(); speak(currentPart, 0.6); };
 
@@ -347,13 +353,21 @@
       return out;
     }
 
-    function hidePop() { pop.style.display = "none"; }
+    function hidePop() { pop.style.display = "none"; document.body.style.paddingBottom = ""; }
 
-    function placePop(rect) {
+    // 패널은 화면 아래에 고정. 고른 단어가 패널 뒤로 숨으면 위로 스크롤해 보이게 한다
+    function placePop(anchor) {
       pop.style.display = "block";
-      const maxX = window.scrollX + document.documentElement.clientWidth - pop.offsetWidth - 16;
-      pop.style.left = Math.max(16, Math.min(rect.left + window.scrollX, maxX)) + "px";
-      pop.style.top = (rect.bottom + window.scrollY + 8) + "px";
+      const fit = () => {
+        const h = pop.offsetHeight;
+        const rect = anchor.getBoundingClientRect();
+        document.body.style.paddingBottom = h + "px"; // 마지막 문단도 패널 위로 올라올 수 있게
+        const ROOM_BELOW = 130; // 고른 단어 아래로 2~3줄은 보이게 남겨 둬서 끝 단어를 바로 탭할 수 있게
+        const overlap = rect.bottom + ROOM_BELOW - (window.innerHeight - h);
+        if (overlap > 0) window.scrollBy({ top: overlap, behavior: "smooth" });
+      };
+      fit();
+      return fit;
     }
 
     const CONTAINER_SEL = ".en, .reader p, .reader h2";
@@ -366,14 +380,14 @@
       return sentences.find(s => s.includes(part)) || sentences.find(s => s.includes(part.split(" ")[0])) || text.slice(0, 400);
     }
 
-    async function lookup(part, container, rect) {
+    async function lookup(part, container, anchor) {
       part = part.trim().replace(/\s+/g, " ");
       if (!part || part.length > 600) return;
       const seq = ++selSeq;
       currentPart = part;
       popSrc.textContent = part;
       popPron.textContent = ""; popNote.textContent = "";
-      placePop(rect);
+      const refit = placePop(anchor);
       speechSynthesis.cancel(); speak(part); // 고르면 바로 발음 들려주기
 
       if (!getKey()) {
@@ -382,7 +396,7 @@
         input.onkeydown = e => {
           if (e.key !== "Enter" || !input.value.trim()) return;
           try { localStorage.setItem(LS_OPENAI_KEY, input.value.trim()); } catch {}
-          lookup(part, container, rect);
+          lookup(part, container, anchor);
         };
         return;
       }
@@ -393,6 +407,7 @@
         popPron.textContent = [r.ipa && `/${String(r.ipa).replace(/^\/|\/$/g, "")}/`, r.ko_pron && `[${r.ko_pron}]`].filter(Boolean).join("  ");
         popOut.textContent = r.meaning || "(결과 없음)";
         popNote.textContent = r.note || "";
+        refit(); // 내용이 길어져 패널이 커지면 다시 맞춤
       } catch (e) {
         if (seq === selSeq) popOut.textContent = e.message;
       }
@@ -421,7 +436,7 @@
         range.forEach(w => w.classList.add("sel"));
         tap.done = true;
         const part = range.map(w => w.textContent).join(" ").replace(/^["“'(]+|["”')]+$/g, "");
-        lookup(part, container, words[b].getBoundingClientRect());
+        lookup(part, container, words[b]);
         return;
       }
       // 첫 탭: 시작 단어 (그 단어 뜻도 바로 보여줌)
@@ -429,7 +444,7 @@
       span.classList.add("start");
       tap = { container, startIdx: idx, done: false };
       const word = span.textContent.replace(/^[^A-Za-z0-9]+|[^A-Za-z0-9]+$/g, "");
-      lookup(word || span.textContent, container, span.getBoundingClientRect());
+      lookup(word || span.textContent, container, span);
     }
 
     document.addEventListener("click", e => {
@@ -450,7 +465,7 @@
       const container = (node && (node.nodeType === 1 ? node : node.parentElement))?.closest(CONTAINER_SEL);
       if (!container) return;
       resetTap();
-      lookup(part, container, sel.getRangeAt(0).getBoundingClientRect());
+      lookup(part, container, sel.getRangeAt(0).cloneRange());
     }
     document.addEventListener("mouseup", e => {
       if (pop.contains(e.target)) return;
