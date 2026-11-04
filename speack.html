@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>영어 읽기</title>
+  <style>
+    :root {
+      --bg: #0f1218;
+      --surface: #171c26;
+      --border: #2a3344;
+      --text: #e8ecf4;
+      --muted: #8b95a8;
+      --accent: #6c9eff;
+      --success: #5ecf8a;
+      --warn: #ffc86b;
+      --radius: 14px;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100dvh;
+      font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.55;
+    }
+    .wrap { max-width: 680px; margin: 0 auto; padding: 1.25rem 1rem 8rem; }
+    h1 { font-size: 1.2rem; margin: 0 0 .75rem; }
+    details { margin-bottom: 1rem; }
+    summary { cursor: pointer; color: var(--muted); font-size: .9rem; }
+    textarea {
+      width: 100%; min-height: 160px; margin-top: .5rem;
+      background: var(--surface); color: var(--text);
+      border: 1px solid var(--border); border-radius: 10px;
+      padding: .6rem; font: inherit; font-size: .9rem;
+    }
+    .hint { color: var(--muted); font-size: .8rem; }
+    .controls {
+      position: sticky; top: 0; z-index: 5;
+      display: flex; flex-wrap: wrap; gap: .5rem; align-items: center;
+      padding: .6rem 0; background: var(--bg);
+    }
+    button, select {
+      background: var(--surface); color: var(--text);
+      border: 1px solid var(--border); border-radius: 10px;
+      padding: .45rem .8rem; font: inherit; font-size: .9rem; cursor: pointer;
+    }
+    button.primary { background: var(--accent); border-color: var(--accent); color: #0b1020; font-weight: 600; }
+    label.chk { font-size: .85rem; color: var(--muted); display: flex; gap: .3rem; align-items: center; }
+    body.mode-reader .cards-only { display: none; }
+
+    /* 문장 카드 모드 */
+    ol { list-style: none; padding: 0; margin: 0; }
+    li {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: .75rem .9rem; margin-bottom: .5rem;
+      cursor: pointer; transition: border-color .2s, background .2s;
+    }
+    li.active { border-color: var(--accent); background: #1c2536; }
+    .en { font-size: 1.05rem; }
+    .num { color: var(--muted); font-size: .8rem; margin-right: .4rem; user-select: none; }
+    .ko {
+      margin-top: .3rem; color: var(--success); font-size: .95rem;
+      filter: blur(6px); opacity: .5; transition: filter .3s, opacity .3s;
+      user-select: none;
+    }
+    li.revealed .ko, body.show-all .ko { filter: none; opacity: 1; user-select: auto; }
+
+    /* 읽기 모드 */
+    .reader { font-size: 1.12rem; line-height: 1.85; }
+    .reader h2 { font-size: 1.05rem; color: var(--accent); margin: 2rem 0 .75rem; }
+    .reader h1 { font-size: 1.3rem; }
+    .reader p { margin: 0 0 1rem; }
+    ::selection { background: rgba(108, 158, 255, .45); }
+
+    /* 뜻·발음 팝업 */
+    #pop {
+      position: absolute; z-index: 20; display: none;
+      width: min(380px, calc(100vw - 32px));
+      background: #222b3b; border: 1px solid var(--accent); border-radius: 12px;
+      padding: .65rem .8rem; font-size: .95rem; box-shadow: 0 8px 24px rgba(0,0,0,.45);
+    }
+    #pop .head { display: flex; gap: .4rem; align-items: flex-start; }
+    #pop .src { flex: 1; font-weight: 600; word-break: break-word; }
+    #pop .head button { padding: .2rem .5rem; font-size: .85rem; }
+    #pop .pron { color: var(--warn); font-size: .9rem; margin-top: .25rem; }
+    #pop .out { color: var(--success); white-space: pre-wrap; margin-top: .35rem; }
+    #pop .note { color: var(--muted); font-size: .85rem; margin-top: .3rem; white-space: pre-wrap; }
+    #pop input { width: 100%; margin-top: .4rem; padding: .35rem .5rem; border-radius: 8px;
+      border: 1px solid var(--border); background: var(--surface); color: var(--text); font: inherit; font-size: .85rem; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>영어 읽기</h1>
+
+    <div class="controls">
+      <select id="source">
+        <option value="story:data/the-blue-diamond.txt">The Blue Diamond (읽기)</option>
+        <option value="cards:data/10min-english-269.json">10분영어 #269 (문장)</option>
+        <option value="custom">직접 붙여넣기</option>
+      </select>
+      <button id="play" class="primary cards-only">▶ 전체 재생</button>
+      <button id="stop">■ 정지</button>
+      <select id="rate">
+        <option value="0.6">0.6x</option>
+        <option value="0.8">0.8x</option>
+        <option value="1" selected>1x</option>
+        <option value="1.2">1.2x</option>
+      </select>
+      <label class="chk cards-only"><input type="checkbox" id="showAll" /> 해석 모두 보기</label>
+    </div>
+
+    <details id="customBox" hidden>
+      <summary>텍스트 붙여넣기</summary>
+      <textarea id="script" placeholder="영어 글을 그대로 붙여넣으세요.&#10;(한글 줄 + 영어 줄을 번갈아 넣으면 문장 카드로 보여줍니다)"></textarea>
+      <button id="load" style="margin-top:.5rem">불러오기</button>
+    </details>
+
+    <p class="hint">모르는 단어나 문장을 드래그(블럭)하면 뜻과 발음이 나와요.</p>
+
+    <ol id="list" class="cards-only"></ol>
+    <article id="reader" class="reader"></article>
+  </div>
+
+  <div id="pop">
+    <div class="head">
+      <div class="src"></div>
+      <button id="popSpeak" title="발음 듣기">🔊</button>
+      <button id="popSlow" title="천천히 듣기">🐢</button>
+    </div>
+    <div class="pron"></div>
+    <div class="out"></div>
+    <div class="note"></div>
+  </div>
+
+  <script>
+    const listEl = document.getElementById("list");
+    const readerEl = document.getElementById("reader");
+    const rateEl = document.getElementById("rate");
+    const sourceEl = document.getElementById("source");
+    let items = [];       // 문장 카드 모드: [{en, ko}]
+    let runId = 0;
+
+    function hasHangul(s) { return /[가-힣]/.test(s); }
+
+    // ───────── TTS ─────────
+    function pickVoice() {
+      const vs = speechSynthesis.getVoices().filter(v => v.lang && v.lang.startsWith("en"));
+      return vs.find(v => /Samantha|Google US English|Alex/.test(v.name)) || vs.find(v => v.lang === "en-US") || vs[0];
+    }
+    function speak(text, rate) {
+      return new Promise(resolve => {
+        const u = new SpeechSynthesisUtterance(text);
+        u.lang = "en-US";
+        const v = pickVoice(); if (v) u.voice = v;
+        u.rate = rate ?? parseFloat(rateEl.value);
+        u.onend = u.onerror = resolve;
+        speechSynthesis.speak(u);
+      });
+    }
+    function stop() { runId++; speechSynthesis.cancel(); }
+
+    // ───────── 문장 카드 모드 ─────────
+    function parseCards(text) {
+      const lines = text.split(/\r?\n/).map(l => l.trim().replace(/^\d+[.)]\s*/, "")).filter(Boolean);
+      const out = []; let ko = null;
+      for (const line of lines) {
+        if (hasHangul(line)) ko = line;
+        else { out.push({ en: line, ko: ko || "" }); ko = null; }
+      }
+      return out;
+    }
+
+    function renderCards() {
+      listEl.innerHTML = "";
+      items.forEach((it, i) => {
+        const li = document.createElement("li");
+        li.innerHTML = `<div class="en"><span class="num">${i + 1}</span></div><div class="ko"></div>`;
+        li.querySelector(".en").append(it.en);
+        li.querySelector(".ko").textContent = it.ko || "(해석 없음)";
+        li.addEventListener("click", () => {
+          if (String(window.getSelection())) return; // 블럭 중이면 재생 안 함
+          stop(); playFrom(i, true);
+        });
+        listEl.appendChild(li);
+      });
+    }
+
+    function setActive(i) {
+      listEl.querySelectorAll("li.active").forEach(el => el.classList.remove("active"));
+      const li = listEl.children[i];
+      if (!li) return;
+      li.classList.add("active");
+      li.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+
+    async function playFrom(start, onlyOne = false) {
+      const id = ++runId;
+      for (let i = start; i < items.length; i++) {
+        if (id !== runId) return;
+        setActive(i);
+        await speak(items[i].en);
+        if (id !== runId) return;
+        listEl.children[i].classList.add("revealed");
+        if (onlyOne) break;
+        await new Promise(r => setTimeout(r, 900));
+      }
+    }
+
+    document.getElementById("play").onclick = () => {
+      stop();
+      const active = [...listEl.children].findIndex(li => li.classList.contains("active"));
+      playFrom(active >= 0 && active < items.length - 1 ? active : 0);
+    };
+    document.getElementById("stop").onclick = stop;
+    document.getElementById("showAll").onchange = e => document.body.classList.toggle("show-all", e.target.checked);
+
+    // ───────── 읽기 모드 ─────────
+    function renderStory(text) {
+      readerEl.innerHTML = "";
+      text.split(/\n\s*\n/).map(b => b.trim()).filter(Boolean).forEach(block => {
+        let el;
+        if (block.startsWith("## ")) { el = document.createElement("h2"); el.textContent = block.slice(3); }
+        else if (block.startsWith("# ")) { el = document.createElement("h1"); el.textContent = block.slice(2); }
+        else { el = document.createElement("p"); el.textContent = block.replace(/\s*\n\s*/g, " "); }
+        readerEl.appendChild(el);
+      });
+    }
+
+    // ───────── 소스 불러오기 ─────────
+    function setMode(mode) {
+      document.body.classList.toggle("mode-reader", mode === "story");
+      if (mode === "story") listEl.innerHTML = ""; else readerEl.innerHTML = "";
+    }
+
+    async function loadSource() {
+      stop(); hidePop();
+      const v = sourceEl.value;
+      document.getElementById("customBox").hidden = v !== "custom";
+      if (v === "custom") { document.getElementById("customBox").open = true; return; }
+      const [kind, url] = [v.slice(0, v.indexOf(":")), v.slice(v.indexOf(":") + 1)];
+      try {
+        const res = await fetch(url);
+        if (!res.ok) throw new Error(res.status);
+        if (kind === "cards") {
+          const data = await res.json();
+          items = data.cards.map(c => ({ en: c.answer, ko: c.situation }));
+          setMode("cards"); renderCards();
+        } else {
+          setMode("story"); renderStory(await res.text());
+        }
+      } catch (e) {
+        setMode("story");
+        readerEl.innerHTML = `<p class="hint">파일을 불러오지 못했어요 (${url}). 로컬 서버로 열거나 '직접 붙여넣기'를 사용하세요.</p>`;
+      }
+    }
+    sourceEl.onchange = loadSource;
+
+    document.getElementById("load").onclick = () => {
+      const text = document.getElementById("script").value.trim();
+      if (!text) return;
+      stop();
+      const lines = text.split(/\r?\n/).filter(l => l.trim());
+      const koLines = lines.filter(hasHangul).length;
+      if (koLines > 0 && koLines >= lines.length / 3) { items = parseCards(text); setMode("cards"); renderCards(); }
+      else { setMode("story"); renderStory(text); }
+    };
+
+    // ───────── 블럭한 부분: 뜻 + 발음 (index.html에 저장된 OpenAI 키 사용) ─────────
+    const LS_OPENAI_KEY = "english-card-gemini-key"; // index.html 설정 화면과 같은 저장소 키
+    const OPENAI_URL = "https://api.openai.com/v1/chat/completions";
+    const OPENAI_MODEL = "gpt-5-mini";
+    const pop = document.getElementById("pop");
+    const popSrc = pop.querySelector(".src");
+    const popPron = pop.querySelector(".pron");
+    const popOut = pop.querySelector(".out");
+    const popNote = pop.querySelector(".note");
+    const cache = new Map();
+    let selSeq = 0;
+    let currentPart = "";
+
+    document.getElementById("popSpeak").onclick = () => { speechSynthesis.cancel(); speak(currentPart); };
+    document.getElementById("popSlow").onclick = () => { speechSynthesis.cancel(); speak(currentPart, 0.6); };
+
+    function getKey() {
+      try { return (localStorage.getItem(LS_OPENAI_KEY) || "").trim(); } catch { return ""; }
+    }
+
+    async function explain(part, sentence) {
+      const ck = part + "||" + sentence;
+      if (cache.has(ck)) return cache.get(ck);
+      const res = await fetch(OPENAI_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "Authorization": `Bearer ${getKey()}` },
+        body: JSON.stringify({
+          model: OPENAI_MODEL,
+          messages: [{
+            role: "user",
+            content:
+`영어 학습자가 글을 읽다가 모르는 부분을 블럭했어.
+문맥 문장: "${sentence}"
+블럭한 부분: "${part}"
+
+아래 JSON으로만 답해:
+{"ipa": "블럭한 부분의 미국식 발음기호(IPA)", "ko_pron": "실제 들리는 대로 한글로 적은 발음(연음 반영)", "meaning": "이 문맥에서의 한국어 뜻 (짧게)", "note": "숙어·문법·뉘앙스 등 알아두면 좋은 점 한 줄, 없으면 빈 문자열"}
+블럭한 부분이 문장 전체라면 meaning은 자연스러운 한국어 번역으로.`,
+          }],
+          response_format: { type: "json_object" },
+          reasoning_effort: "minimal",
+          max_completion_tokens: 600,
+        }),
+      });
+      if (!res.ok) throw new Error(`OpenAI 오류 ${res.status}`);
+      const data = await res.json();
+      const raw = data?.choices?.[0]?.message?.content || "{}";
+      let out;
+      try { out = JSON.parse(raw); } catch { out = { meaning: raw }; }
+      cache.set(ck, out);
+      return out;
+    }
+
+    function hidePop() { pop.style.display = "none"; }
+
+    function placePop(rect) {
+      pop.style.display = "block";
+      const maxX = window.scrollX + document.documentElement.clientWidth - pop.offsetWidth - 16;
+      pop.style.left = Math.max(16, Math.min(rect.left + window.scrollX, maxX)) + "px";
+      pop.style.top = (rect.bottom + window.scrollY + 8) + "px";
+    }
+
+    // 블럭이 들어 있는 문장(문맥)을 찾는다
+    function contextSentence(container, part) {
+      const text = container.textContent.replace(/^\d+/, "").trim();
+      if (container.matches(".en")) return text;
+      const sentences = text.match(/[^.!?]+[.!?]+["”']?/g) || [text];
+      return sentences.find(s => s.includes(part)) || sentences.find(s => s.includes(part.split(" ")[0])) || text.slice(0, 400);
+    }
+
+    async function onSelection() {
+      const sel = window.getSelection();
+      const part = String(sel).trim().replace(/\s+/g, " ");
+      if (!part || !sel.rangeCount || part.length > 600) { hidePop(); return; }
+      const node = sel.anchorNode;
+      const container = (node && (node.nodeType === 1 ? node : node.parentElement))?.closest(".en, .reader p, .reader h2");
+      if (!container) { hidePop(); return; }
+
+      const seq = ++selSeq;
+      currentPart = part;
+      popSrc.textContent = part;
+      popPron.textContent = ""; popNote.textContent = "";
+      placePop(sel.getRangeAt(0).getBoundingClientRect());
+      speechSynthesis.cancel(); speak(part); // 블럭하면 바로 발음 들려주기
+
+      if (!getKey()) {
+        popOut.innerHTML = 'OpenAI API 키가 없습니다. 입력 후 Enter:<input type="password" placeholder="sk-..." />';
+        const input = popOut.querySelector("input");
+        input.onkeydown = e => {
+          if (e.key !== "Enter" || !input.value.trim()) return;
+          try { localStorage.setItem(LS_OPENAI_KEY, input.value.trim()); } catch {}
+          onSelection();
+        };
+        return;
+      }
+      popOut.textContent = "뜻 찾는 중…";
+      try {
+        const r = await explain(part, contextSentence(container, part));
+        if (seq !== selSeq) return;
+        popPron.textContent = [r.ipa && `/${String(r.ipa).replace(/^\/|\/$/g, "")}/`, r.ko_pron && `[${r.ko_pron}]`].filter(Boolean).join("  ");
+        popOut.textContent = r.meaning || "(결과 없음)";
+        popNote.textContent = r.note || "";
+      } catch (e) {
+        if (seq === selSeq) popOut.textContent = e.message;
+      }
+    }
+
+    let selTimer;
+    document.addEventListener("mouseup", e => {
+      if (pop.contains(e.target)) return;
+      clearTimeout(selTimer); selTimer = setTimeout(onSelection, 10);
+    });
+    document.addEventListener("touchend", e => {
+      if (pop.contains(e.target)) return;
+      clearTimeout(selTimer); selTimer = setTimeout(onSelection, 450);
+    });
+
+    loadSource();
+  </script>
+</body>
+</html>
