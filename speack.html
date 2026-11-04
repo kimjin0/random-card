@@ -73,6 +73,9 @@
     .reader h1 { font-size: 1.3rem; }
     .reader p { margin: 0 0 1rem; }
     ::selection { background: rgba(108, 158, 255, .45); }
+    .w { cursor: pointer; border-radius: 4px; -webkit-tap-highlight-color: transparent; }
+    .w.sel { background: rgba(108, 158, 255, .45); }
+    .w.start { background: rgba(255, 200, 107, .45); outline: 1px dashed var(--warn); }
 
     /* 뜻·발음 팝업 */
     #pop {
@@ -89,10 +92,22 @@
     #pop .note { color: var(--muted); font-size: .85rem; margin-top: .3rem; white-space: pre-wrap; }
     #pop input { width: 100%; margin-top: .4rem; padding: .35rem .5rem; border-radius: 8px;
       border: 1px solid var(--border); background: var(--surface); color: var(--text); font: inherit; font-size: .85rem; }
+
+    .page-nav { display: flex; gap: .4rem; margin: 0 0 1rem; }
+    .page-nav a {
+      flex: 1; text-align: center; text-decoration: none;
+      padding: .5rem .6rem; border-radius: 10px; font-size: .9rem;
+      color: #8b95a8; background: #171c26; border: 1px solid #2a3344;
+    }
+    .page-nav a.on { color: #0b1020; background: #6c9eff; border-color: #6c9eff; font-weight: 600; }
   </style>
 </head>
 <body>
   <div class="wrap">
+    <nav class="page-nav">
+      <a href="index.html">🃏 랜덤 카드</a>
+      <a href="speack.html" class="on" aria-current="page">📖 영어 읽기</a>
+    </nav>
     <h1>영어 읽기</h1>
 
     <div class="controls">
@@ -118,7 +133,7 @@
       <button id="load" style="margin-top:.5rem">불러오기</button>
     </details>
 
-    <p class="hint">모르는 단어나 문장을 드래그(블럭)하면 뜻과 발음이 나와요.</p>
+    <p class="hint">단어를 <b>탭</b>하면 그 단어 뜻, 이어서 <b>끝 단어를 탭</b>하면 그 구간의 뜻·발음이 나와요. (PC에서는 드래그도 OK)</p>
 
     <ol id="list" class="cards-only"></ol>
     <article id="reader" class="reader"></article>
@@ -173,15 +188,26 @@
       return out;
     }
 
+    // 단어마다 <span class="w">로 감싸 탭으로 고를 수 있게 한다
+    function appendWords(el, text) {
+      text.split(/(\s+)/).forEach(tok => {
+        if (!tok) return;
+        if (/^\s+$/.test(tok)) { el.append(" "); return; }
+        const w = document.createElement("span");
+        w.className = "w"; w.textContent = tok;
+        el.appendChild(w);
+      });
+    }
+
     function renderCards() {
       listEl.innerHTML = "";
       items.forEach((it, i) => {
         const li = document.createElement("li");
         li.innerHTML = `<div class="en"><span class="num">${i + 1}</span></div><div class="ko"></div>`;
-        li.querySelector(".en").append(it.en);
+        appendWords(li.querySelector(".en"), it.en);
         li.querySelector(".ko").textContent = it.ko || "(해석 없음)";
-        li.addEventListener("click", () => {
-          if (String(window.getSelection())) return; // 블럭 중이면 재생 안 함
+        li.addEventListener("click", e => {
+          if (e.target.closest(".w") || String(window.getSelection())) return; // 단어 탭·블럭 중이면 재생 안 함
           stop(); playFrom(i, true);
         });
         listEl.appendChild(li);
@@ -224,7 +250,7 @@
         let el;
         if (block.startsWith("## ")) { el = document.createElement("h2"); el.textContent = block.slice(3); }
         else if (block.startsWith("# ")) { el = document.createElement("h1"); el.textContent = block.slice(2); }
-        else { el = document.createElement("p"); el.textContent = block.replace(/\s*\n\s*/g, " "); }
+        else { el = document.createElement("p"); appendWords(el, block.replace(/\s*\n\s*/g, " ")); }
         readerEl.appendChild(el);
       });
     }
@@ -330,7 +356,9 @@
       pop.style.top = (rect.bottom + window.scrollY + 8) + "px";
     }
 
-    // 블럭이 들어 있는 문장(문맥)을 찾는다
+    const CONTAINER_SEL = ".en, .reader p, .reader h2";
+
+    // 고른 부분이 들어 있는 문장(문맥)을 찾는다
     function contextSentence(container, part) {
       const text = container.textContent.replace(/^\d+/, "").trim();
       if (container.matches(".en")) return text;
@@ -338,20 +366,15 @@
       return sentences.find(s => s.includes(part)) || sentences.find(s => s.includes(part.split(" ")[0])) || text.slice(0, 400);
     }
 
-    async function onSelection() {
-      const sel = window.getSelection();
-      const part = String(sel).trim().replace(/\s+/g, " ");
-      if (!part || !sel.rangeCount || part.length > 600) { hidePop(); return; }
-      const node = sel.anchorNode;
-      const container = (node && (node.nodeType === 1 ? node : node.parentElement))?.closest(".en, .reader p, .reader h2");
-      if (!container) { hidePop(); return; }
-
+    async function lookup(part, container, rect) {
+      part = part.trim().replace(/\s+/g, " ");
+      if (!part || part.length > 600) return;
       const seq = ++selSeq;
       currentPart = part;
       popSrc.textContent = part;
       popPron.textContent = ""; popNote.textContent = "";
-      placePop(sel.getRangeAt(0).getBoundingClientRect());
-      speechSynthesis.cancel(); speak(part); // 블럭하면 바로 발음 들려주기
+      placePop(rect);
+      speechSynthesis.cancel(); speak(part); // 고르면 바로 발음 들려주기
 
       if (!getKey()) {
         popOut.innerHTML = 'OpenAI API 키가 없습니다. 입력 후 Enter:<input type="password" placeholder="sk-..." />';
@@ -359,7 +382,7 @@
         input.onkeydown = e => {
           if (e.key !== "Enter" || !input.value.trim()) return;
           try { localStorage.setItem(LS_OPENAI_KEY, input.value.trim()); } catch {}
-          onSelection();
+          lookup(part, container, rect);
         };
         return;
       }
@@ -375,14 +398,66 @@
       }
     }
 
+    // ── 방법 1: 단어 탭 (시작 단어 탭 → 끝 단어 탭) ──
+    let tap = null; // { container, startIdx, done }
+
+    function clearMarks() {
+      document.querySelectorAll(".w.sel, .w.start").forEach(w => w.classList.remove("sel", "start"));
+    }
+    function resetTap() { tap = null; clearMarks(); }
+
+    function onWordTap(span) {
+      const container = span.closest(CONTAINER_SEL);
+      if (!container) return;
+      const words = [...container.querySelectorAll(".w")];
+      const idx = words.indexOf(span);
+
+      if (tap && tap.container === container && !tap.done) {
+        if (idx === tap.startIdx) { resetTap(); hidePop(); return; } // 같은 단어 다시 탭 → 취소
+        // 두 번째 탭: 시작~끝 구간
+        const [a, b] = idx < tap.startIdx ? [idx, tap.startIdx] : [tap.startIdx, idx];
+        clearMarks();
+        const range = words.slice(a, b + 1);
+        range.forEach(w => w.classList.add("sel"));
+        tap.done = true;
+        const part = range.map(w => w.textContent).join(" ").replace(/^["“'(]+|["”')]+$/g, "");
+        lookup(part, container, words[b].getBoundingClientRect());
+        return;
+      }
+      // 첫 탭: 시작 단어 (그 단어 뜻도 바로 보여줌)
+      clearMarks();
+      span.classList.add("start");
+      tap = { container, startIdx: idx, done: false };
+      const word = span.textContent.replace(/^[^A-Za-z0-9]+|[^A-Za-z0-9]+$/g, "");
+      lookup(word || span.textContent, container, span.getBoundingClientRect());
+    }
+
+    document.addEventListener("click", e => {
+      if (pop.contains(e.target)) return;
+      if (String(window.getSelection()).trim()) return; // 드래그 선택은 아래에서 처리
+      const w = e.target.closest(".w");
+      if (w) { onWordTap(w); return; }
+      resetTap(); hidePop(); // 빈 곳 탭 → 닫기
+    });
+
+    // ── 방법 2: 드래그 블럭 (PC, 또는 폰에서 길게 눌러 선택) ──
     let selTimer;
+    function onDragSelection() {
+      const sel = window.getSelection();
+      const part = String(sel).trim();
+      if (!part || !sel.rangeCount || part === currentPart && pop.style.display === "block") return;
+      const node = sel.anchorNode;
+      const container = (node && (node.nodeType === 1 ? node : node.parentElement))?.closest(CONTAINER_SEL);
+      if (!container) return;
+      resetTap();
+      lookup(part, container, sel.getRangeAt(0).getBoundingClientRect());
+    }
     document.addEventListener("mouseup", e => {
       if (pop.contains(e.target)) return;
-      clearTimeout(selTimer); selTimer = setTimeout(onSelection, 10);
+      clearTimeout(selTimer); selTimer = setTimeout(onDragSelection, 10);
     });
-    document.addEventListener("touchend", e => {
-      if (pop.contains(e.target)) return;
-      clearTimeout(selTimer); selTimer = setTimeout(onSelection, 450);
+    document.addEventListener("selectionchange", () => {
+      clearTimeout(selTimer); selTimer = setTimeout(onDragSelection, 800);
     });
 
     loadSource();

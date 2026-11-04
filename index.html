@@ -597,10 +597,22 @@
       text-align: center;
       white-space: pre-line;
     }
+
+    .page-nav { display: flex; gap: .4rem; margin: 0 0 1rem; }
+    .page-nav a {
+      flex: 1; text-align: center; text-decoration: none;
+      padding: .5rem .6rem; border-radius: 10px; font-size: .9rem;
+      color: #8b95a8; background: #171c26; border: 1px solid #2a3344;
+    }
+    .page-nav a.on { color: #0b1020; background: #6c9eff; border-color: #6c9eff; font-weight: 600; }
   </style>
 </head>
 <body>
   <div class="wrap">
+    <nav class="page-nav">
+      <a href="index.html" class="on" aria-current="page">🃏 랜덤 카드</a>
+      <a href="speack.html">📖 영어 읽기</a>
+    </nav>
     <header>
       <h1>English Random Card</h1>
       <span class="meta" id="dateLine"></span>
