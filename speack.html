@@ -130,6 +130,15 @@
       </select>
       <label class="chk cards-only"><input type="checkbox" id="showAll" /> 해석 모두 보기</label>
       <label class="chk"><input type="checkbox" id="autoSpeak" checked /> 탭하면 소리</label>
+      <label class="chk">🐢
+        <select id="slowRate" title="거북이 버튼 속도">
+          <option value="0.6">0.6x</option>
+          <option value="0.5">0.5x</option>
+          <option value="0.4" selected>0.4x</option>
+          <option value="0.3">0.3x</option>
+          <option value="0.2">0.2x</option>
+        </select>
+      </label>
     </div>
 
     <details id="customBox" hidden>
@@ -324,7 +333,15 @@
 
     document.getElementById("popClose").onclick = () => { resetTap(); hidePop(); };
     document.getElementById("popSpeak").onclick = () => { speechSynthesis.cancel(); speak(currentPart); };
-    document.getElementById("popSlow").onclick = () => { speechSynthesis.cancel(); speak(currentPart, 0.6); };
+    // 🐢 버튼 속도 (기기에 기억, 기본 0.4x)
+    const LS_SLOW_RATE = "speack-slow-rate";
+    const slowRateEl = document.getElementById("slowRate");
+    try { const v = localStorage.getItem(LS_SLOW_RATE); if (v && slowRateEl.querySelector(`option[value="${v}"]`)) slowRateEl.value = v; } catch {}
+    slowRateEl.onchange = () => {
+      try { localStorage.setItem(LS_SLOW_RATE, slowRateEl.value); } catch {}
+      if (currentPart && pop.style.display === "block") { speechSynthesis.cancel(); speak(currentPart, parseFloat(slowRateEl.value)); } // 바꾸자마자 들어보기
+    };
+    document.getElementById("popSlow").onclick = () => { speechSynthesis.cancel(); speak(currentPart, parseFloat(slowRateEl.value)); };
 
     function getKey() {
       try { return (localStorage.getItem(LS_OPENAI_KEY) || "").trim(); } catch { return ""; }
