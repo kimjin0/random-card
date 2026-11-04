@@ -129,6 +129,7 @@
         <option value="1.2">1.2x</option>
       </select>
       <label class="chk cards-only"><input type="checkbox" id="showAll" /> 해석 모두 보기</label>
+      <label class="chk"><input type="checkbox" id="autoSpeak" checked /> 탭하면 소리</label>
     </div>
 
     <details id="customBox" hidden>
@@ -312,6 +313,15 @@
     let selSeq = 0;
     let currentPart = "";
 
+    // 탭할 때 자동 발음 on/off (기기에 기억)
+    const LS_AUTO_SPEAK = "speack-auto-speak";
+    const autoSpeakEl = document.getElementById("autoSpeak");
+    try { autoSpeakEl.checked = localStorage.getItem(LS_AUTO_SPEAK) !== "off"; } catch {}
+    autoSpeakEl.onchange = () => {
+      try { localStorage.setItem(LS_AUTO_SPEAK, autoSpeakEl.checked ? "on" : "off"); } catch {}
+      if (!autoSpeakEl.checked) speechSynthesis.cancel();
+    };
+
     document.getElementById("popClose").onclick = () => { resetTap(); hidePop(); };
     document.getElementById("popSpeak").onclick = () => { speechSynthesis.cancel(); speak(currentPart); };
     document.getElementById("popSlow").onclick = () => { speechSynthesis.cancel(); speak(currentPart, 0.6); };
@@ -388,7 +398,7 @@
       popSrc.textContent = part;
       popPron.textContent = ""; popNote.textContent = "";
       const refit = placePop(anchor);
-      speechSynthesis.cancel(); speak(part); // 고르면 바로 발음 들려주기
+      if (autoSpeakEl.checked) { speechSynthesis.cancel(); speak(part); } // 설정이 켜져 있으면 바로 발음 들려주기
 
       if (!getKey()) {
         popOut.innerHTML = 'OpenAI API 키가 없습니다. 입력 후 Enter:<input type="password" placeholder="sk-..." />';
