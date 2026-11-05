@@ -382,40 +382,87 @@
     let rec = null;
     let listening = false;
 
+    // 말을 잠깐 멈춰도 끊기지 않게: ■(그만 듣기)를 누를 때까지 계속 듣는다.
+    // 브라우저가 스스로 인식을 끝내면(무음 등) 자동으로 다시 시작한다.
+    let wantListen = false;   // 사용자가 ■를 누르기 전까지 true
+    let heardFinal = [];      // 지금까지 확정된 문장 조각들
+
+    function stopMic() {
+      wantListen = false;
+      if (rec) { try { rec.stop(); } catch {} }
+    }
+
     function toggleMic() {
       if (!SR) return;
-      if (listening) { rec.stop(); return; }
-      const input = $("#ans");
+      if (wantListen) { stopMic(); return; }
       if (canSpeak) speechSynthesis.cancel();
+      heardFinal = [];
+      $("#ans").value = "";
+      wantListen = true;
+      startRec();
+    }
+
+    function startRec() {
+      const input = $("#ans");
+      if (!input) { wantListen = false; return; }
       rec = new SR();
       rec.lang = "en-US";
+      rec.continuous = true;
       rec.interimResults = true;
       rec.maxAlternatives = 1;
       rec.onresult = (e) => {
-        let t = "";
-        for (const r of e.results) t += r[0].transcript;
-        input.value = t;
+        let interim = "";
+        for (let k = e.resultIndex; k < e.results.length; k++) {
+          const r = e.results[k];
+          const t = r[0].transcript.trim();
+          if (!t) continue;
+          if (r.isFinal) {
+            // 안드로이드 크롬은 확정 결과를 누적해서 다시 보내는 경우가 있어 중복을 걸러낸다
+            const last = heardFinal[heardFinal.length - 1];
+            if (last && t.toLowerCase().startsWith(last.toLowerCase())) heardFinal[heardFinal.length - 1] = t;
+            else if (!last || !last.toLowerCase().endsWith(t.toLowerCase())) heardFinal.push(t);
+          } else {
+            interim = t;
+          }
+        }
+        input.value = [...heardFinal, interim].filter(Boolean).join(" ");
       };
       rec.onerror = (e) => {
         if (e.error === "not-allowed" || e.error === "service-not-allowed") {
+          wantListen = false;
           alert("마이크 권한이 없습니다. 브라우저 주소창에서 마이크를 허용해 주세요.\n(파일을 직접 열면 막힐 수 있어요. README 참고)");
         }
       };
       rec.onend = () => {
-        listening = false;
-        updateMic();
-        if (settings.autoCheck && input.value.trim() && !state.checked) check();
+        if (wantListen && $("#ans") && !state.checked) { // 아직 ■를 안 눌렀으면 이어서 듣기
+          setTimeout(() => { if (wantListen) { try { startRec(); } catch { wantListen = false; finishMic(); } } }, 150);
+          return;
+        }
+        finishMic();
       };
       rec.start();
       listening = true;
       updateMic();
+    }
+
+    function finishMic() {
+      wantListen = false;
+      listening = false;
+      updateMic();
+      const input = $("#ans");
+      if (input && settings.autoCheck && input.value.trim() && !state.checked) check();
     }
     function updateMic() {
       const b = $("#mic");
       if (!b) return;
       b.classList.toggle("on", listening);
       b.textContent = listening ? "■" : "🎤";
-      b.title = listening ? "그만 듣기" : "말로 답하기";
+      b.title = listening ? "다 말했으면 눌러서 끝내기" : "말로 답하기";
+      const input = $("#ans");
+      if (input) {
+        if (listening && !input.dataset.ph) { input.dataset.ph = input.placeholder; input.placeholder = "듣는 중… 천천히 말하고, 다 말하면 ■ 누르세요"; }
+        if (!listening && input.dataset.ph) { input.placeholder = input.dataset.ph; delete input.dataset.ph; }
+      }
     }
 
     /* ---------- 답 비교 ---------- */
@@ -620,7 +667,7 @@
           <div id="result"></div>
         </div>
       `;
-      $("#back").onclick = () => { if (listening) rec.stop(); goHome(); };
+      $("#back").onclick = () => { stopMic(); goHome(); };
       $("#check").onclick = () => check();
       $("#skip").onclick = () => { $("#ans").value = ""; check(); };
       if ($("#mic")) $("#mic").onclick = toggleMic;
@@ -635,7 +682,7 @@
     function check() {
       if (state.checked) return;
       state.checked = true;
-      if (listening) rec.stop();
+      stopMic();
       const s = byId(state.id);
       const item = state.queue[state.pos];
       const model = s.drills[item.i][1];
