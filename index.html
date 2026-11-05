@@ -4986,6 +4986,7 @@ JSON만 출력:
             <button type="button" class="primary" id="btnModeVerbs">조동사</button>
             <button type="button" class="primary" id="btnModeTense">시제 연습</button>
             <button type="button" class="primary" id="btnModeBible">오늘의 표현</button>
+            <button type="button" class="primary" id="btnModeS30">한 문장 30번</button>
             <button type="button" id="btnVocabBook">📒 내 단어장 (${visibleVocab(loadVocab()).length})</button>
             <button type="button" id="btnMemoBook">📔 내 메모장 (${visibleVocab(loadVocab(MEMO_STORE)).length})</button>
             <button type="button" id="btnCardGame">🃏 카드놀이 (${visibleVocab(loadVocab(CARD_GAME_STORE)).length})</button>
@@ -5045,6 +5046,10 @@ JSON만 출력:
             </div>
           </div>
         `;
+        document.getElementById("btnModeS30").onclick = () => {
+          // 별도 페이지. file:// 로 열어도 되도록 index.html 까지 적는다.
+          location.href = "one-sentence-30/index.html";
+        };
         document.getElementById("btnModeDaily").onclick = () => {
           startDailyMode();
         };

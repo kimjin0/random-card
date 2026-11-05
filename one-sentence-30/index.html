@@ -1,0 +1,795 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>한 문장 30번</title>
+  <style>
+    :root {
+      --bg: #0f1218;
+      --surface: #171c26;
+      --surface2: #1c2536;
+      --border: #2a3344;
+      --text: #e8ecf4;
+      --muted: #8b95a8;
+      --accent: #6c9eff;
+      --success: #5ecf8a;
+      --warn: #ffc86b;
+      --danger: #ff7b7b;
+      --radius: 14px;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100dvh;
+      font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.55;
+    }
+    .wrap { max-width: 640px; margin: 0 auto; padding: 1.25rem 1rem 4rem; }
+    [hidden] { display: none !important; }
+    h1 { font-size: 1.35rem; margin: 0; }
+    h2 { font-size: 1rem; color: var(--muted); margin: 2rem 0 .75rem; font-weight: 600; }
+    .muted { color: var(--muted); }
+    .small { font-size: .85rem; }
+
+    button, select {
+      background: var(--surface); color: var(--text);
+      border: 1px solid var(--border); border-radius: 10px;
+      padding: .55rem .9rem; font: inherit; font-size: .95rem; cursor: pointer;
+    }
+    button:hover { border-color: var(--accent); }
+    button:disabled { opacity: .45; cursor: default; }
+    button.primary { background: var(--accent); border-color: var(--accent); color: #0b1020; font-weight: 600; }
+    button.ghost { background: transparent; border-color: transparent; color: var(--muted); }
+    button.icon { padding: .45rem .65rem; }
+
+    .card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 1.1rem 1.1rem 1.2rem;
+    }
+    .label { font-size: .8rem; color: var(--accent); font-weight: 600; letter-spacing: .02em; }
+    .en-big { font-size: 1.3rem; font-weight: 600; margin: .35rem 0 .2rem; }
+    .point {
+      margin-top: .8rem; padding: .6rem .75rem; border-radius: 10px;
+      background: var(--surface2); color: var(--warn); font-size: .88rem;
+    }
+    .row { display: flex; gap: .5rem; align-items: center; flex-wrap: wrap; }
+    .row.end { justify-content: flex-end; }
+    .mt { margin-top: 1rem; }
+
+    /* 홈 */
+    .head { display: flex; justify-content: space-between; align-items: flex-end; gap: 1rem; margin-bottom: 1.1rem; }
+    .stats { display: flex; gap: .75rem; font-size: .85rem; color: var(--muted); white-space: nowrap; }
+    .stats b { color: var(--text); }
+    ul.list { list-style: none; margin: 0; padding: 0; }
+    ul.list li {
+      background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
+      padding: .7rem .9rem; margin-bottom: .5rem; cursor: pointer;
+      display: flex; justify-content: space-between; gap: .75rem; align-items: center;
+    }
+    ul.list li:hover { border-color: var(--accent); }
+    ul.list .t { font-weight: 600; }
+    .badge { font-size: .78rem; color: var(--muted); white-space: nowrap; text-align: right; }
+    .badge.done { color: var(--success); }
+    details.settings { margin-top: 2rem; }
+    details.settings summary { cursor: pointer; color: var(--muted); font-size: .9rem; }
+    .set-row { display: flex; justify-content: space-between; align-items: center; padding: .55rem 0; border-bottom: 1px solid var(--border); font-size: .9rem; }
+
+    /* 연습 */
+    .top { display: flex; align-items: center; gap: .6rem; margin-bottom: 1rem; }
+    .bar { flex: 1; height: 6px; background: var(--surface2); border-radius: 99px; overflow: hidden; }
+    .bar span { display: block; height: 100%; background: var(--accent); transition: width .3s; }
+    .count { font-size: .85rem; color: var(--muted); min-width: 3.5rem; text-align: right; }
+    .stage { display: flex; gap: .5rem; align-items: center; flex-wrap: wrap; font-size: .85rem; color: var(--muted); }
+    .chip { background: var(--surface2); border: 1px solid var(--border); border-radius: 99px; padding: .1rem .6rem; color: var(--warn); font-size: .8rem; }
+    .chip.retry { color: var(--danger); }
+    .prompt { font-size: 1.3rem; font-weight: 600; margin: .9rem 0 1.1rem; }
+    .base { font-size: .82rem; color: var(--muted); margin-top: -.6rem; margin-bottom: 1rem; }
+    .answer { display: flex; gap: .5rem; }
+    .answer input {
+      flex: 1; min-width: 0;
+      background: var(--bg); color: var(--text);
+      border: 1px solid var(--border); border-radius: 10px;
+      padding: .7rem .8rem; font: inherit; font-size: 16px;
+    }
+    .answer input:focus { outline: none; border-color: var(--accent); }
+    button.mic.on { background: var(--danger); border-color: var(--danger); color: #1a0b0b; }
+
+    .result { margin-top: 1.1rem; padding-top: 1rem; border-top: 1px dashed var(--border); }
+    .verdict { font-weight: 600; margin-bottom: .4rem; }
+    .verdict.ok { color: var(--success); }
+    .verdict.no { color: var(--warn); }
+    .model { display: flex; gap: .5rem; align-items: center; font-size: 1.15rem; font-weight: 600; color: var(--success); }
+    .diff { margin-top: .5rem; font-size: .92rem; color: var(--muted); }
+    .diff ins { text-decoration: none; color: var(--success); background: rgba(94, 207, 138, .12); border-radius: 4px; padding: 0 .15rem; }
+    .diff del { color: var(--danger); background: rgba(255, 123, 123, .1); border-radius: 4px; padding: 0 .15rem; }
+    .marks { display: grid; grid-template-columns: repeat(3, 1fr); gap: .5rem; margin-top: 1rem; }
+    .marks button { padding: .7rem .4rem; }
+    .marks button.sel { border-color: var(--accent); background: var(--surface2); }
+    .keys { margin-top: .6rem; font-size: .75rem; color: var(--muted); text-align: center; }
+
+    /* 완료 */
+    .score { font-size: 2.6rem; font-weight: 700; color: var(--accent); line-height: 1.1; }
+    .tally { display: flex; gap: 1rem; margin-top: .4rem; color: var(--muted); font-size: .9rem; }
+    ol.review { list-style: none; margin: 0; padding: 0; }
+    ol.review li {
+      display: grid; grid-template-columns: 1.6rem 1fr auto; gap: .5rem; align-items: start;
+      padding: .55rem .2rem; border-bottom: 1px solid var(--border); cursor: pointer;
+    }
+    ol.review li.playing { background: var(--surface2); }
+    ol.review .m { font-weight: 700; }
+    ol.review .e { font-weight: 600; }
+    ol.review .k { font-size: .85rem; color: var(--muted); }
+    .m.ok { color: var(--success); } .m.mid { color: var(--warn); } .m.no { color: var(--danger); }
+    .player { position: sticky; top: 0; z-index: 5; background: var(--bg); padding: .6rem 0; }
+
+    @media (max-width: 480px) {
+      .head { flex-direction: column; align-items: flex-start; gap: .4rem; }
+      .prompt { font-size: 1.15rem; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <section id="home"></section>
+    <section id="drill" hidden></section>
+    <section id="done" hidden></section>
+  </div>
+
+  <!-- 기기 간 동기화 (../index.html 과 같은 버전). 오프라인이라 못 불러와도 이 기기 저장으로 동작한다. -->
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+  <script src="data/sentences.js"></script>
+  <script>
+    "use strict";
+
+    const DATA = window.S30_DATA || [];
+    const STAGES = ["주어 바꾸기", "시제·형태", "부정·의문", "동사 바꾸기", "상황 적용", "자유 응용"];
+    const MARKS = {
+      ok: { sym: "○", label: "맞음", score: 1 },
+      mid: { sym: "△", label: "애매", score: 0.5 },
+      no: { sym: "✕", label: "틀림 · 다시", score: 0 }
+    };
+    const KEY = {
+      progress: "s30-progress", // { [sentenceId]: { count, lastDate, lastScore, bestScore } }
+      session: "s30-session",   // 진행 중인 연습 (새로고침해도 이어서)
+      days: "s30-days",         // 완료한 날짜 목록 (연속 학습일 계산)
+      settings: "s30-settings"
+    };
+
+    /* ---------- 저장소 (사생활 모드 등에서 막혀도 동작하도록) ---------- */
+    const store = {
+      get(k, d) {
+        try { const v = localStorage.getItem(k); return v == null ? d : JSON.parse(v); }
+        catch (e) { return d; }
+      },
+      set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} },
+      del(k) { try { localStorage.removeItem(k); } catch (e) {} }
+    };
+
+    /** 진행 중인 연습. 끝나면 지우지 않고 {cleared, ts} 로 남겨서 다른 기기의 오래된 연습이 되살아나지 않게 한다. */
+    function getSession() {
+      const s = store.get(KEY.session, null);
+      return s && !s.cleared && Array.isArray(s.queue) && byId(s.id) ? s : null;
+    }
+    function clearSession() { store.set(KEY.session, { cleared: true, ts: Date.now() }); }
+
+    let settings = Object.assign({ rate: 0.9, autoSpeak: true, autoCheck: true, readKo: false },
+      store.get(KEY.settings, {}));
+    const saveSettings = () => store.set(KEY.settings, settings);
+
+    /* ---------- 공통 ---------- */
+    const $ = (sel, root = document) => root.querySelector(sel);
+    const esc = (s) => String(s).replace(/[&<>"']/g, (c) =>
+      ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+    const byId = (id) => DATA.find((s) => s.id === id);
+    const isFree = (i) => i >= 25;
+
+    function ymd(d = new Date()) {
+      return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+    }
+    function streak() {
+      const days = new Set(store.get(KEY.days, []));
+      const d = new Date();
+      if (!days.has(ymd(d))) d.setDate(d.getDate() - 1); // 오늘 아직 안 했으면 어제부터 센다
+      let n = 0;
+      while (days.has(ymd(d))) { n++; d.setDate(d.getDate() - 1); }
+      return n;
+    }
+
+    function show(id) {
+      for (const s of ["home", "drill", "done"]) $("#" + s).hidden = s !== id;
+      window.scrollTo(0, 0);
+    }
+
+    /* ---------- 기기 간 동기화 (Firebase) ----------
+     * ../index.html 의 동기화와 같은 프로젝트·같은 문서(wrongCardsSync/{동기화 코드})를 쓰고
+     * "s30" 필드만 추가한다. 필드만 다르므로 Firestore 규칙은 바꾸지 않는다.
+     * 동기화 코드도 메인 앱과 같은 localStorage 키를 쓰므로, 같은 사이트에서 열면 다시 입력할 필요가 없다.
+     *
+     * s30 = { progress: {[id]: {..., ts}}, days: [YYYY-MM-DD], session: JSON 문자열 }
+     *  - progress: 문장별로 ts 가 큰 쪽
+     *  - days: 합집합
+     *  - session: ts 가 큰 쪽 (마지막으로 연습한 기기 기준으로 이어 하기)
+     *    문자열로 두는 이유: merge 저장 시 Firestore 가 객체를 깊게 합쳐 이전 연습의 채점이 섞이지 않게.
+     */
+    const FIREBASE_CONFIG = {
+      apiKey: "AIzaSyABrVfFnmV9ygf3AUAJmEnoRoeEkrOcd0U",
+      authDomain: "random-card-8ee6e.firebaseapp.com",
+      projectId: "random-card-8ee6e",
+      storageBucket: "random-card-8ee6e.firebasestorage.app",
+      messagingSenderId: "703954283174",
+      appId: "1:703954283174:web:c23782aad7cecbf0616267"
+    };
+    const SYNC_CODE_KEY = "english-card-sync-code"; // ../index.html 과 공유
+    const SYNC_FIELD = "s30";
+    const SYNC_TEXT = {
+      off: "☁ 동기화 꺼짐",
+      busy: "☁ 동기화 중…",
+      ok: "☁ 동기화됨",
+      error: "☁ 연결 안 됨 · 이 기기에 저장 중",
+      noLib: "☁ 오프라인 · 이 기기에 저장 중"
+    };
+    const sync = { db: null, ready: null, running: null, again: false, timer: null, status: "off" };
+
+    function getSyncCode() {
+      try { return (localStorage.getItem(SYNC_CODE_KEY) || "").trim(); } catch (e) { return ""; }
+    }
+    function setSyncCode(code) {
+      try {
+        const v = String(code || "").trim();
+        if (v) localStorage.setItem(SYNC_CODE_KEY, v); else localStorage.removeItem(SYNC_CODE_KEY);
+      } catch (e) {}
+    }
+    function setSyncStatus(s) {
+      sync.status = s;
+      const el = $("#syncStat");
+      if (el) el.textContent = SYNC_TEXT[s];
+    }
+    function signIn() {
+      if (!sync.ready) {
+        try {
+          const app = firebase.apps.length ? firebase.app() : firebase.initializeApp(FIREBASE_CONFIG);
+          sync.db = firebase.firestore(app);
+          sync.ready = firebase.auth(app).signInAnonymously().then(() => true).catch((e) => {
+            console.warn("동기화 로그인 실패:", e);
+            sync.ready = null; // 다음에 다시 시도
+            return false;
+          });
+        } catch (e) {
+          console.warn("Firebase 초기화 실패:", e);
+          return Promise.resolve(false);
+        }
+      }
+      return sync.ready;
+    }
+
+    function localSnap() {
+      return { progress: store.get(KEY.progress, {}), days: store.get(KEY.days, []), session: store.get(KEY.session, null) };
+    }
+    function fromRemote(r) {
+      if (!r) return { progress: {}, days: [], session: null };
+      let session = null;
+      try { session = r.session ? JSON.parse(r.session) : null; } catch (e) {}
+      return { progress: r.progress || {}, days: Array.isArray(r.days) ? r.days : [], session };
+    }
+    function toRemote(s) {
+      return { progress: s.progress, days: s.days, session: s.session ? JSON.stringify(s.session) : null };
+    }
+    function mergeSnap(a, b) {
+      const progress = Object.assign({}, a.progress);
+      for (const [id, r] of Object.entries(b.progress)) {
+        const l = progress[id];
+        if (!l || (r.ts || 0) > (l.ts || 0)) progress[id] = r;
+      }
+      const days = [...new Set([...a.days, ...b.days])].sort().slice(-400);
+      const sa = a.session, sb = b.session;
+      const session = !sa ? sb : !sb ? sa : (sb.ts || 0) > (sa.ts || 0) ? sb : sa;
+      return { progress, days, session: session || null };
+    }
+    const same = (x, y) => JSON.stringify(x) === JSON.stringify(y);
+
+    /** 클라우드와 합친다. 이 기기 기록이 바뀌었으면 true. 동시에 여러 번 불려도 한 번씩 차례로 돈다. */
+    function syncNow() {
+      if (sync.running) { sync.again = true; return sync.running; }
+      sync.running = (async () => {
+        let changed = false;
+        do {
+          sync.again = false;
+          changed = (await syncOnce()) || changed;
+        } while (sync.again);
+        sync.running = null;
+        return changed;
+      })();
+      return sync.running;
+    }
+    async function syncOnce() {
+      if (!getSyncCode()) { setSyncStatus("off"); return false; }
+      if (!window.firebase) { setSyncStatus("noLib"); return false; }
+      setSyncStatus("busy");
+      try {
+        if (!(await signIn())) { setSyncStatus("error"); return false; }
+        const ref = sync.db.collection("wrongCardsSync").doc(getSyncCode());
+        const snap = await ref.get();
+        const remote = fromRemote(snap.exists ? (snap.data() || {})[SYNC_FIELD] : null);
+        const local = localSnap();
+        const merged = mergeSnap(local, remote);
+        const changed = !same(merged, local);
+        if (changed) {
+          store.set(KEY.progress, merged.progress);
+          store.set(KEY.days, merged.days);
+          if (merged.session) store.set(KEY.session, merged.session); else store.del(KEY.session);
+        }
+        if (!same(toRemote(merged), toRemote(remote))) {
+          await ref.set({ [SYNC_FIELD]: toRemote(merged) }, { merge: true });
+        }
+        setSyncStatus("ok");
+        return changed;
+      } catch (e) {
+        console.warn("동기화 실패:", e);
+        setSyncStatus("error");
+        return false;
+      }
+    }
+    /** 채점할 때마다 부르면 잠깐 모았다가 한 번에 올린다. */
+    function schedulePush() {
+      clearTimeout(sync.timer);
+      sync.timer = setTimeout(syncNow, 1200);
+    }
+    /** 홈으로: 먼저 이 기기 기록으로 그리고, 클라우드에서 바뀐 게 오면 다시 그린다. */
+    function goHome() {
+      renderHome();
+      syncNow().then((changed) => { if (changed && !$("#home").hidden) renderHome(); });
+    }
+    // 핸드폰에서 앱을 내릴 때 바로 올리고, 다시 열 때 받아 온다.
+    document.addEventListener("visibilitychange", () => {
+      clearTimeout(sync.timer);
+      if (document.visibilityState === "hidden") syncNow();
+      else syncNow().then((changed) => { if (changed && !$("#home").hidden) renderHome(); });
+    });
+    window.addEventListener("online", () => syncNow().then((c) => { if (c && !$("#home").hidden) renderHome(); }));
+
+    /* ---------- 음성 출력 ---------- */
+    const canSpeak = "speechSynthesis" in window;
+    let voices = [];
+    function loadVoices() { if (canSpeak) voices = speechSynthesis.getVoices(); }
+    if (canSpeak) { loadVoices(); speechSynthesis.onvoiceschanged = loadVoices; }
+
+    function pickVoice(lang) {
+      const list = voices.filter((v) => (v.lang || "").toLowerCase().replace("_", "-").startsWith(lang));
+      const prefer = lang === "en-us"
+        ? /Samantha|Aria|Jenny|Google US English|Ava|Allison/i
+        : /Yuna|Sun-?Hi|Google 한국|Heami/i;
+      return list.find((v) => prefer.test(v.name)) || list[0] || null;
+    }
+    function speak(text, lang = "en", onend) {
+      if (!canSpeak) { if (onend) onend(); return; }
+      const u = new SpeechSynthesisUtterance(text);
+      u.lang = lang === "en" ? "en-US" : "ko-KR";
+      const v = pickVoice(lang === "en" ? "en-us" : "ko");
+      if (v) u.voice = v;
+      u.rate = lang === "en" ? settings.rate : 1;
+      u.onend = u.onerror = () => { if (onend) onend(); };
+      speechSynthesis.speak(u);
+    }
+    function speakNow(text, lang) { if (canSpeak) speechSynthesis.cancel(); speak(text, lang); }
+
+    /* ---------- 음성 입력 ---------- */
+    const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+    let rec = null;
+    let listening = false;
+
+    function toggleMic() {
+      if (!SR) return;
+      if (listening) { rec.stop(); return; }
+      const input = $("#ans");
+      if (canSpeak) speechSynthesis.cancel();
+      rec = new SR();
+      rec.lang = "en-US";
+      rec.interimResults = true;
+      rec.maxAlternatives = 1;
+      rec.onresult = (e) => {
+        let t = "";
+        for (const r of e.results) t += r[0].transcript;
+        input.value = t;
+      };
+      rec.onerror = (e) => {
+        if (e.error === "not-allowed" || e.error === "service-not-allowed") {
+          alert("마이크 권한이 없습니다. 브라우저 주소창에서 마이크를 허용해 주세요.\n(파일을 직접 열면 막힐 수 있어요. README 참고)");
+        }
+      };
+      rec.onend = () => {
+        listening = false;
+        updateMic();
+        if (settings.autoCheck && input.value.trim() && !state.checked) check();
+      };
+      rec.start();
+      listening = true;
+      updateMic();
+    }
+    function updateMic() {
+      const b = $("#mic");
+      if (!b) return;
+      b.classList.toggle("on", listening);
+      b.textContent = listening ? "■" : "🎤";
+      b.title = listening ? "그만 듣기" : "말로 답하기";
+    }
+
+    /* ---------- 답 비교 ---------- */
+    const NUM = {
+      "1": "one", "2": "two", "3": "three", "4": "four", "5": "five", "6": "six", "7": "seven",
+      "8": "eight", "9": "nine", "10": "ten", "11": "eleven", "12": "twelve", "15": "fifteen",
+      "20": "twenty", "30": "thirty", "40": "forty", "45": "forty five", "50": "fifty", "60": "sixty"
+    };
+    function tokens(s) {
+      let t = " " + String(s).toLowerCase().replace(/[’‘`]/g, "'") + " ";
+      t = t.replace(/\bwon't\b/g, "will not").replace(/\bcan't\b/g, "can not").replace(/\bcannot\b/g, "can not")
+        .replace(/\blet's\b/g, "let us").replace(/n't\b/g, " not").replace(/'m\b/g, " am").replace(/'re\b/g, " are")
+        .replace(/'ll\b/g, " will").replace(/'ve\b/g, " have").replace(/'d\b/g, " would")
+        .replace(/\b(it|he|she|that|what|there|here|who)'s\b/g, "$1 is");
+      t = t.replace(/[^a-z0-9' ]+/g, " ");
+      return t.split(/\s+/).filter(Boolean).flatMap((w) => (NUM[w] || w).split(" "));
+    }
+    // 단어 단위 LCS 로 "빠진 단어(ins)"와 "남는 단어(del)"를 표시한다.
+    function diff(user, model) {
+      const a = tokens(user), b = tokens(model);
+      const dp = Array.from({ length: a.length + 1 }, () => new Array(b.length + 1).fill(0));
+      for (let i = a.length - 1; i >= 0; i--)
+        for (let j = b.length - 1; j >= 0; j--)
+          dp[i][j] = a[i] === b[j] ? dp[i + 1][j + 1] + 1 : Math.max(dp[i + 1][j], dp[i][j + 1]);
+      const out = [];
+      let i = 0, j = 0;
+      while (i < a.length || j < b.length) {
+        if (i < a.length && j < b.length && a[i] === b[j]) { out.push(esc(a[i])); i++; j++; }
+        else if (j < b.length && (i === a.length || dp[i][j + 1] >= dp[i + 1][j])) { out.push(`<ins>${esc(b[j])}</ins>`); j++; }
+        else { out.push(`<del>${esc(a[i])}</del>`); i++; }
+      }
+      const same = a.length === b.length && a.every((w, k) => w === b[k]);
+      return { html: out.join(" "), same };
+    }
+
+    /* ---------- 진행 상태 ---------- */
+    // state: { id, queue:[{i, retry}], pos, first:{i:mark}, retried:{i:mark}, checked, auto }
+    let state = null;
+
+    function newSession(id) {
+      return { id, queue: Array.from({ length: 30 }, (_, i) => ({ i, retry: false })), pos: 0, first: {}, retried: {}, checked: false };
+    }
+    function saveSession() {
+      if (!state) return;
+      const { checked, auto, ...rest } = state;
+      rest.ts = Date.now();
+      store.set(KEY.session, rest);
+      schedulePush();
+    }
+
+    function todaysPick() {
+      const sess = getSession();
+      if (sess) return { s: byId(sess.id), resume: sess };
+      const prog = store.get(KEY.progress, {});
+      const fresh = DATA.find((s) => !prog[s.id]);
+      if (fresh) return { s: fresh };
+      // 다 해 봤으면 가장 오래전에 한 문장부터 복습
+      const old = [...DATA].sort((x, y) => (prog[x.id].lastDate || "").localeCompare(prog[y.id].lastDate || ""))[0];
+      return { s: old, review: true };
+    }
+
+    /* ---------- 홈 ---------- */
+    function renderHome() {
+      const prog = store.get(KEY.progress, {});
+      const doneCount = DATA.filter((s) => prog[s.id]).length;
+      const pick = todaysPick();
+      const s = pick.s;
+      let label = "오늘의 문장", btn = "시작하기";
+      if (pick.resume) {
+        const r = pick.resume;
+        label = `이어서 하기 · ${Math.min(r.pos, r.queue.length)}/${r.queue.length}`;
+        btn = "이어서 하기";
+      } else if (pick.review) {
+        label = "오늘의 복습 문장";
+      }
+
+      $("#home").innerHTML = `
+        <div class="head">
+          <div>
+            <a href="../index.html" class="small" style="color:var(--muted);text-decoration:none">← 메인으로</a>
+            <h1>한 문장 30번</h1>
+            <div class="muted small">하루 한 문장을 30가지로 바꿔 말해 보세요.</div>
+          </div>
+          <div class="stats">
+            <span>🔥 연속 <b>${streak()}</b>일</span>
+            <span>완료 <b>${doneCount}</b>/${DATA.length}</span>
+          </div>
+        </div>
+        <div class="row end small muted" style="margin:-.6rem 0 .8rem">
+          <span id="syncStat">${SYNC_TEXT[sync.status]}</span>
+        </div>
+
+        <div class="card">
+          <div class="label">${esc(label)}</div>
+          <div class="en-big">${esc(s.en)}</div>
+          <div class="muted">${esc(s.ko)}</div>
+          <div class="point">💡 ${esc(s.point)}</div>
+          <div class="row mt">
+            <button class="primary" id="start">${btn}</button>
+            <button class="icon" id="hear" title="듣기">🔊</button>
+            ${pick.resume ? `<button class="ghost" id="restart">처음부터</button>` : ""}
+          </div>
+        </div>
+
+        <h2>전체 문장</h2>
+        <ul class="list">
+          ${DATA.map((x) => {
+            const p = prog[x.id];
+            const badge = p
+              ? `<span class="badge done">✓ ${p.lastDate.slice(5)} · ${p.lastScore}점${p.count > 1 ? ` · ${p.count}회` : ""}</span>`
+              : `<span class="badge">아직 안 함</span>`;
+            return `<li data-id="${esc(x.id)}"><div><div class="t">${esc(x.en)}</div><div class="muted small">${esc(x.ko)}</div></div>${badge}</li>`;
+          }).join("")}
+        </ul>
+
+        <details class="settings">
+          <summary>설정</summary>
+          <div class="set-row"><span>영어 읽기 속도</span>
+            <select id="rate">
+              ${[0.7, 0.8, 0.9, 1, 1.1].map((r) => `<option value="${r}" ${settings.rate == r ? "selected" : ""}>${r}x</option>`).join("")}
+            </select>
+          </div>
+          <label class="set-row"><span>정답을 보면 바로 읽어 주기</span><input type="checkbox" id="autoSpeak" ${settings.autoSpeak ? "checked" : ""}></label>
+          <label class="set-row"><span>말하기가 끝나면 바로 확인</span><input type="checkbox" id="autoCheck" ${settings.autoCheck ? "checked" : ""}></label>
+          ${SR ? "" : `<div class="set-row muted">이 브라우저는 음성 입력을 지원하지 않아요. (크롬 권장)</div>`}
+          <div class="set-row" style="flex-direction:column;align-items:stretch;gap:.4rem">
+            <span>기기 간 동기화 코드</span>
+            <div class="answer">
+              <input id="syncCode" autocomplete="off" autocapitalize="off" spellcheck="false"
+                placeholder="메인 앱과 같은 코드" value="${esc(getSyncCode())}" />
+              <button id="saveSync">저장</button>
+            </div>
+            <span class="small muted">노트북·사무실·핸드폰에 같은 코드를 넣으면 기록과 진행 중인 연습이 이어집니다. 메인 화면(단어장 동기화)과 같은 코드라 거기서 이미 넣었다면 그대로 씁니다.</span>
+          </div>
+        </details>
+      `;
+
+      $("#start").onclick = () => start(s.id, pick.resume);
+      $("#hear").onclick = () => speakNow(s.en);
+      if ($("#restart")) $("#restart").onclick = () => start(s.id, null);
+      for (const li of $("#home").querySelectorAll("ul.list li")) {
+        li.onclick = () => {
+          const id = li.dataset.id;
+          const sess = getSession();
+          if (sess && sess.id === id) return start(id, sess);
+          if (sess && !confirm("진행 중인 문장이 있어요. 그만두고 이 문장을 시작할까요?")) return;
+          start(id, null);
+        };
+      }
+      $("#rate").onchange = (e) => { settings.rate = Number(e.target.value); saveSettings(); speakNow(s.en); };
+      $("#autoSpeak").onchange = (e) => { settings.autoSpeak = e.target.checked; saveSettings(); };
+      $("#autoCheck").onchange = (e) => { settings.autoCheck = e.target.checked; saveSettings(); };
+      $("#saveSync").onclick = () => {
+        setSyncCode($("#syncCode").value);
+        syncNow().then(() => {
+          renderHome();
+          $("details.settings").open = true;
+        });
+      };
+      show("home");
+    }
+
+    /* ---------- 연습 ---------- */
+    function start(id, resume) {
+      state = resume ? Object.assign({ checked: false }, resume) : newSession(id);
+      saveSession();
+      renderDrill();
+    }
+
+    function renderDrill() {
+      const s = byId(state.id);
+      if (state.pos >= state.queue.length) return finish();
+      const item = state.queue[state.pos];
+      const [ko, , cue] = s.drills[item.i];
+      const stage = Math.floor(item.i / 5);
+      state.checked = false;
+      state.auto = null;
+
+      $("#drill").innerHTML = `
+        <div class="top">
+          <button class="icon ghost" id="back" title="홈으로">←</button>
+          <div class="bar"><span style="width:${(state.pos / state.queue.length) * 100}%"></span></div>
+          <span class="count">${state.pos + 1}/${state.queue.length}</span>
+        </div>
+        <div class="card">
+          <div class="stage">
+            <span>${stage + 1}단계 · ${STAGES[stage]}</span>
+            ${cue ? `<span class="chip">${esc(cue)}</span>` : ""}
+            ${item.retry ? `<span class="chip retry">다시 도전</span>` : ""}
+          </div>
+          <div class="prompt">${esc(ko)}</div>
+          <div class="base">기본 문장: ${esc(s.en)}</div>
+          <div class="answer">
+            <input id="ans" autocomplete="off" autocapitalize="off" spellcheck="false"
+              placeholder="${isFree(item.i) ? "직접 만들어 말해 보세요" : "영어로 말하거나 입력하세요"}" />
+            ${SR ? `<button class="icon mic" id="mic" title="말로 답하기">🎤</button>` : ""}
+          </div>
+          <div class="row mt" id="pre">
+            <button class="primary" id="check">확인</button>
+            <button class="ghost" id="skip">모르겠어요</button>
+          </div>
+          <div id="result"></div>
+        </div>
+      `;
+      $("#back").onclick = () => { if (listening) rec.stop(); goHome(); };
+      $("#check").onclick = () => check();
+      $("#skip").onclick = () => { $("#ans").value = ""; check(); };
+      if ($("#mic")) $("#mic").onclick = toggleMic;
+      $("#ans").addEventListener("keydown", (e) => {
+        if (e.key === "Enter" && !e.isComposing) { e.preventDefault(); check(); }
+      });
+      show("drill");
+      // 모바일에서 키보드가 자동으로 올라오지 않게, 데스크톱에서만 포커스
+      if (window.matchMedia("(pointer:fine)").matches) $("#ans").focus();
+    }
+
+    function check() {
+      if (state.checked) return;
+      state.checked = true;
+      if (listening) rec.stop();
+      const s = byId(state.id);
+      const item = state.queue[state.pos];
+      const model = s.drills[item.i][1];
+      const user = $("#ans").value.trim();
+      const free = isFree(item.i);
+      const d = user ? diff(user, model) : null;
+
+      let verdict;
+      if (!user) verdict = `<div class="verdict no">정답을 보고 따라 말해 보세요.</div>`;
+      else if (d.same) { verdict = `<div class="verdict ok">완벽해요! 🎉</div>`; state.auto = "ok"; }
+      else if (free) verdict = `<div class="verdict ok">잘 만들었나요? 예시와 비교해 보세요.</div>`;
+      else verdict = `<div class="verdict no">비교해 보세요.</div>`;
+
+      const diffHtml = user && !d.same && !free
+        ? `<div class="diff">${d.html}<div class="small" style="margin-top:.25rem"><ins>초록</ins> 빠진 말 · <del>빨강</del> 다른 말</div></div>`
+        : user && free ? `<div class="diff">내 답: ${esc(user)}</div>` : "";
+
+      $("#ans").readOnly = true;
+      $("#ans").blur();
+      $("#pre").hidden = true;
+      $("#result").innerHTML = `
+        <div class="result">
+          ${verdict}
+          <div class="small muted">${free ? "예시" : "정답"}</div>
+          <div class="model"><span>${esc(model)}</span><button class="icon" id="say" title="듣기">🔊</button></div>
+          ${diffHtml}
+          <div class="marks">
+            ${Object.entries(MARKS).map(([k, m]) =>
+              `<button data-mark="${k}" class="${state.auto === k ? "sel" : ""}">${m.sym} ${m.label}</button>`).join("")}
+          </div>
+          <div class="keys">키보드: 1 맞음 · 2 애매 · 3 틀림${state.auto ? " · Enter 다음" : ""}</div>
+        </div>
+      `;
+      $("#say").onclick = () => speakNow(model);
+      for (const b of $("#result").querySelectorAll("[data-mark]")) b.onclick = () => mark(b.dataset.mark);
+      if (settings.autoSpeak) speakNow(model);
+    }
+
+    function mark(m) {
+      if (!state || !state.checked) return;
+      const item = state.queue[state.pos];
+      if (item.retry) state.retried[item.i] = m;
+      else {
+        state.first[item.i] = m;
+        // 틀린 문제는 맨 뒤에 한 번 더
+        if (m === "no") state.queue.push({ i: item.i, retry: true });
+      }
+      state.pos++;
+      saveSession();
+      renderDrill();
+    }
+
+    document.addEventListener("keydown", (e) => {
+      if ($("#drill").hidden || !state || !state.checked) return;
+      if (e.target.tagName === "INPUT" && !e.target.readOnly) return;
+      if (e.key === "1") mark("ok");
+      else if (e.key === "2") mark("mid");
+      else if (e.key === "3") mark("no");
+      else if (e.key === "Enter" && state.auto) { e.preventDefault(); mark(state.auto); }
+    });
+
+    /* ---------- 완료 ---------- */
+    function finish() {
+      const s = byId(state.id);
+      const marks = Array.from({ length: 30 }, (_, i) => state.first[i] || "no");
+      const score = Math.round((marks.reduce((t, m) => t + MARKS[m].score, 0) / 30) * 100);
+      const prog = store.get(KEY.progress, {});
+      const p = prog[s.id] || { count: 0, bestScore: 0 };
+      prog[s.id] = { count: p.count + 1, lastDate: ymd(), lastScore: score, bestScore: Math.max(p.bestScore || 0, score), ts: Date.now() };
+      store.set(KEY.progress, prog);
+      const days = new Set(store.get(KEY.days, []));
+      days.add(ymd());
+      store.set(KEY.days, [...days].sort().slice(-400));
+      clearSession();
+      clearTimeout(sync.timer);
+      syncNow();
+      const result = { s, marks, retried: state.retried, score };
+      state = null;
+      renderDone(result);
+    }
+
+    let playing = false;
+    function renderDone({ s, marks, retried, score }) {
+      const count = (k) => marks.filter((m) => m === k).length;
+      const fixed = Object.values(retried).filter((m) => m !== "no").length;
+      const list = [[s.ko, s.en], ...s.drills.map((d) => [d[0], d[1]])];
+
+      $("#done").innerHTML = `
+        <div class="card">
+          <div class="label">오늘의 문장 완료 · 🔥 연속 ${streak()}일</div>
+          <div class="en-big">${esc(s.en)}</div>
+          <div class="score mt">${score}점</div>
+          <div class="tally">
+            <span class="m ok">○ ${count("ok")}</span><span class="m mid">△ ${count("mid")}</span><span class="m no">✕ ${count("no")}</span>
+            ${Object.keys(retried).length ? `<span>다시 도전에서 ${fixed}개 해결</span>` : ""}
+          </div>
+          <div class="row mt">
+            <button class="primary" id="home-btn">홈으로</button>
+            <button id="again">다시 하기</button>
+          </div>
+        </div>
+
+        <div class="player">
+          <div class="row">
+            <button id="play">▶ 30문장 전체 듣기</button>
+            <label class="small muted row" style="gap:.3rem"><input type="checkbox" id="readKo" ${settings.readKo ? "checked" : ""}> 한국어도 읽기</label>
+          </div>
+        </div>
+        <ol class="review">
+          ${list.map(([ko, en], n) => {
+            const m = n === 0 ? null : marks[n - 1];
+            return `<li data-n="${n}">
+              <span class="m ${m || ""}">${m ? MARKS[m].sym : "★"}</span>
+              <div><div class="e">${esc(en)}</div><div class="k">${esc(ko)}</div></div>
+              <span class="muted small">${n === 0 ? "기본" : n}</span>
+            </li>`;
+          }).join("")}
+        </ol>
+      `;
+      const items = [...$("#done").querySelectorAll("ol.review li")];
+      const stop = () => {
+        playing = false;
+        if (canSpeak) speechSynthesis.cancel();
+        items.forEach((li) => li.classList.remove("playing"));
+        $("#play").textContent = "▶ 30문장 전체 듣기";
+      };
+      const playFrom = (n) => {
+        if (!playing || n >= list.length) return stop();
+        items.forEach((li) => li.classList.toggle("playing", Number(li.dataset.n) === n));
+        items[n].scrollIntoView({ block: "nearest", behavior: "smooth" });
+        const [ko, en] = list[n];
+        const next = () => setTimeout(() => playFrom(n + 1), 600);
+        if (settings.readKo) speak(ko, "ko", () => playing && speak(en, "en", next));
+        else speak(en, "en", next);
+      };
+      $("#play").onclick = () => {
+        if (playing) return stop();
+        if (canSpeak) speechSynthesis.cancel();
+        playing = true;
+        $("#play").textContent = "■ 멈춤";
+        playFrom(0);
+      };
+      $("#readKo").onchange = (e) => { settings.readKo = e.target.checked; saveSettings(); };
+      items.forEach((li) => li.onclick = () => { stop(); speakNow(list[Number(li.dataset.n)][1]); });
+      $("#home-btn").onclick = () => { stop(); goHome(); };
+      $("#again").onclick = () => { stop(); start(s.id, null); };
+      show("done");
+    }
+
+    if (!DATA.length) {
+      document.body.innerHTML = `<div class="wrap"><p>data/sentences.js 를 불러오지 못했습니다.</p></div>`;
+    } else {
+      goHome();
+    }
+  </script>
+</body>
+</html>
