@@ -76,6 +76,15 @@
     .w { cursor: pointer; border-radius: 4px; -webkit-tap-highlight-color: transparent; }
     .w.sel { background: rgba(108, 158, 255, .45); }
     .w.start { background: rgba(255, 200, 107, .45); outline: 1px dashed var(--warn); }
+    /* 책갈피 */
+    .w.bm { text-decoration: underline 3px var(--warn); text-underline-offset: 4px; }
+    .w.bm::before { content: "🔖"; font-size: .8em; margin-right: .15em; }
+    #popMark.on { background: var(--warn); border-color: var(--warn); }
+    .toast {
+      position: fixed; left: 50%; top: 1rem; transform: translateX(-50%); z-index: 30;
+      background: #222b3b; border: 1px solid var(--warn); color: var(--text);
+      padding: .45rem .9rem; border-radius: 99px; font-size: .88rem; display: none;
+    }
 
     /* 뜻·발음 팝업 */
     /* 화면 아래 고정 패널: 본문을 가리지 않음 */
@@ -130,6 +139,7 @@
       </select>
       <label class="chk cards-only"><input type="checkbox" id="showAll" /> 해석 모두 보기</label>
       <label class="chk"><input type="checkbox" id="autoSpeak" checked /> 탭하면 소리</label>
+      <button id="goMark" title="책갈피 위치로 이동" disabled>🔖 책갈피로</button>
       <label class="chk">🐢
         <select id="slowRate" title="거북이 버튼 속도">
           <option value="0.6">0.6x</option>
@@ -158,12 +168,15 @@
       <div class="src"></div>
       <button id="popSpeak" title="발음 듣기">🔊</button>
       <button id="popSlow" title="천천히 듣기">🐢</button>
+      <button id="popMark" title="여기까지 읽음 (책갈피)">🔖</button>
       <button id="popClose" title="닫기">✕</button>
     </div>
     <div class="pron"></div>
     <div class="out"></div>
     <div class="note"></div>
   </div>
+
+  <div class="toast" id="toast"></div>
 
   <script>
     const listEl = document.getElementById("list");
@@ -292,6 +305,7 @@
         } else {
           setMode("story"); renderStory(await res.text());
         }
+        applyBookmark(true); // 지난번 읽던 곳으로
       } catch (e) {
         setMode("story");
         readerEl.innerHTML = `<p class="hint">파일을 불러오지 못했어요 (${url}). 로컬 서버로 열거나 '직접 붙여넣기'를 사용하세요.</p>`;
@@ -307,6 +321,7 @@
       const koLines = lines.filter(hasHangul).length;
       if (koLines > 0 && koLines >= lines.length / 3) { items = parseCards(text); setMode("cards"); renderCards(); }
       else { setMode("story"); renderStory(text); }
+      applyBookmark(false);
     };
 
     // ───────── 블럭한 부분: 뜻 + 발음 (index.html에 저장된 OpenAI 키 사용) ─────────
@@ -412,6 +427,10 @@
       if (!part || part.length > 600) return;
       const seq = ++selSeq;
       currentPart = part;
+      lastWord = anchor instanceof Range
+        ? (anchor.endContainer.nodeType === 1 ? anchor.endContainer : anchor.endContainer.parentElement)?.closest(".w")
+        : anchor;
+      updateMarkBtn();
       popSrc.textContent = part;
       popPron.textContent = ""; popNote.textContent = "";
       const refit = placePop(anchor);
@@ -439,6 +458,61 @@
         if (seq === selSeq) popOut.textContent = e.message;
       }
     }
+
+    // ── 책갈피: 마지막으로 고른 단어 위치를 글마다 기억 ──
+    // 위치 = { block: 문단(또는 카드) 번호, word: 그 안의 단어 번호 }
+    let lastWord = null;
+    const bmKey = () => "speack-bookmark:" + sourceEl.value;
+    const blocks = () => [...(document.body.classList.contains("mode-reader") ? readerEl.children : listEl.children)];
+    function getBm() { try { return JSON.parse(localStorage.getItem(bmKey()) || "null"); } catch { return null; } }
+    function setBm(v) { try { v ? localStorage.setItem(bmKey(), JSON.stringify(v)) : localStorage.removeItem(bmKey()); } catch {} }
+
+    function posOf(word) {
+      const bs = blocks();
+      const block = bs.find(b => b.contains(word));
+      if (!block) return null;
+      return { block: bs.indexOf(block), word: [...block.querySelectorAll(".w")].indexOf(word) };
+    }
+    function wordAt(pos) {
+      const block = pos && blocks()[pos.block];
+      return block && (block.querySelectorAll(".w")[pos.word] || block.querySelector(".w"));
+    }
+    function updateMarkBtn() {
+      const bm = getBm();
+      const on = !!(bm && lastWord && wordAt(bm) === lastWord);
+      const b = document.getElementById("popMark");
+      b.classList.toggle("on", on);
+      b.title = on ? "책갈피 지우기" : "여기까지 읽음 (책갈피)";
+    }
+    let toastTimer;
+    function toast(msg) {
+      const t = document.getElementById("toast");
+      t.textContent = msg; t.style.display = "block";
+      clearTimeout(toastTimer); toastTimer = setTimeout(() => { t.style.display = "none"; }, 1600);
+    }
+    function applyBookmark(scroll) {
+      document.querySelectorAll(".w.bm").forEach(w => w.classList.remove("bm"));
+      const w = wordAt(getBm());
+      document.getElementById("goMark").disabled = !w;
+      if (!w) return;
+      w.classList.add("bm");
+      if (scroll) {
+        w.scrollIntoView({ block: "center" });
+        toast("🔖 지난번 읽던 곳이에요");
+      }
+    }
+    document.getElementById("popMark").onclick = () => {
+      if (!lastWord || !lastWord.isConnected) return;
+      const bm = getBm();
+      if (bm && wordAt(bm) === lastWord) { setBm(null); toast("책갈피를 지웠어요"); }
+      else { setBm(posOf(lastWord)); toast("🔖 여기까지 읽음 — 저장했어요"); }
+      applyBookmark(false);
+      updateMarkBtn();
+    };
+    document.getElementById("goMark").onclick = () => {
+      const w = wordAt(getBm());
+      if (w) w.scrollIntoView({ behavior: "smooth", block: "center" });
+    };
 
     // ── 방법 1: 단어 탭 (시작 단어 탭 → 끝 단어 탭) ──
     let tap = null; // { container, startIdx, done }
