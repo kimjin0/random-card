@@ -641,7 +641,11 @@
         for (const k of knownKeys()) {
           const l = getRaw(k), r = remote[remoteKey(k)];
           if (r && (r.ts || 0) > (l?.ts || 0)) { setRaw(k, r); if (k === bmKey()) changedCurrent = true; }
-          else if (l && (l.ts || 0) > (r?.ts || 0)) toPush[remoteKey(k)] = l; // 오프라인일 때 저장한 것 올리기
+          else if (l && (!r || (l.ts || 0) > (r.ts || 0))) {
+            // 오프라인일 때 저장한 것, 또는 동기화 기능 전에 꽂은 책갈피(ts 없음)도 올린다
+            if (!l.ts) { l.ts = Date.now(); setRaw(k, l); }
+            toPush[remoteKey(k)] = l;
+          }
         }
         if (Object.keys(toPush).length) await docRef().set({ [SYNC_FIELD]: { bookmarks: toPush } }, { merge: true });
         return changedCurrent;
