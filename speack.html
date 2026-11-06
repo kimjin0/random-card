@@ -178,6 +178,10 @@
 
   <div class="toast" id="toast"></div>
 
+  <!-- 책갈피 기기 간 동기화 (index.html 과 같은 Firebase·같은 동기화 코드). 못 불러와도 이 기기 저장으로 동작 -->
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
   <script>
     const listEl = document.getElementById("list");
     const readerEl = document.getElementById("reader");
@@ -464,8 +468,15 @@
     let lastWord = null;
     const bmKey = () => "speack-bookmark:" + sourceEl.value;
     const blocks = () => [...(document.body.classList.contains("mode-reader") ? readerEl.children : listEl.children)];
-    function getBm() { try { return JSON.parse(localStorage.getItem(bmKey()) || "null"); } catch { return null; } }
-    function setBm(v) { try { v ? localStorage.setItem(bmKey(), JSON.stringify(v)) : localStorage.removeItem(bmKey()); } catch {} }
+    // 저장 형식: { block, word, ts } / 지운 경우 { removed: true, ts } (다른 기기 책갈피가 되살아나지 않게)
+    function getRaw(k) { try { return JSON.parse(localStorage.getItem(k) || "null"); } catch { return null; } }
+    function setRaw(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} }
+    function getBm() { const v = getRaw(bmKey()); return v && !v.removed ? v : null; }
+    function setBm(v) {
+      const k = bmKey();
+      setRaw(k, v ? { block: v.block, word: v.word, ts: Date.now() } : { removed: true, ts: Date.now() });
+      return pushBookmark(k);
+    }
 
     function posOf(word) {
       const bs = blocks();
@@ -504,8 +515,11 @@
     document.getElementById("popMark").onclick = () => {
       if (!lastWord || !lastWord.isConnected) return;
       const bm = getBm();
-      if (bm && wordAt(bm) === lastWord) { setBm(null); toast("책갈피를 지웠어요"); }
-      else { setBm(posOf(lastWord)); toast("🔖 여기까지 읽음 — 저장했어요"); }
+      const removing = bm && wordAt(bm) === lastWord;
+      setBm(removing ? null : posOf(lastWord)).then(ok => {
+        const where = ok ? " · 다른 기기에도 저장됨" : getSyncCode() ? " · 동기화 실패(이 기기에만)" : " · 이 기기에만 (동기화 코드 없음)";
+        toast((removing ? "책갈피를 지웠어요" : "🔖 저장했어요") + where);
+      });
       applyBookmark(false);
       updateMarkBtn();
     };
@@ -576,7 +590,73 @@
       clearTimeout(selTimer); selTimer = setTimeout(onDragSelection, 800);
     });
 
-    loadSource();
+    // ── 책갈피 동기화 (Firestore: wrongCardsSync/{동기화 코드}.speack.bookmarks) ──
+    // 동기화 코드는 랜덤 카드(index.html) 설정에서 넣은 것과 같은 값을 쓴다.
+    const FIREBASE_CONFIG = {
+      apiKey: "AIzaSyABrVfFnmV9ygf3AUAJmEnoRoeEkrOcd0U",
+      authDomain: "random-card-8ee6e.firebaseapp.com",
+      projectId: "random-card-8ee6e",
+      storageBucket: "random-card-8ee6e.firebasestorage.app",
+      messagingSenderId: "703954283174",
+      appId: "1:703954283174:web:c23782aad7cecbf0616267",
+    };
+    const SYNC_CODE_KEY = "english-card-sync-code";
+    const SYNC_FIELD = "speack";
+    let fsDb = null, fsReady = null;
+
+    function getSyncCode() { try { return (localStorage.getItem(SYNC_CODE_KEY) || "").trim(); } catch { return ""; } }
+    function fsSignIn() {
+      if (!window.firebase || !getSyncCode()) return Promise.resolve(false);
+      if (!fsReady) {
+        try {
+          const app = firebase.apps.length ? firebase.app() : firebase.initializeApp(FIREBASE_CONFIG);
+          fsDb = firebase.firestore(app);
+          fsReady = firebase.auth(app).signInAnonymously().then(() => true).catch(e => {
+            console.warn("동기화 로그인 실패:", e); fsReady = null; return false;
+          });
+        } catch (e) { console.warn("Firebase 초기화 실패:", e); return Promise.resolve(false); }
+      }
+      return fsReady;
+    }
+    const remoteKey = k => k.replace(/[^A-Za-z0-9_-]/g, "_");
+    const docRef = () => fsDb.collection("wrongCardsSync").doc(getSyncCode());
+    const knownKeys = () => [...sourceEl.options].map(o => "speack-bookmark:" + o.value);
+
+    async function pushBookmark(k) {
+      try {
+        if (!(await fsSignIn())) return false;
+        await docRef().set({ [SYNC_FIELD]: { bookmarks: { [remoteKey(k)]: getRaw(k) } } }, { merge: true });
+        return true;
+      } catch (e) { console.warn("책갈피 올리기 실패:", e); return false; }
+    }
+
+    // 클라우드와 비교해 더 최근 것을 쓴다. 지금 보고 있는 글의 책갈피가 바뀌었으면 true
+    async function pullBookmarks() {
+      try {
+        if (!(await fsSignIn())) return false;
+        const snap = await docRef().get();
+        const remote = ((snap.exists && snap.data()) || {})[SYNC_FIELD]?.bookmarks || {};
+        let changedCurrent = false;
+        const toPush = {};
+        for (const k of knownKeys()) {
+          const l = getRaw(k), r = remote[remoteKey(k)];
+          if (r && (r.ts || 0) > (l?.ts || 0)) { setRaw(k, r); if (k === bmKey()) changedCurrent = true; }
+          else if (l && (l.ts || 0) > (r?.ts || 0)) toPush[remoteKey(k)] = l; // 오프라인일 때 저장한 것 올리기
+        }
+        if (Object.keys(toPush).length) await docRef().set({ [SYNC_FIELD]: { bookmarks: toPush } }, { merge: true });
+        return changedCurrent;
+      } catch (e) { console.warn("책갈피 받기 실패:", e); return false; }
+    }
+
+    let userMoved = false; // 들어온 뒤 직접 단어를 골랐으면 화면을 멋대로 옮기지 않는다
+    document.addEventListener("click", e => { if (e.target.closest(".w")) userMoved = true; }, true);
+    async function syncAndApply() {
+      if (await pullBookmarks()) applyBookmark(!userMoved);
+    }
+    sourceEl.addEventListener("change", () => { userMoved = false; });
+    document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible") syncAndApply(); });
+
+    loadSource().then(syncAndApply);
   </script>
 </body>
 </html>
