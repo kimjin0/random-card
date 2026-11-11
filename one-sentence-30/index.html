@@ -97,6 +97,16 @@
     .answer input:focus { outline: none; border-color: var(--accent); }
     button.mic.on { background: var(--danger); border-color: var(--danger); color: #1a0b0b; }
 
+    /* 단어 고르기 */
+    .tiles { display: flex; flex-wrap: wrap; gap: .45rem; margin-top: .8rem; }
+    .tiles button.tile {
+      font-size: 1.05rem; padding: .5rem .75rem; border-radius: 10px;
+      background: var(--surface2); border-color: var(--border);
+    }
+    .tiles button.tile.used { visibility: hidden; }
+    .tile-tools { display: flex; gap: .4rem; margin-top: .5rem; }
+    .tile-tools button { font-size: .85rem; padding: .35rem .7rem; }
+
     .result { margin-top: 1.1rem; padding-top: 1rem; border-top: 1px dashed var(--border); }
     .verdict { font-weight: 600; margin-bottom: .4rem; }
     .verdict.ok { color: var(--success); }
@@ -177,7 +187,7 @@
     }
     function clearSession() { store.set(KEY.session, { cleared: true, ts: Date.now() }); }
 
-    let settings = Object.assign({ rate: 0.9, autoSpeak: true, autoCheck: true, readKo: false },
+    let settings = Object.assign({ rate: 0.9, autoSpeak: true, autoCheck: true, readKo: false, count: 10, tiles: true, traps: true },
       store.get(KEY.settings, {}));
     const saveSettings = () => store.set(KEY.settings, settings);
 
@@ -398,6 +408,7 @@
       if (canSpeak) speechSynthesis.cancel();
       heardFinal = [];
       $("#ans").value = "";
+      $("#ans").dispatchEvent(new Event("input")); // 단어 조각 선택도 초기화
       wantListen = true;
       startRec();
     }
@@ -502,8 +513,10 @@
     // state: { id, queue:[{i, retry}], pos, first:{i:mark}, retried:{i:mark}, checked, auto }
     let state = null;
 
+    // 하루 연습 개수: 10개 = 1~2단계(주어·시제), 20개 = 1~4단계, 30개 = 전체
     function newSession(id) {
-      return { id, queue: Array.from({ length: 30 }, (_, i) => ({ i, retry: false })), pos: 0, first: {}, retried: {}, checked: false };
+      const n = [10, 20, 30].includes(settings.count) ? settings.count : 30;
+      return { id, n, queue: Array.from({ length: n }, (_, i) => ({ i, retry: false })), pos: 0, first: {}, retried: {}, checked: false };
     }
     function saveSession() {
       if (!state) return;
@@ -585,6 +598,15 @@
               ${[0.7, 0.8, 0.9, 1, 1.1].map((r) => `<option value="${r}" ${settings.rate == r ? "selected" : ""}>${r}x</option>`).join("")}
             </select>
           </div>
+          <div class="set-row"><span>하루 연습 개수</span>
+            <select id="count">
+              <option value="10" ${settings.count == 10 ? "selected" : ""}>10개 · 쉬움 (주어·시제)</option>
+              <option value="20" ${settings.count == 20 ? "selected" : ""}>20개 · 보통 (+부정·의문, 동사)</option>
+              <option value="30" ${settings.count == 30 ? "selected" : ""}>30개 · 전체</option>
+            </select>
+          </div>
+          <label class="set-row"><span>단어 조각 눌러서 답하기</span><input type="checkbox" id="tilesOn" ${settings.tiles ? "checked" : ""}></label>
+          <label class="set-row"><span>함정 단어 섞기 (조각 3개 추가)</span><input type="checkbox" id="trapsOn" ${settings.traps ? "checked" : ""}></label>
           <label class="set-row"><span>정답을 보면 바로 읽어 주기</span><input type="checkbox" id="autoSpeak" ${settings.autoSpeak ? "checked" : ""}></label>
           <label class="set-row"><span>말하기가 끝나면 바로 확인</span><input type="checkbox" id="autoCheck" ${settings.autoCheck ? "checked" : ""}></label>
           ${SR ? "" : `<div class="set-row muted">이 브라우저는 음성 입력을 지원하지 않아요. (크롬 권장)</div>`}
@@ -615,6 +637,9 @@
       $("#rate").onchange = (e) => { settings.rate = Number(e.target.value); saveSettings(); speakNow(s.en); };
       $("#autoSpeak").onchange = (e) => { settings.autoSpeak = e.target.checked; saveSettings(); };
       $("#autoCheck").onchange = (e) => { settings.autoCheck = e.target.checked; saveSettings(); };
+      $("#count").onchange = (e) => { settings.count = Number(e.target.value); saveSettings(); }; // 다음에 시작하는 연습부터 적용
+      $("#tilesOn").onchange = (e) => { settings.tiles = e.target.checked; saveSettings(); };
+      $("#trapsOn").onchange = (e) => { settings.traps = e.target.checked; saveSettings(); };
       $("#saveSync").onclick = () => {
         setSyncCode($("#syncCode").value);
         syncNow().then(() => {
@@ -623,6 +648,90 @@
         });
       };
       show("home");
+    }
+
+    /* ---------- 단어 고르기 ----------
+     * 정답 문장을 단어 조각으로 섞어 보여 주고, 누른 순서대로 답칸에 넣는다.
+     * 말하기·직접 입력도 그대로 쓸 수 있다. */
+    let picked = []; // 고른 조각 번호 순서
+    // 함정 단어: 정답 단어와 헷갈리는 짝(시제·인칭·전치사 등)을 먼저, 모자라면 흔한 단어로 채운다
+    const TRAP_PAIRS = {
+      was: ["were", "is"], were: ["was", "are"], is: ["are", "was"], are: ["is", "were"], am: ["is", "are"],
+      i: ["me", "my"], me: ["I", "my"], my: ["me", "I"], you: ["your"], your: ["you"],
+      he: ["him", "his"], him: ["he", "his"], his: ["he", "him"], she: ["her"], her: ["she"],
+      we: ["us", "our"], us: ["we", "our"], they: ["them", "their"], them: ["they", "their"],
+      it: ["its"], to: ["for", "at"], for: ["to"], at: ["in", "on"], in: ["on", "at"], on: ["in", "at"],
+      but: ["and", "so"], and: ["but"], so: ["but"], if: ["when"], when: ["if"],
+      do: ["does", "did"], does: ["do", "did"], did: ["do", "does"], have: ["has", "had"], has: ["have"], had: ["have"],
+      will: ["would"], would: ["will"], can: ["could"], could: ["can"], should: ["would"],
+      going: ["go", "gone"], forgot: ["forget"], took: ["take", "taken"], take: ["took"], made: ["make"], make: ["made"],
+      a: ["an", "the"], an: ["a"], the: ["a"], not: ["no"], "don't": ["doesn't"], "didn't": ["don't"]
+    };
+    // 동사는 실제로 있는 다른 형태만 함정으로 (아무 단어에나 -ed/-s를 붙이면 없는 단어가 생긴다)
+    const VERB_FORMS = [
+      ["call", "called", "calls"], ["check", "checked", "checks"], ["fix", "fixed", "fixes"], ["ask", "asked", "asks"],
+      ["help", "helped", "helps"], ["finish", "finished", "finishes"], ["open", "opened", "opens"], ["use", "used", "uses"],
+      ["work", "worked", "works"], ["like", "liked", "likes"], ["lock", "locked", "locks"], ["share", "shared", "shares"],
+      ["remember", "remembered", "remembers"], ["decide", "decided", "decides"], ["join", "joined", "joins"],
+      ["tell", "told", "tells"], ["buy", "bought", "buys"], ["leave", "left", "leaves"], ["send", "sent", "sends"],
+      ["say", "said", "says"], ["eat", "ate", "eaten"], ["bring", "brought", "brings"], ["go", "went", "goes"],
+      ["get", "got", "gets"], ["find", "found", "finds"], ["sit", "sat", "sits"], ["come", "came", "comes"],
+      ["know", "knew", "knows"], ["think", "thought", "thinks"], ["run", "ran", "runs"], ["make", "made", "makes"],
+      ["take", "took", "taken"], ["forget", "forgot", "forgets"], ["understand", "understood", "understands"],
+      ["back", "backed"], ["book", "booked"], ["text", "texted"], ["email", "emailed"], ["borrow", "borrowed"],
+      ["wait", "waited", "waits"], ["start", "started", "starts"], ["try", "tried", "tries"], ["hit", "hits"]
+    ];
+    for (const forms of VERB_FORMS) for (const f of forms) {
+      const others = forms.filter((x) => x !== f);
+      TRAP_PAIRS[f] = [...new Set([...(TRAP_PAIRS[f] || []), ...others])];
+    }
+    const TRAP_FILL = ["the", "is", "do", "very", "at", "will", "then", "much", "here"];
+    const TRAP_COUNT = 3;
+
+    function makeTraps(words) {
+      const has = new Set(words.map((w) => w.toLowerCase().replace(/[^a-z']/g, "")));
+      const out = [];
+      const add = (w) => {
+        const key = w.toLowerCase();
+        if (out.length < TRAP_COUNT && !has.has(key) && !out.some((x) => x.toLowerCase() === key)) out.push(w);
+      };
+      const shuffled = [...words].sort(() => Math.random() - 0.5);
+      for (const w of shuffled) {
+        const base = w.toLowerCase().replace(/[^a-z']/g, "");
+        const opts = TRAP_PAIRS[base];
+        if (opts) add(opts[Math.floor(Math.random() * opts.length)]);
+      }
+      for (const w of TRAP_FILL.sort(() => Math.random() - 0.5)) add(w);
+      return out;
+    }
+
+    function setupTiles(model) {
+      const answer = model.replace(/[.!?]+$/, "").split(/\s+/).filter(Boolean);
+      const words = settings.traps ? [...answer, ...makeTraps(answer)] : answer; // 조각 = 정답 단어 + 함정
+      let order = words.map((_, k) => k);
+      for (let t = 0; t < 6; t++) { // 정답 순서와 똑같이 섞이지 않게 몇 번 다시 섞기
+        for (let k = order.length - 1; k > 0; k--) { const j = Math.floor(Math.random() * (k + 1)); [order[k], order[j]] = [order[j], order[k]]; }
+        if (order.length < 2 || order.some((v, k) => v !== k)) break;
+      }
+      picked = [];
+      const box = $("#tiles");
+      box.innerHTML = order.map((k) => `<button class="tile" data-k="${k}">${esc(words[k])}</button>`).join("");
+      const sync = () => {
+        $("#ans").value = picked.map((k) => words[k]).join(" ");
+        for (const b of box.querySelectorAll(".tile")) b.classList.toggle("used", picked.includes(Number(b.dataset.k)));
+      };
+      for (const b of box.querySelectorAll(".tile")) {
+        b.onclick = () => {
+          if (state.checked) return;
+          picked.push(Number(b.dataset.k)); sync();
+          if (canSpeak) speakNow(words[Number(b.dataset.k)]); // 누른 단어 소리로 확인
+          if (picked.length === answer.length && settings.autoCheck) setTimeout(() => check(), 300); // 정답 길이만큼 고르면 확인
+        };
+      }
+      $("#tileBack").onclick = () => { picked.pop(); sync(); };
+      $("#tileReset").onclick = () => { picked = []; sync(); };
+      // 직접 타이핑하거나 말로 답하면 조각 상태는 처음으로
+      $("#ans").addEventListener("input", () => { picked = []; for (const b of box.querySelectorAll(".tile")) b.classList.remove("used"); });
     }
 
     /* ---------- 연습 ---------- */
@@ -660,6 +769,8 @@
               placeholder="${isFree(item.i) ? "직접 만들어 말해 보세요" : "영어로 말하거나 입력하세요"}" />
             ${SR ? `<button class="icon mic" id="mic" title="말로 답하기">🎤</button>` : ""}
           </div>
+          ${settings.tiles ? `<div id="tileBox"><div class="tiles" id="tiles"></div>
+            <div class="tile-tools"><button class="ghost" id="tileBack">⌫ 하나 지우기</button><button class="ghost" id="tileReset">↺ 다시 고르기</button></div></div>` : ""}
           <div class="row mt" id="pre">
             <button class="primary" id="check">확인</button>
             <button class="ghost" id="skip">모르겠어요</button>
@@ -671,6 +782,7 @@
       $("#check").onclick = () => check();
       $("#skip").onclick = () => { $("#ans").value = ""; check(); };
       if ($("#mic")) $("#mic").onclick = toggleMic;
+      if (settings.tiles) setupTiles(s.drills[item.i][1]);
       $("#ans").addEventListener("keydown", (e) => {
         if (e.key === "Enter" && !e.isComposing) { e.preventDefault(); check(); }
       });
@@ -703,6 +815,7 @@
       $("#ans").readOnly = true;
       $("#ans").blur();
       $("#pre").hidden = true;
+      if ($("#tileBox")) $("#tileBox").hidden = true;
       $("#result").innerHTML = `
         <div class="result">
           ${verdict}
@@ -747,8 +860,9 @@
     /* ---------- 완료 ---------- */
     function finish() {
       const s = byId(state.id);
-      const marks = Array.from({ length: 30 }, (_, i) => state.first[i] || "no");
-      const score = Math.round((marks.reduce((t, m) => t + MARKS[m].score, 0) / 30) * 100);
+      const n = state.n || 30;
+      const marks = Array.from({ length: n }, (_, i) => state.first[i] || "no");
+      const score = Math.round((marks.reduce((t, m) => t + MARKS[m].score, 0) / n) * 100);
       const prog = store.get(KEY.progress, {});
       const p = prog[s.id] || { count: 0, bestScore: 0 };
       prog[s.id] = { count: p.count + 1, lastDate: ymd(), lastScore: score, bestScore: Math.max(p.bestScore || 0, score), ts: Date.now() };
@@ -768,7 +882,8 @@
     function renderDone({ s, marks, retried, score }) {
       const count = (k) => marks.filter((m) => m === k).length;
       const fixed = Object.values(retried).filter((m) => m !== "no").length;
-      const list = [[s.ko, s.en], ...s.drills.map((d) => [d[0], d[1]])];
+      const list = [[s.ko, s.en], ...s.drills.slice(0, marks.length).map((d) => [d[0], d[1]])];
+      const playLabel = `▶ ${list.length}문장 전체 듣기`;
 
       $("#done").innerHTML = `
         <div class="card">
@@ -787,7 +902,7 @@
 
         <div class="player">
           <div class="row">
-            <button id="play">▶ 30문장 전체 듣기</button>
+            <button id="play">${playLabel}</button>
             <label class="small muted row" style="gap:.3rem"><input type="checkbox" id="readKo" ${settings.readKo ? "checked" : ""}> 한국어도 읽기</label>
           </div>
         </div>
@@ -807,7 +922,7 @@
         playing = false;
         if (canSpeak) speechSynthesis.cancel();
         items.forEach((li) => li.classList.remove("playing"));
-        $("#play").textContent = "▶ 30문장 전체 듣기";
+        $("#play").textContent = playLabel;
       };
       const playFrom = (n) => {
         if (!playing || n >= list.length) return stop();
